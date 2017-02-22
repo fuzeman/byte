@@ -178,7 +178,8 @@ class ModelMeta(type):
 
             for key, prop in properties.__all__.items():
                 if prop.relation:
-                    slots.add(key + '_id')
+                    slots.add(key + '_id')  # Identifier property
+                    slots.add('_RelationProperty_' + key)  # Resolution cache
                 else:
                     slots.add(key)
 

@@ -97,7 +97,11 @@ class Property(object):
 
     @property
     def relation(self):
-        """Retrieve related model property."""
+        """
+        Retrieve related model property.
+        
+        :rtype: byte.property.Property
+        """
         return self._relation
 
     def bind(self, model, key):
@@ -266,6 +270,16 @@ class RelationProperty(Property):
 
         self.prop = prop
 
+    @property
+    def cache_key(self):
+        return '_RelationProperty_%s' % self.key
+
+    def get_cache(self, obj):
+        return getattr(obj, self.cache_key, None)
+
+    def set_cache(self, obj, value):
+        setattr(obj, self.cache_key, value)
+
     def __get__(self, obj, type=None):
         """
         Retrieve related item.
@@ -279,15 +293,28 @@ class RelationProperty(Property):
         :return: Related item
         :rtype: byte.model.Model
         """
+        value = self.get_cache(obj)
+
+        if value:
+            return value
+
+        # Retrieve relation key
         key = self.prop.get(obj)
 
         if key is None:
             return None
 
+        # Ensure collection exists
         if not self.value_type.Objects:
             raise ValueError("No collection available for '%s'" % (self.value_type.__name__,))
 
-        return self.value_type.Objects.get(key)
+        # Retrieve item from collection
+        value = self.value_type.Objects.get(key)
+
+        # Cache relation value
+        self.set_cache(obj, value)
+
+        return value
 
     def __set__(self, obj, value):
         """Update related item.
@@ -302,4 +329,8 @@ class RelationProperty(Property):
             self.prop.set(obj, value)
             return
 
+        # Update id property
         self.prop.set(obj, self.relation.get(value))
+
+        # Cache relation value
+        self.set_cache(obj, value)
