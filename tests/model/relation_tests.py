@@ -8,20 +8,20 @@ def test_simple_dynamic():
     class Artist(Model):
         id = Property(int, primary_key=True)
 
-        name = Property(str, max_length=120)
+        name = Property(str)
 
     class Album(Model):
         id = Property(int, primary_key=True)
         artist = Property(Artist)
 
-        title = Property(str, max_length=160)
+        title = Property(str)
 
     class Track(Model):
         id = Property(int, primary_key=True)
         artist = Property(Artist)
         album = Property(Album)
 
-        name = Property(str, max_length=200)
+        name = Property(str)
 
     # Artist
     artist = Artist.create(
