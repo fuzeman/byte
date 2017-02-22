@@ -306,9 +306,16 @@ class Model(object):
 
     @classmethod
     def create(cls, **kwargs):
-        """Create model item and validate provided properties."""
+        """Create model item, validate provided properties and save it to the collection (if defined)."""
+        item = cls(**kwargs)
+
         # TODO Validate values against property types
-        return cls(**kwargs)
+
+        # Save item to collection (if defined)
+        if cls.Options.collection:
+            item.save()
+
+        return item
 
     @classmethod
     def from_plain(cls, data, strict=True, translate=False):
