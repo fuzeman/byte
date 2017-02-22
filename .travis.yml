@@ -10,6 +10,7 @@ python:
 install:
   - pip install coveralls
   - pip install tox-travis
+  - pip install pyOpenSSL>=16.2.0
 script:
   tox
 after_success:
