@@ -1,0 +1,9 @@
+/.cache
+/.tox
+/htmlcov
+
+/.coverage
+
+*.egg-info
+*.iml
+*.pyc
