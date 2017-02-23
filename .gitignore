@@ -1,10 +1,9 @@
 /.cache
+/.coverage
 /.tox
 /build
 /dist
 /htmlcov
-
-/.coverage
 
 *.egg-info
 *.iml
