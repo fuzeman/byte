@@ -137,13 +137,9 @@ class ModelProperties(object):
             if key.startswith('_'):
                 continue
 
-            # Retrieve value
-            if type(namespace) is dict:
-                value = namespace[key]
-            else:
-                value = getattr(namespace, key)
+            # Retrieve item value
+            value = cls.__get_namespace_value(namespace, key)
 
-            # Ensure item is a property
             if not value or not isinstance(value, Property):
                 continue
 
@@ -176,6 +172,13 @@ class ModelProperties(object):
             return list(namespace.keys())
 
         return dir(namespace)
+
+    @staticmethod
+    def __get_namespace_value(namespace, key):
+        if type(namespace) is dict:
+            return namespace[key]
+
+        return getattr(namespace, key)
 
 
 class ModelMeta(type):
