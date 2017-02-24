@@ -197,7 +197,7 @@ class ModelMeta(type):
         :param namespace: Class namespace
         :type namespace: dict
         """
-        if not bases or bases[0] is object:
+        if not mcs.__is_model(name, bases, namespace):
             return super(ModelMeta, mcs).__new__(mcs, name, bases, namespace)
 
         internal = namespace['Internal'] = ModelInternal()
@@ -226,6 +226,23 @@ class ModelMeta(type):
         mcs.__bind(cls, internal, properties, collection)
 
         return cls
+
+    @staticmethod
+    def __is_model(name, bases=None, namespace=None):
+        # Ignore invalid classes
+        if not bases or not namespace or bases[0] is object:
+            return False
+
+        # Ignore the `ModelMixin` class
+        if name == 'ModelMixin' and namespace.get('__module__') == 'byte.model':
+            return False
+
+        # Ignore mixin classes
+        if bases[0].__name__ == 'ModelMixin' and bases[0].__module__ == 'byte.model':
+            return False
+
+        # Model class matched
+        return True
 
     @staticmethod
     def __get_slots(namespace, properties):
@@ -465,3 +482,7 @@ class Model(object):
             )
 
         return '<%s>' % class_name
+
+
+class ModelMixin(Model):
+    pass
