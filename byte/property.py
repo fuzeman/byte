@@ -10,6 +10,7 @@ from collections import namedtuple
 from datetime import datetime
 from decimal import Decimal
 import arrow
+import inspect
 
 
 Translation = namedtuple('Translation', ['encode', 'decode'])
@@ -77,18 +78,9 @@ class Property(object):
         self.model = None
         self.key = None
 
-        # Determine if the property is a model relation
+        # Resolve relation property (if `value_type` is a model)
         if self.value_type in Registry.models:
-            if self.by is not None:
-                if self.by not in self.value_type.Internal.properties_by_key:
-                    raise ValueError("Relation '%s' has no '%s' property" % (self.value_type.__name__, self.by))
-
-                self._relation = getattr(self.value_type.Internal.properties_by_key, self.by)
-            else:
-                if not self.value_type.Internal.primary_key:
-                    raise ValueError("Relation '%s' has no primary key" % (self.value_type.__name__,))
-
-                self._relation = self.value_type.Internal.primary_key
+            self._relation = self.__get_relation()
 
     @property
     def name(self):
@@ -164,10 +156,7 @@ class Property(object):
             return None
 
         if translate:
-            if self.value_type not in TRANSLATIONS:
-                return value
-
-            return TRANSLATIONS[self.value_type].encode(value)
+            return self.__translate_value('encode', value)
 
         return value
 
@@ -190,10 +179,7 @@ class Property(object):
             return value
 
         if translate:
-            if self.value_type not in TRANSLATIONS:
-                return value
-
-            return TRANSLATIONS[self.value_type].decode(value)
+            return self.__translate_value('decode', value)
 
         return value
 
@@ -226,6 +212,38 @@ class Property(object):
             return isinstance(value, string_types)
 
         return isinstance(value, self.value_type)
+
+    def __get_relation(self):
+        if self.by is None:
+            # Use relation primary key
+            if not self.value_type.Internal.primary_key:
+                raise ValueError("Relation '%s' has no primary key" % (self.value_type.__name__,))
+
+            return self.value_type.Internal.primary_key
+
+        # Find matching property in relation
+        if self.by not in self.value_type.Internal.properties_by_key:
+            raise ValueError("Relation '%s' has no '%s' property" % (self.value_type.__name__, self.by))
+
+        return getattr(self.value_type.Internal.properties_by_key, self.by)
+
+    def __translate_value(self, mode, value):
+        translation = TRANSLATIONS.get(self.value_type)
+
+        if not translation:
+            return value
+
+        # Retrieve translation function
+        if not hasattr(translation, mode):
+            raise Exception("Unknown translation mode '%s' for %r" % (mode, self.value_type))
+
+        func = getattr(translation, mode)
+
+        if not inspect.isfunction(func):
+            raise Exception("Invalid translation function '%s' for %r" % (mode, self.value_type))
+
+        # Translate value
+        return getattr(translation, mode).decode(value)
 
     def __repr__(self):
         """Retrieve string representation of model property."""
