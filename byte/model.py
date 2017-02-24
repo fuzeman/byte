@@ -132,14 +132,8 @@ class ModelProperties(object):
         if not namespace:
             return
 
-        # Retrieve item keys
-        if type(namespace) is dict:
-            keys = namespace.keys()
-        else:
-            keys = dir(namespace)
-
         # Iterate over items in `namespace`
-        for key in keys:
+        for key in cls.__get_namespace_keys(namespace):
             if key.startswith('_'):
                 continue
 
@@ -153,15 +147,35 @@ class ModelProperties(object):
             if not value or not isinstance(value, Property):
                 continue
 
-            # Remove property (if enabled)
-            if remove:
-                if type(namespace) is dict:
-                    del namespace[key]
-                else:
-                    delattr(namespace, key)
-
             # Yield property
-            yield key, value
+            yield cls.__extract_property(
+                key, value,
+                namespace=namespace,
+                remove=remove
+            )
+
+    @staticmethod
+    def __extract_property(key, value, namespace=None, remove=False):
+        if not remove:
+            return key, value
+
+        # Remove property from `namespace` (if enabled)
+        if namespace is None:
+            raise ValueError('Missing required "namespace" parameter (when "remove" has been enabled)')
+
+        if type(namespace) is dict:
+            del namespace[key]
+        else:
+            delattr(namespace, key)
+
+        return key, value
+
+    @staticmethod
+    def __get_namespace_keys(namespace):
+        if type(namespace) is dict:
+            return list(namespace.keys())
+
+        return dir(namespace)
 
 
 class ModelMeta(type):
