@@ -243,7 +243,7 @@ class Property(object):
             raise Exception("Invalid translation function '%s' for %r" % (mode, self.value_type))
 
         # Translate value
-        return getattr(translation, mode).decode(value)
+        return getattr(translation, mode)(value)
 
     def __repr__(self):
         """Retrieve string representation of model property."""
