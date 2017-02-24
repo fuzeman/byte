@@ -111,40 +111,57 @@ class ModelProperties(object):
         """
         properties = {}
 
-        # Extract properties from `Properties` child class
-        if 'Properties' in namespace:
-            for key in dir(namespace['Properties']):
-                if key.startswith('_'):
-                    continue
-
-                value = getattr(namespace['Properties'])
-
-                if not isinstance(value, Property):
-                    continue
-
-                # Store property in dictionary
-                properties[key] = getattr(namespace['Properties'], key)
-
-        # Extract properties from model
-        for key in list(namespace.keys()):
-            if key.startswith('_'):
-                continue
-
+        for key, prop in cls.__extract(namespace):
             if key in properties:
                 raise ValueError("Duplicate property '%s' defined on model" % (key,))
 
-            value = namespace[key]
-
-            if not isinstance(value, Property):
-                continue
-
-            # Store property in dictionary
-            properties[key] = value
-
-            # Delete attribute from model
-            del namespace[key]
+            properties[key] = prop
 
         return cls(properties)
+
+    @classmethod
+    def __extract(cls, namespace):
+        for key, value in cls.__extract_properties(namespace.get('Properties')):
+            yield key, value
+
+        for key, value in cls.__extract_properties(namespace, remove=True):
+            yield key, value
+
+    @classmethod
+    def __extract_properties(cls, namespace, remove=True):
+        if not namespace:
+            return
+
+        # Retrieve item keys
+        if type(namespace) is dict:
+            keys = namespace.keys()
+        else:
+            keys = dir(namespace)
+
+        # Iterate over items in `namespace`
+        for key in keys:
+            if key.startswith('_'):
+                continue
+
+            # Retrieve value
+            if type(namespace) is dict:
+                value = namespace[key]
+            else:
+                value = getattr(namespace, key)
+
+            # Ensure item is a property
+            if not value or not isinstance(value, Property):
+                continue
+
+            # Remove property (if enabled)
+            if remove:
+                if type(namespace) is dict:
+                    del namespace[key]
+                else:
+                    delattr(namespace, key)
+
+            # Yield property
+            yield key, value
 
 
 class ModelMeta(type):
@@ -170,20 +187,9 @@ class ModelMeta(type):
         options = namespace['Options'] = ModelOptions.parse(namespace.pop('Options', None))
         properties = namespace['Properties'] = ModelProperties.extract(namespace)
 
-        # Initialize `__slots__` (if enabled)
+        # Define `__slots__` (if enabled)
         if options.slots:
-            slots = set(namespace.get('slots', []) + [
-                '__collection__'
-            ])
-
-            for key, prop in properties.__all__.items():
-                if prop.relation:
-                    slots.add(key + '_id')  # Identifier property
-                    slots.add('_RelationProperty_' + key)  # Resolution cache
-                else:
-                    slots.add(key)
-
-            namespace['__slots__'] = tuple(slots)
+            namespace['__slots__'] = mcs.__get_slots(namespace, properties)
 
         # Define `objects` on class
         collection = None
@@ -199,16 +205,57 @@ class ModelMeta(type):
         # Construct model
         cls = type.__new__(mcs, name, bases, namespace)
 
-        # Register model
-        Registry.register_model(cls)
-
         # Bind model (collection, properties, etc..)
         mcs.__bind(cls, internal, properties, collection)
 
         return cls
 
+    @staticmethod
+    def __get_slots(namespace, properties):
+        slots = set(namespace.get('slots', []) + [
+            '__collection__'
+        ])
+
+        for key, prop in properties.__all__.items():
+            if prop.relation:
+                slots.add(key + '_id')  # Identifier property
+                slots.add('_RelationProperty_' + key)  # Resolution cache
+            else:
+                slots.add(key)
+
+        return tuple(slots)
+
+    @staticmethod
+    def __create_init(bases, namespace, properties):
+        original = namespace.get('__init__')
+
+        def __init__(self, *args, **kwargs):
+            self.__collection__ = kwargs.pop('_collection', None)
+
+            # Set initial property values
+            for key, prop in properties.__all__.items():
+                # Resolve default value
+                if inspect.isfunction(prop.default):
+                    value = prop.default()
+                else:
+                    value = prop.default
+
+                # Set default value for property
+                setattr(self, key, kwargs.get(key, value))
+
+            # Call original or super `__init__` method
+            if original:
+                original(self, *args, **kwargs)
+            elif bases[0] is not object:
+                bases[0].__init__(self, *args, **kwargs)
+
+        return __init__
+
     @classmethod
     def __bind(mcs, cls, internal, properties, collection):
+        # Register model
+        Registry.register_model(cls)
+
         # Bind collection to model
         if collection:
             collection.bind(cls)
@@ -265,32 +312,6 @@ class ModelMeta(type):
         # Delete original property
         delattr(properties, key)
         del properties.__all__[key]
-
-    @staticmethod
-    def __create_init(bases, namespace, properties):
-        original = namespace.get('__init__')
-
-        def __init__(self, *args, **kwargs):
-            self.__collection__ = kwargs.pop('_collection', None)
-
-            # Set initial property values
-            for key, prop in properties.__all__.items():
-                # Resolve default value
-                if inspect.isfunction(prop.default):
-                    value = prop.default()
-                else:
-                    value = prop.default
-
-                # Set default value for property
-                setattr(self, key, kwargs.get(key, value))
-
-            # Call original or super `__init__` method
-            if original:
-                original(self, *args, **kwargs)
-            elif bases[0] is not object:
-                bases[0].__init__(self, *args, **kwargs)
-
-        return __init__
 
 
 @add_metaclass(ModelMeta)
@@ -349,20 +370,14 @@ class Model(object):
 
                 continue
 
-            # Decode value
-            try:
-                value = prop.decode(value, translate=translate)
-            except Exception as ex:
-                if strict:
-                    raise ValueError('Unable to decode value provided for property: %s - %s' % (name, ex))
+            # Decode property value
+            valid, value = cls.__decode_property(
+                prop, value,
+                strict=strict,
+                translate=translate
+            )
 
-                continue
-
-            # Validate against property type
-            if not prop.validate(value):
-                if strict:
-                    raise ValueError('Invalid value provided for property: %s' % (name,))
-
+            if not valid:
                 continue
 
             # Set property value
@@ -395,6 +410,30 @@ class Model(object):
             result[name] = prop.encode(prop.get(self), translate=translate)
 
         return result
+
+    @staticmethod
+    def __decode_property(prop, value, strict=True, translate=False):
+        # Try decode property value
+        try:
+            value = prop.decode(
+                value,
+                translate=translate
+            )
+        except Exception as ex:
+            if strict:
+                raise ValueError('Unable to decode value provided for property: %s - %s' % (prop.key, ex))
+
+            return False, None
+
+        # Validate decoded value against property
+        if not prop.validate(value):
+            if strict:
+                raise ValueError('Invalid value provided for property: %s' % (prop.key,))
+
+            return False, None
+
+        # Decoded valid property value
+        return True, value
 
     def __repr__(self):
         """Retrieve string representation of model item."""
