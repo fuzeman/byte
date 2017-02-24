@@ -150,7 +150,7 @@ class ModelProperties(object):
 class ModelMeta(type):
     """Data model metaclass."""
 
-    def __new__(self, name, bases, namespace):
+    def __new__(mcs, name, bases=None, namespace=None):
         """
         Create data model class.
 
@@ -164,7 +164,7 @@ class ModelMeta(type):
         :type namespace: dict
         """
         if not bases or bases[0] is object:
-            return super(ModelMeta, self).__new__(self, name, bases, namespace)
+            return super(ModelMeta, mcs).__new__(mcs, name, bases, namespace)
 
         internal = namespace['Internal'] = ModelInternal()
         options = namespace['Options'] = ModelOptions.parse(namespace.pop('Options', None))
@@ -194,79 +194,80 @@ class ModelMeta(type):
             namespace['Objects'] = None
 
         # Bind methods
-        namespace['__init__'] = self.create_init(bases, namespace, internal, properties)
+        namespace['__init__'] = mcs.__create_init(bases, namespace, properties)
 
-        # Construct class
-        cls = type.__new__(self, name, bases, namespace)
+        # Construct model
+        cls = type.__new__(mcs, name, bases, namespace)
 
-        # Register model class
+        # Register model
         Registry.register_model(cls)
 
+        # Bind model (collection, properties, etc..)
+        mcs.__bind(cls, internal, properties, collection)
+
+        return cls
+
+    @classmethod
+    def __bind(mcs, cls, internal, properties, collection):
         # Bind collection to model
         if collection:
             collection.bind(cls)
 
         # Bind properties to model
+        mcs.__bind_properties(cls, internal, properties)
+
+    @classmethod
+    def __bind_properties(mcs, cls, internal, properties):
         for key in list(properties.__all__.keys()):
             prop = properties.__all__[key]
 
-            # Generate relation properties
+            # Bind property
             if prop.relation:
-                prop.bind(cls, key + '_id')
+                mcs.__bind_property_relation(cls, properties, key, prop)
+            else:
+                mcs.__bind_property(cls, internal, key, prop)
 
-                p_id = Property(prop.relation.value_type)
-                p_id.bind(cls, key + '_id')
-
-                p_relation = RelationProperty(p_id, prop.value_type)
-                p_relation.bind(cls, key)
-
-                # Store relation property on object
-                setattr(cls, key, p_relation)
-
-                # Store id property on `Properties`
-                setattr(properties, key + '_id', p_id)
-                properties.__all__[key + '_id'] = p_id
-
-                # Delete relation property from `Properties
-                delattr(properties, key)
-                del properties.__all__[key]
-                continue
-
-            # Bind property to model
-            prop.bind(cls, key)
-
-            # Define primary key on `Internal` class
-            if prop.primary_key:
-                if internal.primary_key:
-                    raise ValueError('Multiple primary key properties are not permitted')
-
-                internal.primary_key = prop
-
-        # Define properties on `Internal` class
+        # Define properties dictionary on `Internal` class
         internal.properties_by_key = properties.__all__
 
-        return cls
+    @staticmethod
+    def __bind_property(cls, internal, key, prop):
+        # Bind property to model
+        prop.bind(cls, key)
+
+        # Define primary key on `Internal` class
+        if prop.primary_key:
+            if internal.primary_key:
+                raise ValueError('Multiple primary key properties are not permitted')
+
+            internal.primary_key = prop
 
     @staticmethod
-    def create_init(bases, namespace, internal, properties):
-        """
-        Create model initialization method.
+    def __bind_property_relation(cls, properties, key, prop):
+        # Bind `prop` (to ensure metadata is available)
+        prop.bind(cls, key + '_id')
 
-        :param bases: Class bases
-        :type bases: tuple
+        # Create identifier property
+        p_id = Property(prop.relation.value_type)
+        p_id.bind(cls, key + '_id')
 
-        :param namespace: Class namespace
-        :type namespace: dict
+        # Create resolve property
+        p_resolve = RelationProperty(p_id, prop.value_type)
+        p_resolve.bind(cls, key)
 
-        :param internal: Model internal attributes
-        :type internal: byte.model.ModelInternal
+        # Store resolve property on model
+        setattr(cls, key, p_resolve)
 
-        :param properties: Model properties
-        :type properties: byte.model.ModelProperties
+        # Store identifier property on model `Properties`
+        setattr(properties, key + '_id', p_id)
+        properties.__all__[key + '_id'] = p_id
 
-        :return: Initialization function
-        :rtype: function
-        """
+        # Delete original property
+        delattr(properties, key)
+        del properties.__all__[key]
+
+    @staticmethod
+    def __create_init(bases, namespace, properties):
         original = namespace.get('__init__')
 
         def __init__(self, *args, **kwargs):
