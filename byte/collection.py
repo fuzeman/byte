@@ -2,6 +2,15 @@
 
 """Contains the collection structure for the storage of keyed items."""
 
+from byte.model import Model
+from byte.compat import string_types
+from six.moves.urllib.parse import urlparse
+import inspect
+import logging
+
+log = logging.getLogger(__name__)
+
+
 class CollectionError(Exception):
     pass
 
@@ -25,20 +34,41 @@ class CollectionValidationError(CollectionError):
 class Collection(object):
     """Collection for the storage of keyed items."""
 
-    def __init__(self, model=None):
+    def __init__(self, model_or_uri=None, uri=None, model=None, load=True):
         """
         Create keyed item collection.
 
-        :param model: Collection data model
-        :type model: byte.model.Model
-        """
-        self.model = model
+        :param uri: Data Source URI
+        :type uri: str
 
+        :param model: Collection data model
+        :type model: class
+        """
+        self.model = None
+        self.uri = None
+
+        # Parse dynamic parameter
+        if model_or_uri:
+            if inspect.isclass(model_or_uri) and issubclass(model_or_uri, Model):
+                self.model = model_or_uri
+            elif isinstance(model_or_uri, string_types):
+                self.uri = urlparse(model_or_uri)
+            else:
+                raise ValueError('Unknown initialization parameter value (expected subclass of Model, or string)')
+
+        # Parse keyword parameters
+        if model:
+            self.model = model
+
+        if uri:
+            self.uri = urlparse(uri)
+
+        # Instance properties
         self.items = {}
 
         # Load collection (if model provided)
-        if model:
-            self.reload()
+        if load and self.model and not self.load():
+            log.warn("Unable to load collection for '%s'" % (self.model.__name__,))
 
     @property
     def internal(self):
@@ -67,15 +97,95 @@ class Collection(object):
             raise CollectionModelError('Invalid value provided for the "model" parameter (expected Model subclass)')
 
         self.model = model
-        self.reload()
 
-    def reload(self):
+        # Load collection
+        if self.model and not self.load():
+            log.warn("Unable to load collection for '%s'" % (self.model.__name__,))
+
+    def import_items(self, values, translate=False):
+        """
+        Import dictionary of items into collection.
+        
+        :param values: Items
+        :type values: dict or list or tuple
+        
+        :param translate: Enable item property value translation
+        :type translate: bool
+        
+        :return: Keys of imported items
+        :rtype: list
+        """
+        if not values:
+            return
+
+        # Ensure primary key exists
+        if not self.internal.primary_key:
+            raise CollectionModelError('Model has no primary key')
+
+        # Resolve `values` parameter
+        if type(values) is dict:
+            values = values.values()
+
+        # Import items
+        for value in values:
+            pk, item = self.import_item(
+                value,
+                translate=translate
+            )
+
+            if not pk:
+                continue
+
+            yield pk
+
+    def import_item(self, value, translate=False):
+        """
+        Import item into collection.
+        
+        :param key: Item Key
+        :type key: object
+        
+        :param value: Item Value
+        :type value: dict
+        
+        :param translate: Enable item property value translation
+        :type translate: bool
+        
+        :return: `True` if item was imported, `False` if the item couldn't be
+                 imported or has already been imported.
+        :rtype: bool
+        """
+        # Parse item from plain dictionary
+        item = self.model.from_plain(
+            value,
+            translate=translate
+        )
+
+        if not item:
+            raise CollectionParseError('No item could be decoded')
+
+        # Ensure primary key exists
+        if not self.internal.primary_key:
+            raise CollectionModelError('Model has no primary key')
+
+        # Retrieve primary key
+        pk = self.internal.primary_key.get(item)
+
+        if pk is None:
+            raise CollectionParseError('Invalid value for primary key: %r' % (pk,))
+
+        # Store item in collection
+        self.items[pk] = item
+
+        return pk, item
+
+    def load(self):
         """Reload collection."""
-        if not self.model:
-            return False
+        return False
 
-        # TODO Load collection
-        return True
+    def save(self):
+        """Save collection."""
+        return False
 
     # region Collection methods
 
@@ -202,3 +312,8 @@ class Collection(object):
         raise NotImplementedError
 
     # endregion
+
+
+# noinspection PyAbstractClass
+class CollectionMixin(Collection):
+    pass
