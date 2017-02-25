@@ -2,8 +2,9 @@
 
 """Contains the collection structure for the storage of keyed items."""
 
-from byte.model import Model
 from byte.compat import string_types
+from byte.model import Model
+
 from six.moves.urllib.parse import urlparse
 import inspect
 import logging
@@ -12,23 +13,23 @@ log = logging.getLogger(__name__)
 
 
 class CollectionError(Exception):
-    pass
+    """Generic collection error."""
 
 
 class CollectionLoadError(CollectionError):
-    pass
+    """Collection couldn't be loaded."""
 
 
 class CollectionModelError(CollectionError):
-    pass
+    """"Collection model violation."""
 
 
 class CollectionParseError(CollectionError):
-    pass
+    """Collection parse error."""
 
 
 class CollectionValidationError(CollectionError):
-    pass
+    """Collection item violation error."""
 
 
 class Collection(object):
@@ -105,13 +106,13 @@ class Collection(object):
     def import_items(self, values, translate=False):
         """
         Import dictionary of items into collection.
-        
+
         :param values: Items
         :type values: dict or list or tuple
-        
+
         :param translate: Enable item property value translation
         :type translate: bool
-        
+
         :return: Keys of imported items
         :rtype: list
         """
@@ -141,16 +142,13 @@ class Collection(object):
     def import_item(self, value, translate=False):
         """
         Import item into collection.
-        
-        :param key: Item Key
-        :type key: object
-        
+
         :param value: Item Value
         :type value: dict
-        
+
         :param translate: Enable item property value translation
         :type translate: bool
-        
+
         :return: `True` if item was imported, `False` if the item couldn't be
                  imported or has already been imported.
         :rtype: bool
@@ -316,4 +314,4 @@ class Collection(object):
 
 # noinspection PyAbstractClass
 class CollectionMixin(Collection):
-    pass
+    """Base class for collection mixins."""

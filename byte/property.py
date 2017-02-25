@@ -33,23 +33,23 @@ TRANSLATIONS = {
 
 
 class PropertyError(Exception):
-    pass
+    """Generic property error."""
 
 
 class UnboundPropertyError(PropertyError):
-    pass
+    """Property hasn't been bound to a model yet."""
 
 
 class PropertyRelationError(PropertyError):
-    pass
+    """Property relation violation."""
 
 
 class PropertyTranslationError(PropertyError):
-    pass
+    """Property value translation error."""
 
 
 class PropertyValidationError(PropertyError):
-    pass
+    """Property validation error."""
 
 
 class Property(object):

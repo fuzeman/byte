@@ -12,15 +12,15 @@ import inspect
 
 
 class ModelError(Exception):
-    pass
+    """Generic model error."""
 
 
 class ModelParseError(ModelError):
-    pass
+    """Model parse error."""
 
 
 class ModelPropertyError(ModelError, PropertyError):
-    pass
+    """Model property violation."""
 
 
 class ModelInternal(object):
@@ -502,4 +502,4 @@ class Model(object):
 
 
 class ModelMixin(Model):
-    pass
+    """Base class for model mixins."""
