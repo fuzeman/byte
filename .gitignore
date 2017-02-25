@@ -1,5 +1,6 @@
 /.cache
 /.coverage
+/.eggs
 /.tox
 /build
 /dist
