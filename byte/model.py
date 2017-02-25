@@ -302,12 +302,12 @@ class ModelMeta(type):
         # Register model
         Registry.register_model(cls)
 
+        # Bind properties to model
+        mcs.__bind_properties(cls, internal, properties)
+
         # Bind collection to model
         if collection:
             collection.bind(cls)
-
-        # Bind properties to model
-        mcs.__bind_properties(cls, internal, properties)
 
     @classmethod
     def __bind_properties(mcs, cls, internal, properties):
