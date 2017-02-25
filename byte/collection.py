@@ -2,9 +2,9 @@
 
 """Contains the collection structure for the storage of keyed items."""
 
-from byte.compat import string_types
 from byte.model import Model
 
+from six import string_types
 from six.moves.urllib.parse import urlparse
 import inspect
 import logging

@@ -2,13 +2,13 @@
 
 """Contains the property structure."""
 
-from byte.compat import string_types
 from byte.registry import Registry
 
 from arrow import Arrow
 from collections import namedtuple
 from datetime import datetime
 from decimal import Decimal
+from six import string_types
 import arrow
 import inspect
 

@@ -4,10 +4,10 @@
 
 from __future__ import absolute_import
 
-from byte.compat import add_metaclass
 from byte.property import Property, PropertyError, RelationProperty
 from byte.registry import Registry
 
+from six import add_metaclass
 import inspect
 
 
