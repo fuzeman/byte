@@ -5,10 +5,22 @@
 from __future__ import absolute_import
 
 from byte.compat import add_metaclass
-from byte.property import Property, RelationProperty
+from byte.property import Property, PropertyError, RelationProperty
 from byte.registry import Registry
 
 import inspect
+
+
+class ModelError(Exception):
+    pass
+
+
+class ModelParseError(ModelError):
+    pass
+
+
+class ModelPropertyError(ModelError, PropertyError):
+    pass
 
 
 class ModelInternal(object):
@@ -113,7 +125,7 @@ class ModelProperties(object):
 
         for key, prop in cls.__extract(namespace):
             if key in properties:
-                raise ValueError("Duplicate property '%s' defined on model" % (key,))
+                raise ModelPropertyError("Duplicate property '%s' defined on model" % (key,))
 
             properties[key] = prop
 
@@ -319,7 +331,7 @@ class ModelMeta(type):
         # Define primary key on `Internal` class
         if prop.primary_key:
             if internal.primary_key:
-                raise ValueError('Multiple primary key properties are not permitted')
+                raise ModelPropertyError('Multiple primary key properties are not permitted')
 
             internal.primary_key = prop
 
@@ -390,8 +402,13 @@ class Model(object):
         :return: Model item
         :rtype: byte.model.Model
         """
+        # Retrieve property descriptors
         properties_by_name = cls.Internal.properties_by_name
 
+        if properties_by_name is None:
+            raise ModelParseError('No properties defined')
+
+        # Parse item from plain dictionary `data`
         obj = cls()
 
         for name, value in data.items():
@@ -400,7 +417,7 @@ class Model(object):
 
             if not prop:
                 if strict:
-                    raise ValueError('Unknown property: %s' % (name,))
+                    raise ModelParseError('Unknown property: %s' % (name,))
 
                 continue
 
@@ -424,7 +441,7 @@ class Model(object):
         collection = self.__collection__ or self.__class__.Options.collection
 
         if not collection:
-            raise Exception('Object hasn\'t been bound to any collection')
+            raise ModelError('Object hasn\'t been bound to any collection')
 
         collection.insert(self)
 
@@ -455,14 +472,14 @@ class Model(object):
             )
         except Exception as ex:
             if strict:
-                raise ValueError('Unable to decode value provided for property: %s - %s' % (prop.key, ex))
+                raise ModelParseError('Unable to decode value provided for property: %s - %s' % (prop.key, ex))
 
             return False, None
 
         # Validate decoded value against property
         if not prop.validate(value):
             if strict:
-                raise ValueError('Invalid value provided for property: %s' % (prop.key,))
+                raise ModelParseError('Invalid value provided for property: %s' % (prop.key,))
 
             return False, None
 

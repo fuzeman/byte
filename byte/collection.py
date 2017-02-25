@@ -2,6 +2,25 @@
 
 """Contains the collection structure for the storage of keyed items."""
 
+class CollectionError(Exception):
+    pass
+
+
+class CollectionLoadError(CollectionError):
+    pass
+
+
+class CollectionModelError(CollectionError):
+    pass
+
+
+class CollectionParseError(CollectionError):
+    pass
+
+
+class CollectionValidationError(CollectionError):
+    pass
+
 
 class Collection(object):
     """Collection for the storage of keyed items."""
@@ -44,8 +63,8 @@ class Collection(object):
         :param model: Data model
         :type model: byte.model.Model
         """
-        if not model:
-            raise Exception('Invalid value provided for the "model" parameter')
+        if not model or not issubclass(model, Model):
+            raise CollectionModelError('Invalid value provided for the "model" parameter (expected Model subclass)')
 
         self.model = model
         self.reload()
@@ -111,19 +130,26 @@ class Collection(object):
         :rtype: byte.model.Model
         """
         if not isinstance(obj, self.model):
-            raise ValueError('Invalid object for collection')
+            raise CollectionValidationError('Invalid object for collection')
 
         if not self.internal.primary_key:
-            raise Exception('Model has no primary key')
+            raise CollectionModelError('Model has no primary key')
 
         # Retrieve primary key
         key = self.internal.primary_key.get(obj)
 
         if key is None:
-            raise ValueError('Invalid value for primary key: %r' % (key,))
+            raise CollectionValidationError('Invalid value for primary key: %r' % (key,))
+
+        # Ensure `key` isn't already in use
+        if key in self.items:
+            raise KeyError("Key '%s' is already is use" % (key,))
 
         # Insert item
         self.items[key] = obj
+
+        # Save collection
+        self.save()
 
         return obj
 

@@ -32,6 +32,26 @@ TRANSLATIONS = {
 }
 
 
+class PropertyError(Exception):
+    pass
+
+
+class UnboundPropertyError(PropertyError):
+    pass
+
+
+class PropertyRelationError(PropertyError):
+    pass
+
+
+class PropertyTranslationError(PropertyError):
+    pass
+
+
+class PropertyValidationError(PropertyError):
+    pass
+
+
 class Property(object):
     """Property structure."""
 
@@ -120,7 +140,7 @@ class Property(object):
         :rtype: object
         """
         if not self.key:
-            raise Exception('Property hasn\'t been bound yet')
+            raise UnboundPropertyError('Property hasn\'t been bound yet')
 
         return getattr(obj, self.key)
 
@@ -135,7 +155,7 @@ class Property(object):
         :type value: object
         """
         if not self.key:
-            raise Exception('Property hasn\'t been bound yet')
+            raise UnboundPropertyError('Property hasn\'t been bound yet')
 
         setattr(obj, self.key, value)
 
@@ -217,13 +237,13 @@ class Property(object):
         if self.by is None:
             # Use relation primary key
             if not self.value_type.Internal.primary_key:
-                raise ValueError("Relation '%s' has no primary key" % (self.value_type.__name__,))
+                raise PropertyRelationError("Relation '%s' has no primary key" % (self.value_type.__name__,))
 
             return self.value_type.Internal.primary_key
 
         # Find matching property in relation
         if self.by not in self.value_type.Internal.properties_by_key:
-            raise ValueError("Relation '%s' has no '%s' property" % (self.value_type.__name__, self.by))
+            raise PropertyRelationError("Relation '%s' has no '%s' property" % (self.value_type.__name__, self.by))
 
         return getattr(self.value_type.Internal.properties_by_key, self.by)
 
@@ -235,12 +255,12 @@ class Property(object):
 
         # Retrieve translation function
         if not hasattr(translation, mode):
-            raise Exception("Unknown translation mode '%s' for %r" % (mode, self.value_type))
+            raise PropertyTranslationError("Unknown translation mode '%s' for %r" % (mode, self.value_type))
 
         func = getattr(translation, mode)
 
         if not inspect.isfunction(func):
-            raise Exception("Invalid translation function '%s' for %r" % (mode, self.value_type))
+            raise PropertyTranslationError("Invalid translation function '%s' for %r" % (mode, self.value_type))
 
         # Translate value
         return getattr(translation, mode)(value)
@@ -348,7 +368,7 @@ class RelationProperty(Property):
 
         # Ensure collection exists
         if not self.value_type.Objects:
-            raise ValueError("No collection available for '%s'" % (self.value_type.__name__,))
+            raise PropertyError("No collection available for '%s'" % (self.value_type.__name__,))
 
         # Retrieve item from collection
         value = self.value_type.Objects.get(key)
