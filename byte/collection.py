@@ -109,7 +109,7 @@ class Collection(object):
 
         :param values: Items
         :type values: dict or list or tuple
-        
+
         :param generator: Enable item import generator (otherwise return list)
         :type generator: bool
 
