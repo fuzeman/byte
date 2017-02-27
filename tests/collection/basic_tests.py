@@ -3,8 +3,36 @@
 from byte import Collection, Model, Property
 
 
-def test_simple_dynamic():
-    """Test collections with dynamic models."""
+def test_import_generator():
+    """Test collection import generator."""
+    class Artist(Model):
+        class Options:
+            collection = Collection()
+
+        id = Property(int, primary_key=True)
+
+        name = Property(str)
+
+    # Import items into collections
+    assert list(Artist.Objects.import_items(
+        [{
+            'id': 1,
+            'name': 'Daft Punk'
+        }],
+        generator=True
+    )) == [
+        1
+    ]
+
+    # Fetch artist, and validate properties
+    artist = Artist.Objects.get(1)
+
+    assert artist.id == 1
+    assert artist.name == 'Daft Punk'
+
+
+def test_import_relations():
+    """Test collection import with relations."""
     class Artist(Model):
         class Options:
             collection = Collection()
@@ -32,26 +60,26 @@ def test_simple_dynamic():
 
         name = Property(str)
 
-    # Create objects
-    Artist.create(
-        id=1,
-        name='Daft Punk'
-    )
+    # Import items into collections
+    Artist.Objects.import_items([{
+        'id': 1,
+        'name': 'Daft Punk'
+    }])
 
-    Album.create(
-        id=1,
-        artist_id=1,
+    Album.Objects.import_items([{
+        'id': 1,
+        'artist_id': 1,
 
-        title='Discovery'
-    )
+        'title': 'Discovery'
+    }])
 
-    Track.create(
-        id=1,
-        artist_id=1,
-        album_id=1,
+    Track.Objects.import_items([{
+        'id': 1,
+        'artist_id': 1,
+        'album_id': 1,
 
-        name='One More Time'
-    )
+        'name': 'One More Time'
+    }])
 
     # Fetch track, and ensure relations can be resolved
     track = Track.Objects.get(1)
