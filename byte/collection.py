@@ -103,18 +103,21 @@ class Collection(object):
         if self.model and not self.load():
             log.warn("Unable to load collection for '%s'" % (self.model.__name__,))
 
-    def import_items(self, values, translate=False):
+    def import_items(self, values, generator=False, translate=False):
         """
         Import dictionary of items into collection.
 
         :param values: Items
         :type values: dict or list or tuple
+        
+        :param generator: Enable item import generator (otherwise return list)
+        :type generator: bool
 
         :param translate: Enable item property value translation
         :type translate: bool
 
         :return: Keys of imported items
-        :rtype: list
+        :rtype: generator or list
         """
         if not values:
             return
@@ -128,16 +131,23 @@ class Collection(object):
             values = values.values()
 
         # Import items
-        for value in values:
-            pk, item = self.import_item(
-                value,
-                translate=translate
-            )
+        def run():
+            for value in values:
+                pk, item = self.import_item(
+                    value,
+                    translate=translate
+                )
 
-            if not pk:
-                continue
+                if not pk:
+                    continue
 
-            yield pk
+                yield pk
+
+        # Return generator (if enabled), or resolved list
+        if generator:
+            return run()
+
+        return list(run())
 
     def import_item(self, value, translate=False):
         """
