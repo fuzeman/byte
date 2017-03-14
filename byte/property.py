@@ -2,6 +2,7 @@
 
 """Contains the property structure."""
 
+from byte.base import BaseProperty
 from byte.registry import Registry
 
 from arrow import Arrow
@@ -52,7 +53,7 @@ class PropertyValidationError(PropertyError):
     """Property validation error."""
 
 
-class Property(object):
+class Property(BaseProperty):
     """Property structure."""
 
     def __init__(self, value_type, by=None, default=None, max_length=None, name=None, nullable=False,
