@@ -3,5 +3,5 @@ class Compiler(object):
         self.collection = collection
         self.model = model
 
-    def compile(self, query):
+    def compile(self, statement):
         raise NotImplementedError
