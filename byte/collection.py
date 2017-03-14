@@ -2,10 +2,12 @@
 
 """Contains the collection structure for the storage of keyed items."""
 
+from byte.executors.base import Executor
 from byte.model import Model
+from byte.statements import DeleteStatement, InsertStatement, SelectStatement, UpdateStatement
 
 from six import string_types
-from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import parse_qsl, urlparse
 import inspect
 import logging
 
@@ -35,7 +37,7 @@ class CollectionValidationError(CollectionError):
 class Collection(object):
     """Collection for the storage of keyed items."""
 
-    def __init__(self, model_or_uri=None, uri=None, model=None, load=True):
+    def __init__(self, model_or_uri=None, uri=None, model=None, executor=None):
         """
         Create keyed item collection.
 
@@ -46,14 +48,19 @@ class Collection(object):
         :type model: class
         """
         self.model = None
+
         self.uri = None
+        self.parameters = {}
+
+        self._executor = None
+        self._executor_cls = None
 
         # Parse dynamic parameter
         if model_or_uri:
             if inspect.isclass(model_or_uri) and issubclass(model_or_uri, Model):
-                self.model = model_or_uri
+                model = model_or_uri
             elif isinstance(model_or_uri, string_types):
-                self.uri = urlparse(model_or_uri)
+                uri = model_or_uri
             else:
                 raise ValueError('Unknown initialization parameter value (expected subclass of Model, or string)')
 
@@ -62,14 +69,29 @@ class Collection(object):
             self.model = model
 
         if uri:
+            # Parse Data Source URI
             self.uri = urlparse(uri)
 
-        # Instance properties
-        self.items = {}
+            if self.uri.query:
+                self.parameters = dict(parse_qsl(self.uri.query))
 
-        # Load collection (if model provided)
-        if load and self.model and not self.load():
-            log.warn("Unable to load collection for '%s'" % (self.model.__name__,))
+            # Find matching executor class
+            self._executor_cls = self._get_executor(self.uri.scheme)
+        elif executor:
+            self._executor_cls = executor
+
+    @property
+    def executor(self):
+        if not self._executor:
+            if not self._executor_cls:
+                raise CollectionLoadError('No executor available')
+
+            self._executor = self._executor_cls(
+                self,
+                self.model
+            )
+
+        return self._executor
 
     @property
     def internal(self):
@@ -99,227 +121,113 @@ class Collection(object):
 
         self.model = model
 
-        # Load collection
-        if self.model and not self.load():
-            log.warn("Unable to load collection for '%s'" % (self.model.__name__,))
+    #region Operations
 
-    def import_items(self, values, generator=False, translate=False):
-        """
-        Import dictionary of items into collection.
+    def all(self):
+        return self.select()
 
-        :param values: Items
-        :type values: dict or list or tuple
+    def delete(self):
+        return DeleteStatement(self, self.model)
 
-        :param generator: Enable item import generator (otherwise return list)
-        :type generator: bool
-
-        :param translate: Enable item property value translation
-        :type translate: bool
-
-        :return: Keys of imported items
-        :rtype: generator or list
-        """
-        if not values:
-            return
-
-        # Ensure primary key exists
-        if not self.internal.primary_key:
-            raise CollectionModelError('Model has no primary key')
-
-        # Resolve `values` parameter
-        if type(values) is dict:
-            values = values.values()
-
-        # Import items
-        def run():
-            for value in values:
-                pk, item = self.import_item(
-                    value,
-                    translate=translate
-                )
-
-                if not pk:
-                    continue
-
-                yield pk
-
-        # Return generator (if enabled), or resolved list
-        if generator:
-            return run()
-
-        return list(run())
-
-    def import_item(self, value, translate=False):
-        """
-        Import item into collection.
-
-        :param value: Item Value
-        :type value: dict
-
-        :param translate: Enable item property value translation
-        :type translate: bool
-
-        :return: `True` if item was imported, `False` if the item couldn't be
-                 imported or has already been imported.
-        :rtype: bool
-        """
-        # Parse item from plain dictionary
-        item = self.model.from_plain(
-            value,
-            translate=translate
+    def select(self, *properties):
+        return SelectStatement(
+            self, self.model,
+            properties=properties
         )
 
-        if not item:
-            raise CollectionParseError('No item could be decoded')
+    def update(self, args, **kwargs):
+        data = kwargs
 
-        # Ensure primary key exists
-        if not self.internal.primary_key:
-            raise CollectionModelError('Model has no primary key')
+        for value in args:
+            data.update(value)
 
-        # Retrieve primary key
-        pk = self.internal.primary_key.get(item)
+        return UpdateStatement(
+            self, self.model,
+            data=data
+        )
 
-        if pk is None:
-            raise CollectionParseError('Invalid value for primary key: %r' % (pk,))
-
-        # Store item in collection
-        self.items[pk] = item
-
-        return pk, item
-
-    def load(self):
-        """Reload collection."""
-        return False
-
-    def save(self):
-        """Save collection."""
-        return False
-
-    # region Collection methods
-
-    def get(self, *args, **kwargs):
-        """
-        Retrieve object matching the provided parameters.
-
-        :param args: Primary key
-        :type args: tuple
-
-        :param kwargs: Item parameters
-        :type kwargs: dict
-
-        :return: Item
-        :rtype: byte.model.Model
-        """
-        if args:
-            if len(args) != 1:
-                raise ValueError('Only one positional argument is permitted')
-
-            if kwargs:
-                raise ValueError('Positional and keyword arguments can\'t be mixed')
-
-            return self.items.get(args[0])
-
-        raise NotImplementedError
-
-    def get_or_create(self, defaults=None, **kwargs):
-        """Try retrieve object matching the provided parameters, create the object if it doesn't exist."""
-        raise NotImplementedError
+    #region Create
 
     def create(self, **kwargs):
-        """
-        Create an object with the provided parameters, and save it to the collection.
+        if not self.model:
+            raise Exception('Collection has no model bound')
 
-        :param kwargs: Item parameters
-        :type kwargs: dict
-        """
-        obj = self.model(_collection=self, **kwargs)
-        obj.save()
+        return self.model.create(
+            _collection=self,
+            **kwargs
+        )
 
-        return obj
-
-    def insert(self, obj):
-        """
-        Insert item into the collection.
-
-        :param obj: Instance
-        :type obj: byte.model.Model
-
-        :return: Inserted instance
-        :rtype: byte.model.Model
-        """
-        if not isinstance(obj, self.model):
-            raise CollectionValidationError('Invalid object for collection')
-
-        if not self.internal.primary_key:
-            raise CollectionModelError('Model has no primary key')
-
-        # Retrieve primary key
-        key = self.internal.primary_key.get(obj)
-
-        if key is None:
-            raise CollectionValidationError('Invalid value for primary key: %r' % (key,))
-
-        # Ensure `key` isn't already in use
-        if key in self.items:
-            raise KeyError("Key '%s' is already is use" % (key,))
-
-        # Insert item
-        self.items[key] = obj
-
-        # Save collection
-        self.save()
-
-        return obj
-
-    def bulk_insert(self, objs, batch_size=None):
-        """
-        Insert multiple items in an efficient manner (usually only one query).
-
-        :param objs: Items
-        :type objs: list of byte.model.Model
-
-        :param batch_size: Query batch size
-        :type batch_size: int
-        """
+    def create_or_get(self):
         raise NotImplementedError
 
-    def update_or_create(self, defaults=None, **kwargs):
-        """
-        Update object with the given parameters, create an object if it doesn't exist.
+    #endregion
 
-        :param defaults: Item defaults
-        :type defaults: dict
+    #region Get
 
-        :param kwargs: Item parameters
-        :type kwargs: dict
-        """
+    def get(self, *query, **kwargs):
+        statement = self.select().limit(1)
+
+        if query:
+            statement = statement.where(*query)
+
+        if kwargs:
+            statement = statement.filter(**kwargs)
+
+        return statement.get()
+
+    def get_or_create(self):
         raise NotImplementedError
 
-    def count(self):
-        """Retrieve number of currently stored items."""
-        raise NotImplementedError
+    #endregion
 
-    def iterator(self):
-        """Retrieve iterator which yields all currently stored items."""
-        raise NotImplementedError
+    #region Insert
 
-    def latest(self, field_name=None):
-        """Retrieve the latest item (by the provided date `field_name`)."""
-        raise NotImplementedError
+    def insert(self, *args, **kwargs):
+        item = kwargs
 
-    def oldest(self, field_name=None):
-        """Retrieve the oldest item (by the provided date `field_name`)."""
-        raise NotImplementedError
+        for value in args:
+            item.update(value)
 
-    def first(self):
-        """Retrieve the first item, or `None` if there is no items."""
-        raise NotImplementedError
+        return InsertStatement(
+            self, self.model,
+            items=[item]
+        )
 
-    def last(self):
-        """Retrieve the last item, or `None` if there is no items."""
-        raise NotImplementedError
+    def insert_from(self, query, properties):
+        return InsertStatement(
+            self, self.model,
+            query=query,
+            properties=properties
+        )
 
-    # endregion
+    def insert_many(self, items):
+        return InsertStatement(
+            self, self.model,
+            items=items
+        )
+
+    #endregion
+
+    #endregion
+
+    def _get_executor(self, key):
+        # Import storage package for collection
+        storage = __import__('byte.executors.%s' % key, fromlist=['*'])
+
+        # Find executor
+        for key in dir(storage):
+            if key.startswith('_'):
+                continue
+
+            value = getattr(storage, key)
+
+            if not inspect.isclass(value):
+                continue
+
+            if value is not Executor and issubclass(value, Executor):
+                return value
+
+        return None
 
 
 # noinspection PyAbstractClass
