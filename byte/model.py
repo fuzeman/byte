@@ -388,8 +388,8 @@ class Model(object):
         # TODO Validate values against property types
 
         # Save item to collection (if defined)
-        if cls.Options.collection:
-            item.save()
+        if item.__collection__ or cls.Options.collection:
+            item.save(mode='insert')
 
         return item
 
@@ -444,14 +444,19 @@ class Model(object):
 
         return obj
 
-    def save(self):
+    def save(self, collection=None, mode=None, execute=True):
         """Save model item to collection."""
-        collection = self.__collection__ or self.__class__.Options.collection
+        # Retrieve collection bound to item or model
+        collection = collection or self.__collection__ or self.__class__.Options.collection
 
         if not collection:
             raise ModelError('Object hasn\'t been bound to any collection')
 
-        collection.insert(self)
+        # Save item to collection
+        if mode == 'insert':
+            return collection.insert(self.to_plain()).execute()
+
+        raise NotImplementedError
 
     def to_plain(self, translate=False):
         """
@@ -466,7 +471,12 @@ class Model(object):
         result = {}
 
         for name, prop in self.__class__.Internal.properties_by_name.items():
-            result[name] = prop.encode(prop.get(self), translate=translate)
+            value = prop.get(self)
+
+            if prop.primary_key and value is None:
+                continue
+
+            result[name] = prop.encode(value, translate=translate)
 
         return result
 
