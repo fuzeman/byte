@@ -1,9 +1,16 @@
 from byte.base import BaseExpression, BaseProperty
 
 
+def resolve_value(value):
+    if isinstance(value, Expression):
+        return value.value
+
+    return value
+
+
 class Expression(BaseExpression):
     def __init__(self, value):
-        self.value = value
+        self.value = resolve_value(value)
 
     def __eq__(self, other):
         return (
@@ -17,19 +24,19 @@ class Expression(BaseExpression):
 
 class CompoundExpression(BaseExpression):
     def __init__(self, left, right):
-        self.left = left
-        self.right = right
+        self.left = resolve_value(left)
+        self.right = resolve_value(right)
 
     def matches(self, left, right):
         raise NotImplementedError
 
     def execute(self, item):
         return self.matches(
-            self.__resolve(item, self.left),
-            self.__resolve(item, self.right)
+            self.__get_value(item, self.left),
+            self.__get_value(item, self.right)
         )
 
-    def __resolve(self, item, operand):
+    def __get_value(self, item, operand):
         if isinstance(operand, BaseProperty):
             return operand.get(item)
 
@@ -48,7 +55,7 @@ class CompoundExpression(BaseExpression):
 
 class MultiExpression(BaseExpression):
     def __init__(self, *values):
-        self.values = values
+        self.values = [resolve_value(value) for value in values]
 
     def __eq__(self, other):
         return (
