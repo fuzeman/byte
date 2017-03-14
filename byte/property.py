@@ -138,8 +138,8 @@ class Property(BaseProperty):
         """
         Retrieve property value from instance.
 
-        :param obj: Instance
-        :type obj: byte.model.Model
+        :param obj: Instance or Dictionary
+        :type obj: byte.model.Model or dict
 
         :return: Value
         :rtype: object
@@ -147,14 +147,17 @@ class Property(BaseProperty):
         if not self.key:
             raise UnboundPropertyError('Property hasn\'t been bound yet')
 
+        if type(obj) is dict:
+            return obj[self.key]
+
         return getattr(obj, self.key)
 
     def set(self, obj, value):
         """
         Update property value on instance.
 
-        :param obj: Instance
-        :type obj: byte.model.Model
+        :param obj: Instance or Dictionary
+        :type obj: byte.model.Model or dict
 
         :param value: Value
         :type value: object
@@ -162,7 +165,10 @@ class Property(BaseProperty):
         if not self.key:
             raise UnboundPropertyError('Property hasn\'t been bound yet')
 
-        setattr(obj, self.key, value)
+        if type(obj) is dict:
+            obj[self.key] = value
+        else:
+            setattr(obj, self.key, value)
 
     def encode(self, value, translate=False):
         """
