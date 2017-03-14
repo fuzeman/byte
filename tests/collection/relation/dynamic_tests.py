@@ -1,13 +1,13 @@
-"""Basic tests for collections."""
+"""Relation tests for collections."""
 
 from byte import Collection, Model, Property
 
 
-def test_simple_dynamic():
+def test_simple():
     """Test collection relations with dynamic models."""
     class Artist(Model):
         class Options:
-            collection = Collection()
+            collection = Collection('memory://')
 
         id = Property(int, primary_key=True)
 
@@ -15,7 +15,7 @@ def test_simple_dynamic():
 
     class Album(Model):
         class Options:
-            collection = Collection()
+            collection = Collection('memory://')
 
         id = Property(int, primary_key=True)
         artist = Property(Artist)
@@ -24,7 +24,7 @@ def test_simple_dynamic():
 
     class Track(Model):
         class Options:
-            collection = Collection()
+            collection = Collection('memory://')
 
         id = Property(int, primary_key=True)
         artist = Property(Artist)
