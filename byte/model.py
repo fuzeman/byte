@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import
 
-from byte.property import Property, PropertyError, RelationProperty
+from byte.property import Property, PropertyError, PropertyExpression, RelationProperty
 from byte.registry import Registry
 
 from six import add_metaclass
@@ -238,6 +238,14 @@ class ModelMeta(type):
         mcs.__bind(cls, internal, properties, collection)
 
         return cls
+
+    def __getitem__(self, key):
+        prop = self.Internal.properties_by_key.get(key)
+
+        if not prop:
+            raise KeyError(key)
+
+        return PropertyExpression(prop)
 
     @staticmethod
     def __is_model(name, bases=None, namespace=None):

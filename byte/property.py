@@ -4,6 +4,10 @@
 
 from byte.base import BaseProperty
 from byte.registry import Registry
+from byte.expressions import (
+    Expression, IsNull, In, Equal, NotEqual, LessThan,
+    LessThanOrEqual, GreaterThan, GreaterThanOrEqual
+)
 
 from arrow import Arrow
 from collections import namedtuple
@@ -397,3 +401,42 @@ class RelationProperty(Property):
 
         # Cache relation value
         self.set_cache(obj, value)
+
+
+class PropertyExpression(Expression):
+    def asc(self):
+        return (self.value, {
+            'order': 'ascending'
+        })
+
+    def desc(self):
+        return (self.value, {
+            'order': 'descending'
+        })
+
+    def __ilshift__(self, items):
+        return In(self, items)
+
+    def __irshift__(self, other):
+        if other is None:
+            return IsNull(self)
+
+        raise NotImplementedError
+
+    def __eq__(self, other):
+        return Equal(self.value, other)
+
+    def __ne__(self, other):
+        return NotEqual(self.value, other)
+
+    def __ge__(self, other):
+        return GreaterThanOrEqual(self.value, other)
+
+    def __gt__(self, other):
+        return GreaterThan(self.value, other)
+
+    def __le__(self, other):
+        return LessThanOrEqual(self.value, other)
+
+    def __lt__(self, other):
+        return LessThan(self.value, other)
