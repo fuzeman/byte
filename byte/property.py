@@ -420,10 +420,10 @@ class PropertyExpression(Expression):
             'order': 'descending'
         })
 
-    def __ilshift__(self, items):
+    def __lshift__(self, items):
         return In(self, items)
 
-    def __irshift__(self, other):
+    def __rshift__(self, other):
         if other is None:
             return IsNull(self)
 
