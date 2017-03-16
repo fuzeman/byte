@@ -1,5 +1,6 @@
 class BaseExpression(object):
-    pass
+    def execute(self, item):
+        raise NotImplementedError
 
 
 class BaseProperty(object):
