@@ -1,12 +1,20 @@
-from byte.executors.base import Executor
+from byte.executors.core.base import ExecutorPlugin
 from byte.statements import InsertStatement, SelectStatement, StatementResult
 
 from six import iteritems
 
 
-class MemoryExecutor(Executor):
+class MemoryExecutor(ExecutorPlugin):
+    key = 'memory'
+
+    class Meta(ExecutorPlugin.Meta):
+        scheme = 'memory'
+
     def __init__(self, collection, model):
-        super(MemoryExecutor, self).__init__(collection, model)
+        try:
+            super(MemoryExecutor, self).__init__(collection, model)
+        except Exception as ex:
+            raise
 
         self.items = {}
 

@@ -2,7 +2,8 @@
 
 """Contains the collection structure for the storage of keyed items."""
 
-from byte.executors.base import Executor
+from byte.core.plugin.manager import PluginManager
+from byte.executors.core.base import Executor
 from byte.model import Model
 from byte.statements import DeleteStatement, InsertStatement, SelectStatement, UpdateStatement
 
@@ -37,7 +38,7 @@ class CollectionValidationError(CollectionError):
 class Collection(object):
     """Collection for the storage of keyed items."""
 
-    def __init__(self, model_or_uri=None, uri=None, model=None, executor=None):
+    def __init__(self, model_or_uri=None, uri=None, model=None, executor=None, plugins=None):
         """
         Create keyed item collection.
 
@@ -46,6 +47,13 @@ class Collection(object):
 
         :param model: Collection data model
         :type model: class
+        
+        :param executor: Collection executor
+        :type executor: byte.executors.core.base.Executor or type
+        
+        :param plugins: List of plugins to enable for the collection (if :code:`None` is provided
+                        all plugins will be enabled)
+        :type plugins: list
         """
         self.model = None
 
@@ -54,6 +62,8 @@ class Collection(object):
 
         self._executor = None
         self._executor_cls = None
+
+        self.plugins = None
 
         # Parse dynamic parameter
         if model_or_uri:
@@ -68,30 +78,58 @@ class Collection(object):
         if model:
             self.model = model
 
+        # Construct plugin manager
+        self.plugins = PluginManager(plugins)
+
+        # Parse URI
         if uri:
-            # Parse Data Source URI
             self.uri = urlparse(uri)
 
             if self.uri.query:
                 self.parameters = dict(parse_qsl(self.uri.query))
 
-            # Find matching executor class
-            self._executor_cls = self._get_executor(self.uri.scheme)
-        elif executor:
-            self._executor_cls = executor
+        # Retrieve executor
+        if executor:
+            self.executor = executor
+        elif uri:
+            self.executor = self.plugins.get_executor_by_scheme(self.uri.scheme)
 
     @property
     def executor(self):
         if not self._executor:
+            # Ensure executor class is available
             if not self._executor_cls:
                 raise CollectionLoadError('No executor available')
 
+            # Construct executor instance
             self._executor = self._executor_cls(
                 self,
                 self.model
             )
 
+        # Return current executor instance
         return self._executor
+
+    @executor.setter
+    def executor(self, value):
+        if not value:
+            self._executor = None
+            self._executor_cls = None
+            return
+
+        # Class
+        if inspect.isclass(value) and issubclass(value, Executor):
+            self._executor = None
+            self._executor_cls = value
+            return
+
+        # Instance
+        if isinstance(value, Executor):
+            self._executor = value
+            self._executor_cls = None
+
+        # Unknown value
+        raise ValueError('Unknown value provided (expected `Executor` class or instance)')
 
     @property
     def internal(self):
@@ -121,8 +159,6 @@ class Collection(object):
 
         self.model = model
 
-    #region Operations
-
     def all(self):
         return self.select()
 
@@ -146,8 +182,6 @@ class Collection(object):
             data=data
         )
 
-    #region Create
-
     def create(self, **kwargs):
         if not self.model:
             raise Exception('Collection has no model bound')
@@ -160,10 +194,7 @@ class Collection(object):
     def create_or_get(self):
         raise NotImplementedError
 
-    #endregion
-
-    #region Get
-
+    # TODO Better handling of primary key queries (string values are currently parsed as statements)
     def get(self, *query, **kwargs):
         statement = self.select().limit(1)
 
@@ -177,10 +208,6 @@ class Collection(object):
 
     def get_or_create(self):
         raise NotImplementedError
-
-    #endregion
-
-    #region Insert
 
     def insert(self, *args, **kwargs):
         item = kwargs
@@ -205,29 +232,6 @@ class Collection(object):
             self, self.model,
             items=items
         )
-
-    #endregion
-
-    #endregion
-
-    def _get_executor(self, key):
-        # Import storage package for collection
-        storage = __import__('byte.executors.%s' % key, fromlist=['*'])
-
-        # Find executor
-        for key in dir(storage):
-            if key.startswith('_'):
-                continue
-
-            value = getattr(storage, key)
-
-            if not inspect.isclass(value):
-                continue
-
-            if value is not Executor and issubclass(value, Executor):
-                return value
-
-        return None
 
 
 # noinspection PyAbstractClass

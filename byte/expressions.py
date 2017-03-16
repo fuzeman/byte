@@ -1,6 +1,13 @@
 from byte.base import BaseExpression, BaseProperty
 
 
+def get_value(item, operand):
+    if isinstance(operand, BaseProperty):
+        return operand.get(item)
+
+    return operand
+
+
 def resolve_value(value):
     if isinstance(value, Expression):
         return value.value
@@ -32,15 +39,9 @@ class CompoundExpression(BaseExpression):
 
     def execute(self, item):
         return self.matches(
-            self.__get_value(item, self.left),
-            self.__get_value(item, self.right)
+            get_value(item, self.left),
+            get_value(item, self.right)
         )
-
-    def __get_value(self, item, operand):
-        if isinstance(operand, BaseProperty):
-            return operand.get(item)
-
-        return operand
 
     def __eq__(self, other):
         return (
@@ -71,7 +72,8 @@ class MultiExpression(BaseExpression):
 
 
 class IsNull(Expression):
-    pass
+    def execute(self, item):
+        return get_value(item, self.value) is None
 
 
 class In(Expression):
