@@ -1,5 +1,6 @@
 """Dynamic model tests."""
-from byte import Model, Property
+from byte.model import Model
+from byte.property import Property
 
 from datetime import datetime
 from dateutil.tz import tzutc

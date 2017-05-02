@@ -2,7 +2,9 @@
 
 from tests.base.core.fixtures import fixture_uri
 
-from byte import Collection, Model, Property
+from byte.collection import Collection
+from byte.model import Model
+from byte.property import Property
 import byte.compilers.simple
 import byte.executors.file
 import byte.formats.json

@@ -1,4 +1,6 @@
-from byte import Collection, Model, Property
+from byte.collection import Collection
+from byte.model import Model
+from byte.property import Property
 from byte.statements import SelectStatement
 
 from hamcrest import *

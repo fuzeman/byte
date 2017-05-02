@@ -1,5 +1,7 @@
-from byte import Collection, Model, Property
-from byte.expressions import Equal, GreaterThan, GreaterThanOrEqual, LessThan, NotEqual
+from byte.collection import Collection
+from byte.model import Model
+from byte.property import Property
+from byte.expressions import Equal, GreaterThanOrEqual, LessThan, NotEqual
 
 from hamcrest import *
 

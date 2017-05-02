@@ -1,6 +1,6 @@
 """Relation tests for static models."""
-
-from byte import Model, Property
+from byte.model import Model
+from byte.property import Property
 
 
 def test_simple_static():
