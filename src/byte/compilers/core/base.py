@@ -5,31 +5,37 @@ from byte.core.plugin.base import Plugin
 from six import string_types
 
 
-class Executor(object):
-    def __init__(self, collection, model):
-        self.collection = collection
-        self.model = model
+class Compiler(object):
+    def __init__(self, executor):
+        self.executor = executor
 
     @property
-    def plugins(self):
-        if not self.collection:
+    def collection(self):
+        if not self.executor:
             return None
 
-        return self.collection.plugins
+        return self.executor.collection
 
-    def execute(self, statement):
+    @property
+    def model(self):
+        if not self.executor:
+            return None
+
+        return self.executor.model
+
+    def compile(self, statement):
         raise NotImplementedError
 
 
-class ExecutorPlugin(Executor, Plugin):
+class CompilerPlugin(Compiler, Plugin):
     key = None
+    priority = Plugin.Priority.Medium
 
     class Meta(Plugin.Meta):
-        kind = 'executor'
+        kind = 'compiler'
 
         content_type = None
         extension = None
-        scheme = None
 
         @classmethod
         def transform(cls):
@@ -40,11 +46,6 @@ class ExecutorPlugin(Executor, Plugin):
 
             cls.content_type = resolve_tuples(
                 cls.content_type,
-                lambda value: (Plugin.Priority.Medium, value)
-            )
-
-            cls.scheme = resolve_tuples(
-                cls.scheme,
                 lambda value: (Plugin.Priority.Medium, value)
             )
 
@@ -64,12 +65,4 @@ class ExecutorPlugin(Executor, Plugin):
 
             assert cls.content_type is None or is_list_of(cls.content_type, (int, string_types)), (
                 'Invalid value provided for the "content_type" attribute (expected str, [str], [(int, str)])'
-            )
-
-            assert is_list_of(cls.scheme, (int, string_types)), (
-                'Invalid value provided for the "scheme" attribute (expected str, [str], [(int, str)])'
-            )
-
-            assert len(cls.scheme) > 0, (
-                'Invalid value provided for the "scheme" attribute (at least one scheme is required)'
             )

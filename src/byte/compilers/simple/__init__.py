@@ -1,23 +1,19 @@
 from __future__ import absolute_import, division, print_function
 
 from byte.compilers.core.base import CompilerPlugin
-from byte.compilers.json.insert import JsonInsertCompiler
-from byte.compilers.json.select import JsonSelectCompiler
+from byte.compilers.simple.insert import SimpleInsertCompiler
+from byte.compilers.simple.select import SimpleSelectCompiler
 from byte.statements import InsertStatement, SelectStatement
 
 
-class JsonCompiler(CompilerPlugin):
-    key = 'json'
-
-    class Meta(CompilerPlugin.Meta):
-        content_type = 'application/json'
-        extension = 'json'
+class SimpleCompiler(CompilerPlugin):
+    key = 'simple'
 
     def __init__(self, executor):
-        super(JsonCompiler, self).__init__(executor)
+        super(SimpleCompiler, self).__init__(executor)
 
-        self.insert = JsonInsertCompiler(executor)
-        self.select = JsonSelectCompiler(executor)
+        self.insert = SimpleInsertCompiler(self, executor)
+        self.select = SimpleSelectCompiler(self, executor)
 
     def compile(self, statement):
         if isinstance(statement, InsertStatement):

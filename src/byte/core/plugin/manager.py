@@ -1,6 +1,7 @@
 from byte.core.plugin.base import Plugin
 from byte.compilers.core.base import CompilerPlugin
 from byte.executors.core.base import ExecutorPlugin
+from byte.formats.core.base import CollectionFormatPlugin, DocumentFormatPlugin
 import byte
 
 import imp
@@ -16,24 +17,35 @@ log = logging.getLogger(__name__)
 class PluginManager(object):
     kinds = [
         'compiler',
-        'executor'
+        'executor',
+        'format'
     ]
 
     def __init__(self, modules=None):
+        # Compilers
         self.compilers_by_content_type = {}
         self.compilers_by_extension = {}
 
+        # Executors
         self.executors_by_content_type = {}
         self.executors_by_extension = {}
         self.executors_by_scheme = {}
 
+        # Formats
+        self.collection_formats_by_content_type = {}
+        self.collection_formats_by_extension = {}
+
+        self.document_formats_by_content_type = {}
+        self.document_formats_by_extension = {}
+
+        # Plugins
         self.plugins = {}
         self.plugins_by_kind = {}
 
         # Update plugin registry
         self.update(modules, reset=False)
 
-    def discover(self, packages=('compilers', 'executors')):
+    def discover(self, packages=('compilers', 'executors', 'formats')):
         scanned_paths = set()
 
         for search_path in byte.__path__:
@@ -95,6 +107,9 @@ class PluginManager(object):
 
         return plugin
 
+    def get_compiler(self, key):
+        return self.plugins_by_kind.get('compiler', {})[key]
+
     def get_compiler_by_content_type(self, content_type):
         compilers = self.compilers_by_content_type.get(content_type)
 
@@ -121,6 +136,42 @@ class PluginManager(object):
 
         _, executor = executors[0]
         return executor
+
+    def get_collection_format_by_content_type(self, content_type):
+        compilers = self.collection_formats_by_content_type.get(content_type)
+
+        if not compilers:
+            raise KeyError(content_type)
+
+        _, compiler = compilers[0]
+        return compiler
+
+    def get_collection_format_by_extension(self, extension):
+        compilers = self.collection_formats_by_extension.get(extension)
+
+        if not compilers:
+            raise KeyError(extension)
+
+        _, compiler = compilers[0]
+        return compiler
+
+    def get_document_format_by_content_type(self, content_type):
+        compilers = self.document_formats_by_content_type.get(content_type)
+
+        if not compilers:
+            raise KeyError(content_type)
+
+        _, compiler = compilers[0]
+        return compiler
+
+    def get_document_format_by_extension(self, extension):
+        compilers = self.document_formats_by_extension.get(extension)
+
+        if not compilers:
+            raise KeyError(extension)
+
+        _, compiler = compilers[0]
+        return compiler
 
     def register(self, plugin):
         # Ensure plugin has a "key" defined
@@ -168,8 +219,7 @@ class PluginManager(object):
                 self.compilers_by_extension, 'extension',
                 plugin, meta
             )
-
-        if issubclass(plugin, ExecutorPlugin):
+        elif issubclass(plugin, ExecutorPlugin):
             self.register_attribute(
                 self.executors_by_content_type, 'content_type',
                 plugin, meta
@@ -182,6 +232,26 @@ class PluginManager(object):
 
             self.register_attribute(
                 self.executors_by_scheme, 'scheme',
+                plugin, meta
+            )
+        elif issubclass(plugin, CollectionFormatPlugin):
+            self.register_attribute(
+                self.collection_formats_by_content_type, 'content_type',
+                plugin, meta
+            )
+
+            self.register_attribute(
+                self.collection_formats_by_extension, 'extension',
+                plugin, meta
+            )
+        elif issubclass(plugin, DocumentFormatPlugin):
+            self.register_attribute(
+                self.document_formats_by_content_type, 'content_type',
+                plugin, meta
+            )
+
+            self.register_attribute(
+                self.document_formats_by_extension, 'extension',
                 plugin, meta
             )
 
@@ -197,7 +267,7 @@ class PluginManager(object):
                 collection[value] = []
 
             # Register plugin by `attribute`
-            collection[value].append((priority, plugin))
+            collection[value].append((plugin.priority + (priority / 10), plugin))
             collection[value].sort()
 
     def reset(self):

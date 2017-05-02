@@ -16,9 +16,6 @@ class SelectStatement(WhereStatement):
     def exists(self):
         raise NotImplementedError
 
-    def first(self):
-        raise NotImplementedError
-
     def group_by(self, *args, **kwargs):
         raise NotImplementedError
 

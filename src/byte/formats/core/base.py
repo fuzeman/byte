@@ -5,33 +5,21 @@ from byte.core.plugin.base import Plugin
 from six import string_types
 
 
-class Compiler(object):
-    def __init__(self, executor):
-        self.executor = executor
+class Format(object):
+    def encode(self, value, stream):
+        raise NotImplementedError
 
-    @property
-    def collection(self):
-        if not self.executor:
-            return None
-
-        return self.executor.collection
-
-    @property
-    def model(self):
-        if not self.executor:
-            return None
-
-        return self.executor.model
-
-    def compile(self, statement):
+    def decode(self, stream):
         raise NotImplementedError
 
 
-class CompilerPlugin(Compiler, Plugin):
+class FormatPlugin(Format, Plugin):
     key = None
+    priority = Plugin.Priority.Medium
 
     class Meta(Plugin.Meta):
-        kind = 'compiler'
+        kind = 'format'
+        format_type = None
 
         content_type = None
         extension = None
@@ -65,3 +53,19 @@ class CompilerPlugin(Compiler, Plugin):
             assert cls.content_type is None or is_list_of(cls.content_type, (int, string_types)), (
                 'Invalid value provided for the "content_type" attribute (expected str, [str], [(int, str)])'
             )
+
+
+class CollectionFormat(Format):
+    pass
+
+
+class CollectionFormatPlugin(CollectionFormat, FormatPlugin):
+    format_type = 'collection'
+
+
+class DocumentFormat(Format):
+    pass
+
+
+class DocumentFormatPlugin(DocumentFormat, FormatPlugin):
+    format_type = 'document'

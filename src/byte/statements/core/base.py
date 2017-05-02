@@ -8,6 +8,8 @@ class Statement(object):
 
         self.state = state or {}
 
+        self._result = None
+
     def clone(self):
         def copy(value):
             if type(value) is dict:
@@ -27,16 +29,28 @@ class Statement(object):
         )
 
     def execute(self):
-        return self.collection.executor.execute(self)
+        return self.collection.execute(self)
 
     def filter(self, *args, **kwargs):
         raise NotImplementedError
 
-    def get(self):
-        for item in self.execute():
-            return item
+    def first(self):
+        with self.execute() as result:
+            for item in result:
+                return item
 
         return None
+
+    def __enter__(self):
+        self._result = self.execute()
+
+        return self._result
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self._result is None:
+            return
+
+        self._result.close()
 
 
 def operation(func):

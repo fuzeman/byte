@@ -159,6 +159,12 @@ class Collection(object):
 
         self.model = model
 
+    def execute(self, statement):
+        if not self.executor:
+            raise Exception('No executor available')
+
+        return self.executor.execute(statement)
+
     def all(self):
         return self.select()
 
@@ -204,7 +210,7 @@ class Collection(object):
         if kwargs:
             statement = statement.filter(**kwargs)
 
-        return statement.get()
+        return statement.first()
 
     def get_or_create(self):
         raise NotImplementedError
