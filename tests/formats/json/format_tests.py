@@ -24,7 +24,7 @@ def test_decode_collection():
 
     assert isinstance(result, JsonCollectionReader)
 
-    assert list(result.values()) == [
+    assert list(result.items()) == [
         {'label': 'One', 'value': 1}
     ]
 
