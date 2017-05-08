@@ -287,7 +287,7 @@ class PluginManager(object):
                 if key.startswith('_') or not inspect.isclass(value):
                     continue
 
-                if value.__module__ != mod.__name__:
+                if value.__module__ != mod.__name__ and value.__module__ != mod.__name__ + '.main':
                     continue
 
                 if not issubclass(value, Plugin):
