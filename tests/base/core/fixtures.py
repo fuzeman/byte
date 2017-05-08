@@ -2,76 +2,11 @@ from tests.base.core.helpers import FIXTURES_PATH, copy_tree, uri_from_path
 
 from contextlib import contextmanager
 from tempfile import NamedTemporaryFile, mkdtemp
-import functools
 import logging
 import os
 import shutil
 
 log = logging.getLogger(__name__)
-
-
-def fixture_content(path, copy=True):
-    def wrapper(f):
-        @functools.wraps(f)
-        def inner(*args, **kwargs):
-            # Call wrapped function (with resolved fixture uri)
-            with get_fixture(path, copy=copy) as test_path:
-                return f(
-                    open(test_path, 'r').read(),
-                    *args, **kwargs
-                )
-
-        return inner
-
-    return wrapper
-
-
-def fixture_path(path, copy=True):
-    def wrapper(f):
-        @functools.wraps(f)
-        def inner(*args, **kwargs):
-            # Call wrapped function (with resolved fixture uri)
-            with get_fixture(path, copy=copy) as test_path:
-                return f(
-                    test_path,
-                    *args, **kwargs
-                )
-
-        return inner
-
-    return wrapper
-
-
-def fixture_stream(path, copy=True):
-    def wrapper(f):
-        @functools.wraps(f)
-        def inner(*args, **kwargs):
-            # Call wrapped function (with resolved fixture uri)
-            with get_fixture(path, copy=copy) as test_path:
-                return f(
-                    open(test_path, 'r'),
-                    *args, **kwargs
-                )
-
-        return inner
-
-    return wrapper
-
-
-def fixture_uri(path, copy=True):
-    def wrapper(f):
-        @functools.wraps(f)
-        def inner(*args, **kwargs):
-            # Call wrapped function (with resolved fixture uri)
-            with get_fixture(path, copy=copy) as test_path:
-                return f(
-                    *(args + (uri_from_path(test_path),)),
-                    **kwargs
-                )
-
-        return inner
-
-    return wrapper
 
 
 @contextmanager
@@ -107,6 +42,39 @@ def get_fixture(path, copy=True):
             log.warn('Unable to delete temporary fixture: %s', ex, exc_info=True)
 
 
+@contextmanager
+def get_fixture_uri(path, copy=True):
+    single = False
+
+    if type(path) is not tuple:
+        single = True
+        path = (path,)
+
+    # Retrieve fixture generators
+    fixtures = [
+        get_fixture(path, copy=copy)
+        for path in path
+    ]
+
+    # Yield fixture uris
+    try:
+        uris = [
+            uri_from_path(fixture.__enter__()) for fixture in fixtures
+        ]
+
+        if not single:
+            yield tuple(uris)
+        else:
+            yield uris[0]
+    finally:
+        # Cleanup fixtures
+        for fixture in fixtures:
+            try:
+                fixture.__exit__()
+            except:
+                pass
+
+
 def copy_fixture_directory(source_path):
     temp_path = mkdtemp()
 
@@ -122,8 +90,8 @@ def copy_fixture_file(source_path):
 
     # Create copy of fixture to temporary path
     with NamedTemporaryFile(suffix=ext, delete=False) as tp:
-        with open(source_path, 'r') as fp:
-            tp.write(fp.read())
+        with open(source_path, 'rb') as fp:
+            shutil.copyfileobj(fp, tp)
 
         temp_path = tp.name
 
