@@ -1,17 +1,20 @@
 class Operation(object):
-    def __init__(self, compiler, statement):
-        self.compiler = compiler
-        self.statement = statement
+    pass
 
-    @property
-    def executor(self):
-        if not self.compiler:
-            return None
 
-        return self.compiler.executor
+class DeleteOperation(Operation):
+    pass
 
-    def execute(self):
-        raise NotImplementedError
 
-    def close(self):
-        raise NotImplementedError
+class InsertOperation(Operation):
+    def __init__(self, items):
+        self.items = items
+
+
+class SelectOperation(Operation):
+    def __init__(self, where):
+        self.where = where
+
+
+class UpdateOperation(Operation):
+    pass
