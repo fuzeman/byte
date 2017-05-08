@@ -20,7 +20,7 @@ class SelectStatement(WhereStatement):
         raise NotImplementedError
 
     def iterator(self):
-        return self.execute().iterator()
+        return iter(self.execute())
 
     def last(self):
         raise NotImplementedError
