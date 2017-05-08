@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from byte.executors.file.lock.base import BaseFileLock, FileLockError
 
 import msvcrt

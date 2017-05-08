@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 try:
     from byte.executors.file.lock.posix import (
         PosixExclusiveFileLock as ExclusiveFileLock,
