@@ -2,7 +2,7 @@
 
 """Contains the data model structure."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from byte.property import Property, PropertyError, PropertyExpression, RelationProperty
 from byte.registry import Registry

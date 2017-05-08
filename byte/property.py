@@ -2,12 +2,14 @@
 
 """Contains the property structure."""
 
+from __future__ import absolute_import, division, print_function
+
 from byte.base import BaseProperty
-from byte.registry import Registry
 from byte.expressions import (
     Expression, IsNull, In, Equal, NotEqual, LessThan,
     LessThanOrEqual, GreaterThan, GreaterThanOrEqual
 )
+from byte.registry import Registry
 
 from arrow import Arrow
 from collections import namedtuple
@@ -344,7 +346,7 @@ class RelationProperty(Property):
 
     def connect(self, collection):
         """Connect relation collection.
-        
+
         :param collection: Collection
         :type collection: byte.collection.Collection
         """

@@ -1,3 +1,7 @@
+"""Format base module."""
+
+from __future__ import absolute_import, division, print_function
+
 from byte.core.helpers.resolve import resolve_tuples
 from byte.core.helpers.validate import is_list_of
 from byte.core.plugin.base import Plugin

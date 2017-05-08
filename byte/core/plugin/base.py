@@ -1,3 +1,8 @@
+"""Plugin base module."""
+
+from __future__ import absolute_import, division, print_function
+
+
 class Plugin(object):
     class Meta(object):
         kind = None
@@ -11,6 +16,6 @@ class Plugin(object):
             return True
 
     class Priority(object):
-        Low     =  1000
-        Medium  =     0
-        High    = -1000
+        Low     =  1000  # noqa
+        Medium  =     0  # noqa
+        High    = -1000  # noqa

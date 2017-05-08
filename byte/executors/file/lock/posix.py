@@ -1,3 +1,5 @@
+"""File executor posix lock."""
+
 from __future__ import absolute_import, division, print_function
 
 from byte.executors.file.lock.base import BaseFileLock, FileLockError
@@ -48,4 +50,3 @@ class PosixSharedFileLock(BasePosixFileLock):
             fcntl.lockf(self.fp, fcntl.LOCK_SH)
         except Exception as ex:
             raise FileLockError(ex)
-

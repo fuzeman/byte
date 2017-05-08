@@ -1,3 +1,7 @@
+"""Select statement module."""
+
+from __future__ import absolute_import, division, print_function
+
 from byte.statements.core.base import operation
 from byte.statements.where import WhereStatement
 
@@ -5,36 +9,60 @@ from six import string_types
 
 
 class SelectStatement(WhereStatement):
+    """Select statement."""
+
     def __init__(self, collection, model, properties=None, state=None):
+        """Create select statement.
+
+        :param collection: Collection
+        :type collection: byte.collection.Collection
+
+        :param model: Model
+        :type model: byte.model.Model
+
+        :param properties: Properties to retrieve (or :code:`None` to retrieve all properties)
+        :type properties: tuple or None
+
+        :param state: Initial state
+        :type state: dict or None
+        """
         super(SelectStatement, self).__init__(collection, model, state=state)
 
         self.properties = properties
 
     def count(self):
-        raise NotImplementedError
+        """Execute statement, and retrieve an integer representing the number of objects in the result."""
+        return len(self.execute())
 
     def exists(self):
+        """Execute statement, and retrieve boolean indicating if any results were returned."""
         raise NotImplementedError
 
     def group_by(self, *args, **kwargs):
+        """Group results by properties."""
         raise NotImplementedError
 
     def iterator(self):
+        """Execute statement, and retrieve the item iterator."""
         return iter(self.execute())
 
     def last(self):
+        """Execute statement, and retrieve the last item from the results."""
         raise NotImplementedError
 
     @operation
     def limit(self, count):
+        """Set query limit."""
         self.state['limit'] = count
 
     @operation
     def offset(self, count):
+        """Set query offset."""
         self.state['offset'] = count
 
     @operation
     def order_by(self, *properties):
+        """Order results by properties."""
         if 'order_by' not in self.state:
             self.state['order_by'] = []
 
@@ -78,7 +106,9 @@ class SelectStatement(WhereStatement):
             self.state['order_by'].append((prop, options))
 
     def __iter__(self):
-        return self.execute().iterator()
+        """Execute statement, and retrieve the item iterator."""
+        return self.iterator()
 
     def __len__(self):
-        return len(self.execute())
+        """Execute statement, and retrieve an integer representing the number of objects in the result."""
+        return self.count()

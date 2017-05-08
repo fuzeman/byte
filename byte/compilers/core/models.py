@@ -1,3 +1,8 @@
+"""Compiler models module."""
+
+from __future__ import absolute_import, division, print_function
+
+
 class Operation(object):
     pass
 

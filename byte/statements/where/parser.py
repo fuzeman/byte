@@ -1,3 +1,7 @@
+"""Where statement parser."""
+
+from __future__ import absolute_import, division, print_function
+
 from pyparsing import (
     CaselessLiteral, Combine, Forward, Group, Keyword, Optional, Word, ZeroOrMore,
     alphas, alphanums, delimitedList, nums, oneOf, quotedString

@@ -1,3 +1,8 @@
+"""Executor revision model module."""
+
+from __future__ import absolute_import, division, print_function
+
+
 class Revision(object):
     def __init__(self, executor):
         self.executor = executor

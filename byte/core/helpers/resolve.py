@@ -1,4 +1,14 @@
+"""Resolve helper functions module."""
+
+from __future__ import absolute_import, division, print_function
+
+
 def resolve_list(value):
+    """Resolve list (convert provided value if not list).
+
+    :param value: Value
+    :type value: any
+    """
     if value is None:
         return []
 
@@ -9,6 +19,14 @@ def resolve_list(value):
 
 
 def resolve_tuple(value, default=None):
+    """Resolve tuple (convert provided value if not tuple).
+
+    :param value: Value
+    :type value: any
+
+    :param default: Default tuple function
+    :type default: function
+    """
     if value is None:
         return tuple()
 
@@ -23,6 +41,14 @@ def resolve_tuple(value, default=None):
 
 
 def resolve_tuples(items, default=None):
+    """Resolve list of tuples (convert provided value if not list of tuples).
+
+    :param items: Value
+    :type items: any
+
+    :param default: Default tuple function
+    :type default: function
+    """
     if items is None:
         return []
 

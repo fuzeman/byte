@@ -1,3 +1,7 @@
+"""Task base module."""
+
+from __future__ import absolute_import, division, print_function
+
 __all__ = (
     'Task',
     'ReadTask',
@@ -9,7 +13,7 @@ class Task(object):
     class State(object):
         created = 0
         started = 1
-        closed  = 2
+        closed  = 2  # noqa
 
     def __init__(self, executor):
         self.executor = executor
@@ -35,18 +39,23 @@ class Task(object):
         raise NotImplementedError
 
     def open(self):
+        """Open task."""
         raise NotImplementedError
 
     def execute(self):
+        """Execute task."""
         raise NotImplementedError
 
     def close(self):
+        """Close task."""
         raise NotImplementedError
 
     def __enter__(self):
+        """Enter task context (execute task)."""
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit task context (close task)."""
         self.close()
 
 

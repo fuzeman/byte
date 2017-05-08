@@ -1,5 +1,10 @@
 from __future__ import absolute_import, division, print_function
 
+__all__ = (
+    'ExclusiveFileLock',
+    'SharedFileLock'
+)
+
 try:
     from byte.executors.file.lock.posix import (
         PosixExclusiveFileLock as ExclusiveFileLock,
@@ -18,4 +23,5 @@ except ImportError:
                 MsvcrtSharedFileLock as SharedFileLock
             )
         except ImportError:
-            FileLock = None
+            ExclusiveFileLock = None
+            SharedFileLock = None

@@ -1,8 +1,12 @@
-from byte.core.plugin.base import Plugin
+"""Plugin manager module."""
+
+from __future__ import absolute_import, division, print_function
+
+from byte import __path__ as byte_path
 from byte.compilers.core.base import CompilerPlugin
+from byte.core.plugin.base import Plugin
 from byte.executors.core.base import ExecutorPlugin
 from byte.formats.core.base import CollectionFormatPlugin, DocumentFormatPlugin
-import byte
 
 import imp
 import inspect
@@ -48,7 +52,7 @@ class PluginManager(object):
     def discover(self, packages=('compilers', 'executors', 'formats')):
         scanned_paths = set()
 
-        for search_path in byte.__path__:
+        for search_path in byte_path:
             search_path = os.path.normcase(os.path.normpath(
                 os.path.realpath(search_path)
             ))

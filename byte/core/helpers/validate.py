@@ -1,4 +1,17 @@
+"""Validation helper functions module."""
+
+from __future__ import absolute_import, division, print_function
+
+
 def is_list_of(items, value_type):
+    """Validate list :code:`items` match :code:`value_type`.
+
+    :param items: Items
+    :type items: list
+
+    :param value_type: Value type
+    :type value_type: class
+    """
     if not isinstance(items, list):
         return False
 
@@ -14,6 +27,14 @@ def is_list_of(items, value_type):
 
 
 def is_tuple_of(items, value_type):
+    """Validate tuple :code:`items` match :code:`value_type`.
+
+    :param items: Items
+    :type items: tuple
+
+    :param value_type: Value type
+    :type value_type: class
+    """
     if not isinstance(items, tuple):
         return False
 

@@ -1,10 +1,12 @@
+"""File executor win32 lock."""
+
 from __future__ import absolute_import, division, print_function
 
 from byte.executors.file.lock.base import BaseFileLock, FileLockError
 
+import pywintypes
 import win32con
 import win32file
-import pywintypes
 
 
 class BaseWin32FileLock(BaseFileLock):
@@ -56,4 +58,3 @@ class Win32SharedFileLock(BaseWin32FileLock):
             win32file.LockFileEx(self.handle, mode, 0, 0x7fff0000, pywintypes.OVERLAPPED())
         except Exception as ex:
             raise FileLockError(ex)
-

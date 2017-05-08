@@ -1,3 +1,7 @@
+"""Memory executor task module."""
+
+from __future__ import absolute_import, division, print_function
+
 from byte.core.models import Task, SimpleTask, SimpleReadTask, SimpleSelectTask, SimpleWriteTask
 
 import six

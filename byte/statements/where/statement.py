@@ -1,3 +1,7 @@
+"""Where statement module."""
+
+from __future__ import absolute_import, division, print_function
+
 from byte.expressions import (
     And, BaseExpression, Equal, GreaterThan, GreaterThanOrEqual, LessThan, LessThanOrEqual,
     NotEqual, Or
@@ -9,8 +13,11 @@ from six import string_types
 
 
 class WhereStatement(Statement):
+    """Where statement."""
+
     @operation
     def where(self, *args):
+        """Retrieve items matching expressions (args)."""
         if not args:
             return
 
@@ -46,7 +53,9 @@ class WhereStatement(Statement):
         )
 
         if (offset or parameters) and offset != len(parameters):
-            raise Exception('Found %d parameter token(s), but only %d value(s) were provided' % (offset, len(parameters)))
+            raise Exception('Found %d parameter token(s), but only %d value(s) were provided' % (
+                offset, len(parameters)
+            ))
 
         if isinstance(expression, And):
             return expression.values

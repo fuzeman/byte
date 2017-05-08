@@ -1,11 +1,13 @@
+"""Collection format base module."""
+
+from __future__ import absolute_import, division, print_function
+
 from byte.compilers.core.models import DeleteOperation, InsertOperation, SelectOperation, UpdateOperation
-from byte.core.models import Reader
 from byte.formats.core.base.format import Format, FormatPlugin
 
 __all__ = (
     'CollectionFormat',
-    'CollectionFormatPlugin',
-    'CollectionReader'
+    'CollectionFormatPlugin'
 )
 
 
@@ -40,8 +42,3 @@ class CollectionFormat(Format):
 
 class CollectionFormatPlugin(CollectionFormat, FormatPlugin):
     format_type = 'collection'
-
-
-class CollectionReader(Reader):
-    def items(self):
-        raise NotImplementedError

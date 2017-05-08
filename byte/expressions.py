@@ -1,7 +1,19 @@
+"""Expressions module."""
+
+from __future__ import absolute_import, division, print_function
+
 from byte.base import BaseExpression, BaseProperty
 
 
 def get_value(item, operand):
+    """Retrieve property value.
+
+    :param item: Item
+    :type item: byte.model.Model
+
+    :param operand: Operand
+    :type operand: any
+    """
     if isinstance(operand, BaseProperty):
         return operand.get(item)
 
@@ -9,6 +21,11 @@ def get_value(item, operand):
 
 
 def resolve_value(value):
+    """Resolve expression value.
+
+    :param value: Value
+    :type value: any
+    """
     if isinstance(value, Expression):
         return value.value
 

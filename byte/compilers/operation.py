@@ -1,3 +1,5 @@
+"""Operation compiler module."""
+
 from __future__ import absolute_import, division, print_function
 
 from byte.compilers.core.base import CompilerPlugin

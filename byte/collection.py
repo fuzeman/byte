@@ -2,6 +2,8 @@
 
 """Contains the collection structure for the storage of keyed items."""
 
+from __future__ import absolute_import, division, print_function
+
 from byte.core.plugin.manager import PluginManager
 from byte.executors.core.base import Executor
 from byte.model import Model
@@ -24,7 +26,7 @@ class CollectionLoadError(CollectionError):
 
 
 class CollectionModelError(CollectionError):
-    """"Collection model violation."""
+    """Collection model violation."""
 
 
 class CollectionParseError(CollectionError):
@@ -47,10 +49,10 @@ class Collection(object):
 
         :param model: Collection data model
         :type model: class
-        
+
         :param executor: Collection executor
         :type executor: byte.executors.core.base.Executor or type
-        
+
         :param plugins: List of plugins to enable for the collection (if :code:`None` is provided
                         all plugins will be enabled)
         :type plugins: list

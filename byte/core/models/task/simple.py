@@ -1,3 +1,7 @@
+"""Simple task module."""
+
+from __future__ import absolute_import, division, print_function
+
 from byte.compilers.core.models import InsertOperation
 from byte.core.models.task.base import Task, ReadTask, SelectTask, WriteTask
 

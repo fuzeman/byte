@@ -1,3 +1,5 @@
+"""File executor Visual C++ runtime lock."""
+
 from __future__ import absolute_import, division, print_function
 
 from byte.executors.file.lock.base import BaseFileLock, FileLockError
@@ -7,13 +9,23 @@ import os
 import six
 
 if six.PY2:
-    def is_file(fp):
-        return type(fp) is file
+    def is_file(value):
+        """Retrieve boolean indicating the provided :code:`value` is a file.
+
+        :param value: Value
+        :type value: any
+        """
+        return type(value) is file
 else:
     import io
 
-    def is_file(fp):
-        return isinstance(fp, io.IOBase)
+    def is_file(value):
+        """Retrieve boolean indicating the provided :code:`value` is a file.
+
+        :param value: Value
+        :type value: any
+        """
+        return isinstance(value, io.IOBase)
 
 
 class BaseMsvcrtFileLock(BaseFileLock):

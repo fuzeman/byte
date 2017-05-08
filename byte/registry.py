@@ -2,6 +2,8 @@
 
 """Contains the class registry structures."""
 
+from __future__ import absolute_import, division, print_function
+
 
 class Registry(object):
     """Class registry structure."""

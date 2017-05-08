@@ -1,3 +1,7 @@
+"""Stream task module."""
+
+from __future__ import absolute_import, division, print_function
+
 from byte.core.models.task.base import Task
 from byte.core.models.task.simple import SimpleTask, SimpleReadTask, SimpleSelectTask, SimpleWriteTask
 
