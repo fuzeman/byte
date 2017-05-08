@@ -33,7 +33,7 @@ class Executor(object):
         raise NotImplementedError
 
     def construct_compiler(self):
-        return self.plugins.get_compiler('simple')(self)
+        return self.plugins.get_compiler('operation')(self)
 
 
 class ExecutorPlugin(Executor, Plugin):
@@ -89,36 +89,3 @@ class ExecutorPlugin(Executor, Plugin):
             assert len(cls.scheme) > 0, (
                 'Invalid value provided for the "scheme" attribute (at least one scheme is required)'
             )
-
-
-class SimpleExecutor(Executor):
-    def insert(self, items):
-        raise NotImplementedError
-
-    def items(self):
-        raise NotImplementedError
-
-
-class SimpleExecutorPlugin(SimpleExecutor, ExecutorPlugin):
-    pass
-
-
-class FormatExecutor(SimpleExecutor):
-    def __init__(self, collection, model):
-        super(FormatExecutor, self).__init__(collection, model)
-
-        self._format = None
-
-    @property
-    def format(self):
-        if not self._format:
-            self._format = self.construct_format()
-
-        return self._format
-
-    def construct_format(self):
-        raise NotImplementedError
-
-
-class FormatExecutorPlugin(FormatExecutor, ExecutorPlugin):
-    pass

@@ -4,13 +4,14 @@ from byte.core.plugin.base import Plugin
 
 from six import string_types
 
+__all__ = (
+    'Format',
+    'FormatPlugin'
+)
+
 
 class Format(object):
-    def encode(self, value, stream):
-        raise NotImplementedError
-
-    def decode(self, stream):
-        raise NotImplementedError
+    pass
 
 
 class FormatPlugin(Format, Plugin):
@@ -53,19 +54,3 @@ class FormatPlugin(Format, Plugin):
             assert cls.content_type is None or is_list_of(cls.content_type, (int, string_types)), (
                 'Invalid value provided for the "content_type" attribute (expected str, [str], [(int, str)])'
             )
-
-
-class CollectionFormat(Format):
-    pass
-
-
-class CollectionFormatPlugin(CollectionFormat, FormatPlugin):
-    format_type = 'collection'
-
-
-class DocumentFormat(Format):
-    pass
-
-
-class DocumentFormatPlugin(DocumentFormat, FormatPlugin):
-    format_type = 'document'
