@@ -1,36 +1,19 @@
 """Relation tests for dynamic models."""
-from byte.model import Model
-from byte.property import Property
+from tests.base.models.dynamic.album import Album
+from tests.base.models.dynamic.artist import Artist
+from tests.base.models.dynamic.track import Track
 
 
 def test_simple():
     """Test simple dynamic model relations."""
-    class Artist(Model):
-        id = Property(int, primary_key=True)
-
-        name = Property(str)
-
-    class Album(Model):
-        id = Property(int, primary_key=True)
-        artist = Property(Artist)
-
-        title = Property(str)
-
-    class Track(Model):
-        id = Property(int, primary_key=True)
-        artist = Property(Artist)
-        album = Property(Album)
-
-        name = Property(str)
-
     # Artist
     artist = Artist.create(
         id=1,
-        name='Daft Punk'
+        title='Daft Punk'
     )
 
     assert artist.id == 1
-    assert artist.name == 'Daft Punk'
+    assert artist.title == 'Daft Punk'
 
     # Album
     album = Album.create(
@@ -53,7 +36,7 @@ def test_simple():
         artist=artist,
         album=album,
 
-        name='One More Time'
+        title='One More Time'
     )
 
     assert track.id == 1
@@ -63,4 +46,4 @@ def test_simple():
     assert track.artist is artist
     assert track.album is album
 
-    assert track.name == 'One More Time'
+    assert track.title == 'One More Time'

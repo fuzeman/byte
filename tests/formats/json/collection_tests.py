@@ -1,96 +1,189 @@
 """Dynamic tests for memory collections."""
 
 from tests.base.core.fixtures import fixture_uri
+from tests.base.models.dynamic.album import Album
+from tests.base.models.dynamic.artist import Artist
+from tests.base.models.dynamic.city import City
+from tests.base.models.dynamic.track import Track
 
 from byte.collection import Collection
-from byte.model import Model
-from byte.property import Property
-import byte.compilers.simple
+from hamcrest import *
+import byte.compilers.operation
 import byte.executors.file
 import byte.formats.json
 
 
 @fixture_uri('collections/artists.json')
-def test_get_basic(artists_uri):
-    """Test basic collections with dynamic models."""
-    class Artist(Model):
-        class Options:
-            collection = Collection(artists_uri, plugins=[
-                byte.compilers.simple,
-                byte.executors.file,
-                byte.formats.json
-            ])
+def test_all(artists_uri):
+    artists = Collection(Artist, artists_uri, plugins=[
+        byte.compilers.operation,
+        byte.executors.file,
+        byte.formats.json
+    ])
 
-        id = Property(int, primary_key=True)
-        title = Property(str)
+    # Fetch artists, and validate properties
+    assert_that(list(artists.all().iterator()), all_of(
+        has_length(5),
+
+        has_items(
+            has_properties({
+                'id': 1,
+                'title': 'Gorillaz'
+            }),
+            has_properties({
+                'id': 2,
+                'title': 'Daft Punk'
+            }),
+            has_properties({
+                'id': 3,
+                'title': 'Friendly Fires'
+            }),
+            has_properties({
+                'id': 4,
+                'title': 'Miike Snow'
+            }),
+            has_properties({
+                'id': 5,
+                'title': 'LCD Soundsystem'
+            })
+        )
+    ))
+
+
+@fixture_uri('collections/artists.json')
+def test_create(artists_uri):
+    artists = Collection(Artist, artists_uri, plugins=[
+        byte.compilers.operation,
+        byte.executors.file,
+        byte.formats.json
+    ])
+
+    # Create artist
+    artists.create(id=123, title='Fenech-Soler')
 
     # Fetch artist, and validate properties
-    artist = Artist.Objects.get(1)
+    assert_that(artists.get(123), has_properties({
+        'id': 123,
+        'title': 'Fenech-Soler'
+    }))
 
-    assert artist
-    assert artist.id == 1
-    assert artist.title == 'Gorillaz'
+
+@fixture_uri('collections/artists.json')
+def test_get_basic(artists_uri):
+    artists = Collection(Artist, artists_uri, plugins=[
+        byte.compilers.operation,
+        byte.executors.file,
+        byte.formats.json
+    ])
+
+    # Fetch artist, and validate properties
+    assert_that(artists.get(1), has_properties({
+        'id': 1,
+        'title': 'Gorillaz'
+    }))
 
 
 @fixture_uri('collections/artists.json')
 @fixture_uri('collections/albums.json')
 @fixture_uri('collections/tracks.json')
 def test_get_relations(artists_uri, albums_uri, tracks_uri):
-    """Test collection relations with dynamic models."""
-    class Artist(Model):
-        class Options:
-            collection = Collection(artists_uri, plugins=[
-                byte.compilers.simple,
-                byte.executors.file,
-                byte.formats.json
-            ])
+    # Artists
+    artists = Collection(Artist, artists_uri, plugins=[
+        byte.compilers.operation,
+        byte.executors.file,
+        byte.formats.json
+    ])
 
-        id = Property(int, primary_key=True)
+    # Albums
+    albums = Collection(Album, albums_uri, plugins=[
+        byte.compilers.operation,
+        byte.executors.file,
+        byte.formats.json
+    ])
 
-        title = Property(str)
+    albums.connect(Album.Properties.artist, artists)
 
-    class Album(Model):
-        class Options:
-            collection = Collection(albums_uri, plugins=[
-                byte.compilers.simple,
-                byte.executors.file,
-                byte.formats.json
-            ])
+    # Tracks
+    tracks = Collection(Track, tracks_uri, plugins=[
+        byte.compilers.operation,
+        byte.executors.file,
+        byte.formats.json
+    ])
 
-        id = Property(int, primary_key=True)
-        artist = Property(Artist)
-
-        title = Property(str)
-
-    class Track(Model):
-        class Options:
-            collection = Collection(tracks_uri, plugins=[
-                byte.compilers.simple,
-                byte.executors.file,
-                byte.formats.json
-            ])
-
-        id = Property(int, primary_key=True)
-        artist = Property(Artist)
-        album = Property(Album)
-
-        title = Property(str)
+    tracks.connect(Track.Properties.album, albums)
+    tracks.connect(Track.Properties.artist, artists)
 
     # Fetch track, and ensure relations can be resolved
-    track = Track.Objects.get(1)
+    assert_that(tracks.get(1), has_properties({
+        'id': 1,
+        'title': 'Ascension (feat. Vince Staples)',
 
-    assert track
-    assert track.id == 1
-    assert track.title == 'Ascension (feat. Vince Staples)'
+        'artist': has_properties({
+            'id': 1,
+            'title': 'Gorillaz'
+        }),
 
-    assert track.artist
-    assert track.artist.id == 1
-    assert track.artist.title == 'Gorillaz'
+        'album': has_properties({
+            'id': 1,
+            'title': 'Humanz',
 
-    assert track.album
-    assert track.album.id == 1
-    assert track.album.title == 'Humanz'
+            'artist': has_properties({
+                'id': 1,
+                'title': 'Gorillaz'
+            })
+        })
+    }))
 
-    assert track.album.artist
-    assert track.album.artist.id == 1
-    assert track.album.artist.title == 'Gorillaz'
+
+@fixture_uri('collections/cities.json')
+def test_where(cities_uri):
+    cities = Collection(City, cities_uri, plugins=[
+        byte.compilers.operation,
+        byte.executors.file,
+        byte.formats.json
+    ])
+
+    # Fetch cities, and validate properties
+    items = list(cities.select().where(City['country'] == 'New Zealand').iterator())
+
+    assert_that(items, all_of(
+        has_length(35),
+
+        has_items(
+            has_properties({
+                'id': '2179537',
+                'name': 'Wellington',
+
+                'country': 'New Zealand',
+                'subcountry': 'Wellington'
+            }),
+            has_properties({
+                'id': '2179670',
+                'name': 'Wanganui',
+
+                'country': 'New Zealand',
+                'subcountry': 'Manawatu-Wanganui'
+            }),
+            has_properties({
+                'id': '2181133',
+                'name': 'Timaru',
+
+                'country': 'New Zealand',
+                'subcountry': 'Canterbury'
+            }),
+            has_properties({
+                'id': '2181742',
+                'name': 'Taupo',
+
+                'country': 'New Zealand',
+                'subcountry': 'Waikato'
+            }),
+            has_properties({
+                'id': '2184155',
+                'name': 'Pukekohe East',
+
+                'country': 'New Zealand',
+                'subcountry': 'Auckland'
+            }),
+        )
+    ))

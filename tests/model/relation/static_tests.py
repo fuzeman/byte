@@ -1,45 +1,19 @@
 """Relation tests for static models."""
-from byte.model import Model
-from byte.property import Property
+from tests.base.models.static.album import Album
+from tests.base.models.static.artist import Artist
+from tests.base.models.static.track import Track
 
 
 def test_simple_static():
     """Test simple static model relations."""
-    class Artist(Model):
-        class Options:
-            slots = True
-
-        id = Property(int, primary_key=True)
-
-        name = Property(str, max_length=120)
-
-    class Album(Model):
-        class Options:
-            slots = True
-
-        id = Property(int, primary_key=True)
-        artist = Property(Artist)
-
-        title = Property(str, max_length=160)
-
-    class Track(Model):
-        class Options:
-            slots = True
-
-        id = Property(int, primary_key=True)
-        artist = Property(Artist)
-        album = Property(Album)
-
-        name = Property(str, max_length=200)
-
     # Artist
     artist = Artist.create(
         id=1,
-        name='Daft Punk'
+        title='Daft Punk'
     )
 
     assert artist.id == 1
-    assert artist.name == 'Daft Punk'
+    assert artist.title == 'Daft Punk'
 
     # Album
     album = Album.create(
@@ -62,7 +36,7 @@ def test_simple_static():
         artist=artist,
         album=album,
 
-        name='One More Time'
+        title='One More Time'
     )
 
     assert track.id == 1
@@ -72,4 +46,4 @@ def test_simple_static():
     assert track.artist is artist
     assert track.album is album
 
-    assert track.name == 'One More Time'
+    assert track.title == 'One More Time'

@@ -1,101 +1,85 @@
 """Dynamic tests for memory collections."""
+from tests.base.models.dynamic.album import Album
+from tests.base.models.dynamic.artist import Artist
+from tests.base.models.dynamic.track import Track
 
 from byte.collection import Collection
-from byte.model import Model
 from byte.property import Property
-import byte.compilers.simple
+import byte.compilers.operation
 import byte.executors.memory
 
 
 def test_basic():
-    """Test basic collections with dynamic models."""
-    class Artist(Model):
-        class Options:
-            collection = Collection('memory://', plugins=[
-                byte.compilers.simple,
-                byte.executors.memory
-            ])
-
-        id = Property(int, primary_key=True)
-        name = Property(str)
+    """Test collection with dynamic models."""
+    artists = Collection(Artist, 'memory://', plugins=[
+        byte.compilers.operation,
+        byte.executors.memory
+    ])
 
     # Update memory collection
-    Artist.Objects.executor.update({
+    artists.executor.update({
         1: {
             'id': 1,
-            'name': 'Daft Punk'
+            'title': 'Daft Punk'
         }
     })
 
     # Fetch artist, and validate properties
-    artist = Artist.Objects.get(1)
+    artist = artists.get(1)
 
     assert artist
     assert artist.id == 1
-    assert artist.name == 'Daft Punk'
+    assert artist.title == 'Daft Punk'
 
 
 def test_relations():
     """Test collection relations with dynamic models."""
-    class Artist(Model):
-        class Options:
-            collection = Collection('memory://', plugins=[
-                byte.compilers.simple,
-                byte.executors.memory
-            ])
+    # Artists
+    artists = Collection(Artist, 'memory://', plugins=[
+        byte.compilers.operation,
+        byte.executors.memory
+    ])
 
-        id = Property(int, primary_key=True)
+    # Albums
+    albums = Collection(Album, 'memory://', plugins=[
+        byte.compilers.operation,
+        byte.executors.memory
+    ])
 
-        name = Property(str)
+    albums.connect(Album.Properties.artist, artists)
 
-    class Album(Model):
-        class Options:
-            collection = Collection('memory://', plugins=[
-                byte.compilers.simple,
-                byte.executors.memory
-            ])
+    # Tracks
+    tracks = Collection(Track, 'memory://', plugins=[
+        byte.compilers.operation,
+        byte.executors.memory
+    ])
 
-        id = Property(int, primary_key=True)
-        artist = Property(Artist)
-
-        title = Property(str)
-
-    class Track(Model):
-        class Options:
-            collection = Collection('memory://', plugins=[
-                byte.compilers.simple,
-                byte.executors.memory
-            ])
-
-        id = Property(int, primary_key=True)
-        artist = Property(Artist)
-        album = Property(Album)
-
-        name = Property(str)
+    tracks.connect(Track.Properties.album, albums)
+    tracks.connect(Track.Properties.artist, artists)
 
     # Create objects
-    Artist.create(
+    artists.create(
         id=1,
-        name='Daft Punk'
+        title='Daft Punk'
     )
 
-    Album.create(
+    albums.create(
         id=1,
         artist_id=1,
 
         title='Discovery'
     )
 
-    Track.create(
+    tracks.create(
         id=1,
         artist_id=1,
         album_id=1,
 
-        name='One More Time'
+        title='One More Time'
     )
 
     # Fetch track, and ensure relations can be resolved
-    track = Track.Objects.get(1)
+    track = tracks.get(1)
 
     assert track.id == 1
 
