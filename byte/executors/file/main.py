@@ -5,6 +5,7 @@ from byte.executors.file.revision import FileRevision
 
 import logging
 import os
+import six
 
 log = logging.getLogger(__name__)
 
@@ -45,7 +46,10 @@ class FileExecutor(FormatExecutorPlugin):
         return self.format.execute(self, operation)
 
     def read(self):
-        return open(self.path)
+        if six.PY2:
+            return open(self.path)
+
+        return open(self.path, encoding='utf8')
 
     def revision(self):
         return FileRevision(self)

@@ -4,13 +4,23 @@ from byte.executors.file.lock.base import BaseFileLock, FileLockError
 
 import msvcrt
 import os
+import six
+
+if six.PY2:
+    def is_file(fp):
+        return type(fp) is file
+else:
+    import io
+
+    def is_file(fp):
+        return isinstance(fp, io.IOBase)
 
 
 class BaseMsvcrtFileLock(BaseFileLock):
     def release(self):
         try:
             # Save current position, and seek to the start
-            if type(self.fp) == file:
+            if is_file(self.fp):
                 fn = self.fp.fileno()
                 pos = self.fp.tell()
 
@@ -38,7 +48,7 @@ class MsvcrtExclusiveFileLock(BaseMsvcrtFileLock):
 
         try:
             # Save current position, and seek to the start
-            if type(self.fp) == file:
+            if is_file(self.fp):
                 fn = self.fp.fileno()
                 pos = self.fp.tell()
 
@@ -66,7 +76,7 @@ class MsvcrtSharedFileLock(BaseMsvcrtFileLock):
 
         try:
             # Save current position, and seek to the start
-            if type(self.fp) == file:
+            if is_file(self.fp):
                 fn = self.fp.fileno()
                 pos = self.fp.tell()
 

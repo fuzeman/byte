@@ -42,7 +42,7 @@ class FileRevision(Revision):
 
     def revert(self, fp):
         # Revert collection to backup contents
-        with open(self.revert_path, 'r') as rp:
+        with open(self.revert_path, 'rb') as rp:
             shutil.copyfileobj(rp, fp)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -51,7 +51,7 @@ class FileRevision(Revision):
 
         # Replace collection file with revision (inside exclusive lock)
         try:
-            with open(self.executor.path, 'w') as fp:
+            with open(self.executor.path, 'wb') as fp:
                 with ExclusiveFileLock(fp):
                     self.replace(fp)
         finally:
