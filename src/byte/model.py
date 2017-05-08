@@ -359,13 +359,13 @@ class ModelMeta(type):
         # Store resolve property on model
         setattr(cls, key, p_resolve)
 
+        # Store resolve property on model `Properties`
+        setattr(properties, key, p_resolve)
+        properties.__all__[key] = p_resolve
+
         # Store identifier property on model `Properties`
         setattr(properties, key + '_id', p_id)
         properties.__all__[key + '_id'] = p_id
-
-        # Delete original property
-        delattr(properties, key)
-        del properties.__all__[key]
 
 
 @add_metaclass(ModelMeta)

@@ -159,6 +159,12 @@ class Collection(object):
 
         self.model = model
 
+    def connect(self, prop, collection):
+        if not prop:
+            raise ValueError('Invalid property')
+
+        prop.connect(collection)
+
     def execute(self, statement):
         if not self.executor:
             raise Exception('No executor available')

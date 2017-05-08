@@ -319,6 +319,9 @@ class RelationProperty(Property):
 
         self.prop = prop
 
+        # Private attributes
+        self._collection = None
+
     @property
     def cache_key(self):
         """
@@ -328,6 +331,24 @@ class RelationProperty(Property):
         :rtype: str
         """
         return '_RelationProperty_%s' % self.key
+
+    @property
+    def collection(self):
+        if self._collection:
+            return self._collection
+
+        if self.value_type:
+            return self.value_type.Objects
+
+        return None
+
+    def connect(self, collection):
+        """Connect relation collection.
+        
+        :param collection: Collection
+        :type collection: byte.collection.Collection
+        """
+        self._collection = collection
 
     def get_cache(self, obj):
         """
@@ -378,11 +399,13 @@ class RelationProperty(Property):
             return None
 
         # Ensure collection exists
-        if not self.value_type.Objects:
+        collection = self.collection
+
+        if not collection:
             raise PropertyError("No collection available for '%s'" % (self.value_type.__name__,))
 
         # Retrieve item from collection
-        value = self.value_type.Objects.get(key)
+        value = collection.get(key)
 
         # Cache relation value
         self.set_cache(obj, value)
