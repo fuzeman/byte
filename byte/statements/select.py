@@ -62,7 +62,7 @@ class SelectStatement(WhereStatement):
 
     @operation
     def order_by(self, *properties):
-        """Order results by properties."""
+        """Order results by :code:`properties`."""
         if 'order_by' not in self.state:
             self.state['order_by'] = []
 
