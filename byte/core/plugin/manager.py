@@ -27,6 +27,26 @@ class PluginManager(object):
         'format'
     ]
 
+    collections = {
+        CompilerPlugin: [
+            ('compilers_by_content_type',           'content_type'),    # noqa
+            ('compilers_by_extension',              'extension')        # noqa
+        ],
+        ExecutorPlugin: [
+            ('executors_by_content_type',           'content_type'),    # noqa
+            ('executors_by_extension',              'extension'),       # noqa
+            ('executors_by_scheme',                 'scheme')           # noqa
+        ],
+        CollectionFormatPlugin: [
+            ('collection_formats_by_content_type',  'content_type'),    # noqa
+            ('collection_formats_by_extension',     'extension')        # noqa
+        ],
+        DocumentFormatPlugin: [
+            ('document_formats_by_content_type',    'content_type'),    # noqa
+            ('document_formats_by_extension',       'extension')        # noqa
+        ]
+    }
+
     def __init__(self, modules=None):
         """Create plugin manager.
 
@@ -294,54 +314,31 @@ class PluginManager(object):
         self.plugins[(meta.kind, plugin.key)] = plugin
         self.plugins_by_kind[meta.kind][plugin.key] = plugin
 
-        if issubclass(plugin, CompilerPlugin):
-            self.register_attribute(
-                self.compilers_by_content_type, 'content_type',
-                plugin, meta
-            )
-
-            self.register_attribute(
-                self.compilers_by_extension, 'extension',
-                plugin, meta
-            )
-        elif issubclass(plugin, ExecutorPlugin):
-            self.register_attribute(
-                self.executors_by_content_type, 'content_type',
-                plugin, meta
-            )
-
-            self.register_attribute(
-                self.executors_by_extension, 'extension',
-                plugin, meta
-            )
-
-            self.register_attribute(
-                self.executors_by_scheme, 'scheme',
-                plugin, meta
-            )
-        elif issubclass(plugin, CollectionFormatPlugin):
-            self.register_attribute(
-                self.collection_formats_by_content_type, 'content_type',
-                plugin, meta
-            )
-
-            self.register_attribute(
-                self.collection_formats_by_extension, 'extension',
-                plugin, meta
-            )
-        elif issubclass(plugin, DocumentFormatPlugin):
-            self.register_attribute(
-                self.document_formats_by_content_type, 'content_type',
-                plugin, meta
-            )
-
-            self.register_attribute(
-                self.document_formats_by_extension, 'extension',
-                plugin, meta
-            )
+        # Register plugin in collections
+        self.register_collections(plugin, meta)
 
         log.debug('Registered %s \'%s\'', meta.kind, plugin.key)
         return True
+
+    def register_collections(self, plugin, meta):
+        """Register plugin in collections.
+
+        :param plugin: Plugin
+        :param meta: Plugin metadata
+        """
+        for cls, collections in self.collections.items():
+            if not issubclass(plugin, cls):
+                continue
+
+            for name, attribute in collections:
+                # Retrieve collection dictionary
+                collection = getattr(self, name)
+
+                if collection is None:
+                    raise ValueError('Unknown collection: %s' % (name,))
+
+                # Register plugin in collection
+                self.register_attribute(collection, attribute, plugin, meta)
 
     def register_attribute(self, collection, attribute, plugin, meta):
         """Register plugin in collection.
