@@ -224,13 +224,13 @@ class PluginManager(object):
         :param content_type: Content type
         :type content_type: str
         """
-        compilers = self.collection_formats_by_content_type.get(content_type)
+        formats = self.collection_formats_by_content_type.get(content_type)
 
-        if not compilers:
+        if not formats:
             raise KeyError(content_type)
 
-        _, compiler = compilers[0]
-        return compiler
+        _, fmt = formats[0]
+        return fmt
 
     def get_collection_format_by_extension(self, extension):
         """Retrieve collection format by file extension.
@@ -238,13 +238,13 @@ class PluginManager(object):
         :param extension: File extension
         :type extension: str
         """
-        compilers = self.collection_formats_by_extension.get(extension)
+        formats = self.collection_formats_by_extension.get(extension)
 
-        if not compilers:
+        if not formats:
             raise KeyError(extension)
 
-        _, compiler = compilers[0]
-        return compiler
+        _, fmt = formats[0]
+        return fmt
 
     def get_document_format_by_content_type(self, content_type):
         """Retrieve document format by content type.
@@ -252,13 +252,13 @@ class PluginManager(object):
         :param content_type: Content type
         :type content_type: str
         """
-        compilers = self.document_formats_by_content_type.get(content_type)
+        formats = self.document_formats_by_content_type.get(content_type)
 
-        if not compilers:
+        if not formats:
             raise KeyError(content_type)
 
-        _, compiler = compilers[0]
-        return compiler
+        _, fmt = formats[0]
+        return fmt
 
     def get_document_format_by_extension(self, extension):
         """Retrieve document format by file extension.
@@ -266,13 +266,13 @@ class PluginManager(object):
         :param extension: File extension
         :type extension: str
         """
-        compilers = self.document_formats_by_extension.get(extension)
+        formats = self.document_formats_by_extension.get(extension)
 
-        if not compilers:
+        if not formats:
             raise KeyError(extension)
 
-        _, compiler = compilers[0]
-        return compiler
+        _, fmt = formats[0]
+        return fmt
 
     def register(self, plugin):
         """Register plugin.
