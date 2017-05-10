@@ -98,32 +98,9 @@ class WhereStatement(Statement):
                 parameters=parameters
             )
 
-            # Construct expression
-            expression = None
+            # Append expression
+            expression = self.__construct_expression(expressions, op, left, right)
 
-            if op in ['eq', '=', '==']:
-                expression = Equal(left, right)
-            elif op in ['ne', '!=']:
-                expression = NotEqual(left, right)
-            elif op in ['lt', '<']:
-                expression = LessThan(left, right)
-            elif op in ['le', '<=']:
-                expression = LessThanOrEqual(left, right)
-            elif op in ['gt', '>']:
-                expression = GreaterThan(left, right)
-            elif op in ['ge', '>=']:
-                expression = GreaterThanOrEqual(left, right)
-            elif op == 'and':
-                if not expressions:
-                    expressions.append(left)
-
-                expressions.append(right)
-            elif op == 'or':
-                expression = Or(left, right)
-            else:
-                raise NotImplementedError
-
-            # Append to `expressions`
             if expression:
                 expressions.append(expression)
 
@@ -161,3 +138,34 @@ class WhereStatement(Statement):
 
         # Column
         return offset, self.model.Internal.properties_by_name[value]
+
+    def __construct_expression(self, expressions, op, left, right):
+        if op in ['eq', '=', '==']:
+            return Equal(left, right)
+
+        if op in ['ne', '!=']:
+            return NotEqual(left, right)
+
+        if op in ['lt', '<']:
+            return LessThan(left, right)
+
+        if op in ['le', '<=']:
+            return LessThanOrEqual(left, right)
+
+        if op in ['gt', '>']:
+            return GreaterThan(left, right)
+
+        if op in ['ge', '>=']:
+            return GreaterThanOrEqual(left, right)
+
+        if op == 'and':
+            if not expressions:
+                expressions.append(left)
+
+            expressions.append(right)
+            return None
+
+        if op == 'or':
+            return Or(left, right)
+
+        raise NotImplementedError
