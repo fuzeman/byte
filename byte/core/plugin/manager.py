@@ -56,7 +56,8 @@ class PluginManager(object):
         # Update plugin registry
         self.update(modules, reset=False)
 
-    def discover(self, packages=('compilers', 'executors', 'formats')):
+    @classmethod
+    def discover(cls, packages=('compilers', 'executors', 'formats')):
         """Discover plugin modules.
 
         :param packages: Package names
@@ -79,31 +80,45 @@ class PluginManager(object):
                 # Find package
                 try:
                     _, package_path, _ = imp.find_module(package, [search_path])
-                except ImportError as ex:
+                except ImportError:
                     continue
 
-                # Iterate over modules in package
-                for _, name, _ in pkgutil.iter_modules([package_path]):
-                    # Find module
-                    try:
-                        fp, module_path, description = imp.find_module(name, [package_path])
-                    except ImportError as ex:
-                        log.warn('Unable to find module \'%s\' in %r: %s', name, package_path, ex)
-                        continue
+                # Discover plugins in package
+                for mod in cls.discover_package(package, package_path):
+                    yield mod
 
-                    # Return existing module (if available)
-                    full_name = 'byte.%s.%s' % (package, name)
+    @staticmethod
+    def discover_package(package, package_path):
+        """Discover plugin modules in package.
 
-                    if full_name in sys.modules:
-                        yield sys.modules[full_name]
-                        continue
+        :param package: Package name
+        :type package: str
 
-                    # Import module
-                    try:
-                        yield imp.load_module(full_name, fp, module_path, description)
-                    except ImportError as ex:
-                        log.warn('Unable to load module \'%s\' in %r: %s', name, module_path, ex)
-                        continue
+        :param package_path: Package path
+        :type package_path: str
+        """
+        # Iterate over modules in package
+        for _, name, _ in pkgutil.iter_modules([package_path]):
+            # Find module
+            try:
+                fp, module_path, description = imp.find_module(name, [package_path])
+            except ImportError as ex:
+                log.warn('Unable to find module \'%s\' in %r: %s', name, package_path, ex)
+                continue
+
+            # Return existing module (if available)
+            full_name = 'byte.%s.%s' % (package, name)
+
+            if full_name in sys.modules:
+                yield sys.modules[full_name]
+                continue
+
+            # Import module
+            try:
+                yield imp.load_module(full_name, fp, module_path, description)
+            except ImportError as ex:
+                log.warn('Unable to load module \'%s\' in %r: %s', name, module_path, ex)
+                continue
 
     def get(self, kind, key):
         """Get plugin.
