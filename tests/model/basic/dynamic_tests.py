@@ -1,8 +1,9 @@
 """Dynamic model tests."""
-from tests.base.models.dynamic.user import User
+from __future__ import absolute_import, division, print_function
 
 from byte.model import Model
 from byte.property import Property
+from tests.base.models.dynamic.user import User
 
 from datetime import datetime
 from dateutil.tz import tzutc

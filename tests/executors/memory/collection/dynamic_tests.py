@@ -1,10 +1,10 @@
 """Dynamic tests for memory collections."""
+from __future__ import absolute_import, division, print_function
+
+from byte.collection import Collection
 from tests.base.models.dynamic.album import Album
 from tests.base.models.dynamic.artist import Artist
 from tests.base.models.dynamic.track import Track
-
-from byte.collection import Collection
-from byte.property import Property
 import byte.compilers.operation
 import byte.executors.memory
 

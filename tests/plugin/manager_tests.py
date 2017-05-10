@@ -1,8 +1,11 @@
+from __future__ import absolute_import, division, print_function
+
 from byte.core.plugin.manager import PluginManager
 import byte.executors.memory
 
 
 def test_discovery():
+    """Test plugins can be discovered."""
     plugins = PluginManager()
 
     # Ensure the core executors have been registered
@@ -11,6 +14,7 @@ def test_discovery():
 
 
 def test_provided_modules():
+    """Test plugins can be resolved from modules."""
     plugins = PluginManager([
         byte.executors.memory
     ])

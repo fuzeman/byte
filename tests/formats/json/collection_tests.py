@@ -1,19 +1,21 @@
 """Dynamic tests for memory collections."""
+from __future__ import absolute_import, division, print_function
 
+from byte.collection import Collection
 from tests.base.core.fixtures import get_fixture_uri
 from tests.base.models.dynamic.album import Album
 from tests.base.models.dynamic.artist import Artist
 from tests.base.models.dynamic.city import City
 from tests.base.models.dynamic.track import Track
-
-from byte.collection import Collection
-from hamcrest import *
 import byte.compilers.operation
 import byte.executors.file
 import byte.formats.json
 
+from hamcrest import *
+
 
 def test_all():
+    """Test all items are returned from json-formatted collection."""
     with get_fixture_uri('collections/artists.json') as artists_uri:
         artists = Collection(Artist, artists_uri, plugins=[
             byte.compilers.operation,
@@ -51,6 +53,7 @@ def test_all():
 
 
 def test_create():
+    """Test items can be created on json-formatted collections."""
     with get_fixture_uri('collections/artists.json') as artists_uri:
         artists = Collection(Artist, artists_uri, plugins=[
             byte.compilers.operation,
@@ -69,6 +72,7 @@ def test_create():
 
 
 def test_get_basic():
+    """Test items can be retrieved from json-formatted collections."""
     with get_fixture_uri('collections/artists.json') as artists_uri:
         artists = Collection(Artist, artists_uri, plugins=[
             byte.compilers.operation,
@@ -84,6 +88,7 @@ def test_get_basic():
 
 
 def test_get_relations():
+    """Test relations can be resolved in json-formatted collections."""
     with get_fixture_uri((
         'collections/artists.json',
         'collections/albums.json',
@@ -142,6 +147,7 @@ def test_get_relations():
 
 
 def test_where():
+    """Test json-formatted collections can be filtered with expressions."""
     with get_fixture_uri('collections/cities.json') as cities_uri:
         cities = Collection(City, cities_uri, plugins=[
             byte.compilers.operation,

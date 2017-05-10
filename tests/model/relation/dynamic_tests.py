@@ -1,4 +1,6 @@
 """Relation tests for dynamic models."""
+from __future__ import absolute_import, division, print_function
+
 from tests.base.models.dynamic.album import Album
 from tests.base.models.dynamic.artist import Artist
 from tests.base.models.dynamic.track import Track

@@ -1,7 +1,8 @@
-from tests.base.models.dynamic.user import User
+from __future__ import absolute_import, division, print_function
 
 from byte.collection import Collection
 from byte.expressions import Equal, LessThan, NotEqual, Or
+from tests.base.models.dynamic.user import User
 
 from hamcrest import *
 
@@ -9,6 +10,7 @@ users = Collection(User)
 
 
 def test_or():
+    """Test select() statement can be created with an OR operator inside a string expression."""
     query = users.select().where(
         'id < 35 or username == "alpha"'
     )
@@ -26,6 +28,7 @@ def test_or():
 
 
 def test_or_brackets():
+    """Test select() statement can be created with an OR operator and brackets inside a string expression."""
     query = users.select().where(
         'id < 35 AND (username != "alpha" or password == "beta") AND password ne "alpha"'
     )
@@ -45,6 +48,7 @@ def test_or_brackets():
 
 
 def test_parameters():
+    """Test select() statement can be created with parameters inside a string expression."""
     query = users.select().where(
         'id < ? AND username != ?',
         (35, 'alpha')
