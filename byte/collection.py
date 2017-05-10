@@ -40,7 +40,7 @@ class CollectionValidationError(CollectionError):
 class Collection(object):
     """Collection for the storage of keyed items."""
 
-    def __init__(self, model_or_uri=None, uri=None, model=None, executor=None, plugins=None):
+    def __init__(self, model_or_uri=None, uri=None, model=None, executor=None, plugins=None, **kwargs):
         """
         Create keyed item collection.
 
@@ -95,6 +95,23 @@ class Collection(object):
             self.executor = executor
         elif uri:
             self.executor = self.plugins.get_executor_by_scheme(self.uri.scheme)
+
+        # Set plugin configuration
+        for key, value in kwargs.items():
+            kind, key = tuple(key.split('_', 1))
+
+            # Ensure plugin exists
+            if not hasattr(self, kind):
+                raise ValueError('Unknown plugin: %s' % (kind,))
+
+            # Ensure attribute exists
+            plugin = getattr(self, kind)
+
+            if not hasattr(plugin, key):
+                raise ValueError('Unknown plugin attribute: %s.%s' % (kind, key))
+
+            # Set attribute value
+            setattr(plugin, key, value)
 
     @property
     def executor(self):
