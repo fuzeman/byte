@@ -5,7 +5,7 @@
 from __future__ import absolute_import, division, print_function
 
 from byte.core.plugin.manager import PluginManager
-from byte.executors.core.base import Executor
+from byte.executors.core.base import Executor, FormatExecutor
 from byte.model import Model
 from byte.statements import DeleteStatement, InsertStatement, SelectStatement, UpdateStatement
 
@@ -142,6 +142,13 @@ class Collection(object):
 
         # Unknown value
         raise ValueError('Unknown value provided (expected `Executor` class or instance)')
+
+    @property
+    def format(self):
+        if not isinstance(self.executor, FormatExecutor):
+            raise ValueError('Executor doesn\'t support formats')
+
+        return self.executor.format
 
     @property
     def internal(self):
