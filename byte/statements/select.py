@@ -67,21 +67,7 @@ class SelectStatement(WhereStatement):
             self.state['order_by'] = []
 
         for prop in properties:
-            options = None
-            order = None
-
-            # Parse tuple property definition
-            if type(prop) is tuple:
-                if len(prop) != 2:
-                    raise ValueError('Invalid property definition')
-
-                if type(prop[1]) is not dict and not isinstance(prop[1], string_types):
-                    raise ValueError('Invalid property definition')
-
-                if isinstance(prop[1], string_types):
-                    prop, order = prop
-                else:
-                    prop, options = prop
+            prop, order, options = self._parse_property_tuple(prop)
 
             # Resolve `order` value
             if order:
@@ -104,6 +90,27 @@ class SelectStatement(WhereStatement):
 
             # Append property definition to state
             self.state['order_by'].append((prop, options))
+
+    @staticmethod
+    def _parse_property_tuple(prop):
+        options = None
+        order = None
+
+        if type(prop) is not tuple:
+            return prop, order, options
+
+        if len(prop) != 2:
+            raise ValueError('Invalid property definition')
+
+        if type(prop[1]) is not dict and not isinstance(prop[1], string_types):
+            raise ValueError('Invalid property definition')
+
+        if isinstance(prop[1], string_types):
+            prop, order = prop
+        else:
+            prop, options = prop
+
+        return prop, order, options
 
     def __iter__(self):
         """Execute statement, and retrieve the item iterator."""
