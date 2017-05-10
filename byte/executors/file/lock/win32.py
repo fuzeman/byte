@@ -1,4 +1,4 @@
-"""File executor win32 lock."""
+"""File executor win32 lock module."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -10,13 +10,21 @@ import win32file
 
 
 class BaseWin32FileLock(BaseFileLock):
+    """Base win32 lock class."""
+
     def __init__(self, fp):
+        """Create win32 lock.
+
+        :param fp: File
+        :type fp: file or io.IOBase
+        """
         super(BaseWin32FileLock, self).__init__(fp)
 
         # Retrieve win32 file handle
         self.handle = win32file._get_osfhandle(self.fp.fileno())
 
     def release(self):
+        """Release lock."""
         # Unlock file
         try:
             win32file.UnlockFileEx(self.handle, 0, 0x7fff0000, pywintypes.OVERLAPPED())
@@ -25,7 +33,14 @@ class BaseWin32FileLock(BaseFileLock):
 
 
 class Win32ExclusiveFileLock(BaseWin32FileLock):
+    """Exclusive win32 lock class."""
+
     def acquire(self, blocking=None):
+        """Acquire lock.
+
+        :param blocking: Block until the lock has been acquired
+        :type blocking: bool
+        """
         if blocking is None:
             blocking = self.blocking
 
@@ -43,7 +58,14 @@ class Win32ExclusiveFileLock(BaseWin32FileLock):
 
 
 class Win32SharedFileLock(BaseWin32FileLock):
+    """Shared win32 lock class."""
+
     def acquire(self, blocking=None):
+        """Acquire lock.
+
+        :param blocking: Block until the lock has been acquired
+        :type blocking: bool
+        """
         if blocking is None:
             blocking = self.blocking
 

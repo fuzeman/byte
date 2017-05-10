@@ -7,13 +7,21 @@ from byte.core.models.task.simple import SimpleTask, SimpleReadTask, SimpleSelec
 
 
 class StreamTask(SimpleTask):
+    """Base stream task class."""
+
     def __init__(self, executor):
+        """Create stream task.
+
+        :param executor: Executor
+        :type executor: byte.executors.core.base.Executor
+        """
         super(StreamTask, self).__init__(executor)
 
         self.stream = None
 
     @property
     def state(self):
+        """Retrieve task state."""
         if self.stream is None:
             return Task.State.created
 
@@ -23,6 +31,7 @@ class StreamTask(SimpleTask):
         return Task.State.started
 
     def open(self):
+        """Open task stream."""
         if self.closed:
             raise ValueError('Task has been closed')
 
@@ -33,6 +42,7 @@ class StreamTask(SimpleTask):
         self.stream = self.executor.read()
 
     def close(self):
+        """Close task stream."""
         if self.closed:
             raise ValueError('Task has already been closed')
 
@@ -47,12 +57,18 @@ class StreamTask(SimpleTask):
 
 
 class StreamReadTask(SimpleReadTask, StreamTask):
+    """Base stream read task class."""
+
     pass
 
 
 class StreamSelectTask(SimpleSelectTask, StreamTask):
+    """Base stream select task."""
+
     pass
 
 
 class StreamWriteTask(SimpleWriteTask, StreamTask):
+    """Base stream write task."""
+
     pass

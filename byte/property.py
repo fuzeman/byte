@@ -326,8 +326,7 @@ class RelationProperty(Property):
 
     @property
     def cache_key(self):
-        """
-        Retrieve relation cache key.
+        """Retrieve relation cache key.
 
         :return: Cache key
         :rtype: str
@@ -336,6 +335,11 @@ class RelationProperty(Property):
 
     @property
     def collection(self):
+        """Retrieve collection.
+
+        :return: Collection
+        :rtype: byte.collection.Collection
+        """
         if self._collection:
             return self._collection
 
@@ -353,8 +357,7 @@ class RelationProperty(Property):
         self._collection = collection
 
     def get_cache(self, obj):
-        """
-        Try retrieve cached relation value.
+        """Try retrieve cached relation value.
 
         :param obj: Instance
         :type obj: byte.model.Model
@@ -365,8 +368,7 @@ class RelationProperty(Property):
         return getattr(obj, self.cache_key, None)
 
     def set_cache(self, obj, value):
-        """
-        Update cached relation value.
+        """Update cached relation value.
 
         :param obj: Instance
         :type obj: byte.model.Model
@@ -377,8 +379,7 @@ class RelationProperty(Property):
         setattr(obj, self.cache_key, value)
 
     def __get__(self, obj, type=None):
-        """
-        Retrieve related item.
+        """Retrieve related item.
 
         :param obj: Instance
         :type obj: byte.model.Model
@@ -435,12 +436,16 @@ class RelationProperty(Property):
 
 
 class PropertyExpression(Expression):
+    """Property expression class."""
+
     def asc(self):
+        """Ascending order."""
         return (self.value, {
             'order': 'ascending'
         })
 
     def desc(self):
+        """Descending order."""
         return (self.value, {
             'order': 'descending'
         })

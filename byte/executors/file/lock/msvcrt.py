@@ -29,7 +29,10 @@ else:
 
 
 class BaseMsvcrtFileLock(BaseFileLock):
+    """Base Visual C++ runtime lock class."""
+
     def release(self):
+        """Release lock."""
         try:
             # Save current position, and seek to the start
             if is_file(self.fp):
@@ -54,7 +57,14 @@ class BaseMsvcrtFileLock(BaseFileLock):
 
 
 class MsvcrtExclusiveFileLock(BaseMsvcrtFileLock):
+    """Exclusive Visual C++ runtime lock class."""
+
     def acquire(self, blocking=None):
+        """Acquire lock.
+
+        :param blocking: Block until the lock has been acquired
+        :type blocking: bool
+        """
         if blocking is None:
             blocking = self.blocking
 
@@ -82,7 +92,14 @@ class MsvcrtExclusiveFileLock(BaseMsvcrtFileLock):
 
 
 class MsvcrtSharedFileLock(BaseMsvcrtFileLock):
+    """Shared Visual C++ runtime lock class."""
+
     def acquire(self, blocking=None):
+        """Acquire lock.
+
+        :param blocking: Block until the lock has been acquired
+        :type blocking: bool
+        """
         if blocking is None:
             blocking = self.blocking
 

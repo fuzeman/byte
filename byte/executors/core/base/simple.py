@@ -6,9 +6,14 @@ from byte.executors.core.base.executor import Executor, ExecutorPlugin
 
 
 class SimpleExecutor(Executor):
+    """Base simple executor class."""
+
     def revision(self):
+        """Create revision."""
         raise NotImplementedError
 
 
 class SimpleExecutorPlugin(SimpleExecutor, ExecutorPlugin):
+    """Base simple executor plugin class."""
+
     pass

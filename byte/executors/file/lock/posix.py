@@ -8,7 +8,10 @@ import fcntl
 
 
 class BasePosixFileLock(BaseFileLock):
+    """Base posix lock class."""
+
     def release(self):
+        """Release lock."""
         # Unlock file
         try:
             fcntl.lockf(self.fp, fcntl.LOCK_UN)
@@ -17,7 +20,14 @@ class BasePosixFileLock(BaseFileLock):
 
 
 class PosixExclusiveFileLock(BasePosixFileLock):
+    """Exclusive posix lock class."""
+
     def acquire(self, blocking=None):
+        """Acquire lock.
+
+        :param blocking: Block until the lock has been acquired
+        :type blocking: bool
+        """
         if blocking is None:
             blocking = self.blocking
 
@@ -35,7 +45,14 @@ class PosixExclusiveFileLock(BasePosixFileLock):
 
 
 class PosixSharedFileLock(BasePosixFileLock):
+    """Shared posix lock class."""
+
     def acquire(self, blocking=None):
+        """Acquire lock.
+
+        :param blocking: Block until the lock has been acquired
+        :type blocking: bool
+        """
         if blocking is None:
             blocking = self.blocking
 

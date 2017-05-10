@@ -11,8 +11,12 @@ __all__ = (
 
 
 class DocumentFormat(Format):
+    """Document format base class."""
+
     pass
 
 
 class DocumentFormatPlugin(DocumentFormat, FormatPlugin):
+    """Document format plugin class."""
+
     format_type = 'document'

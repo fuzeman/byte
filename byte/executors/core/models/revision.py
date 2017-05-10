@@ -4,7 +4,14 @@ from __future__ import absolute_import, division, print_function
 
 
 class Revision(object):
+    """Base executor revision class."""
+
     def __init__(self, executor):
+        """Create executor revision.
+
+        :param executor: Executor
+        :type executor: byte.executors.core.base.Executor
+        """
         self.executor = executor
 
     def __enter__(self):

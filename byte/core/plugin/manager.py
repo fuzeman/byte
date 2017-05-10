@@ -19,6 +19,8 @@ log = logging.getLogger(__name__)
 
 
 class PluginManager(object):
+    """Plugin manager class."""
+
     kinds = [
         'compiler',
         'executor',
@@ -26,6 +28,11 @@ class PluginManager(object):
     ]
 
     def __init__(self, modules=None):
+        """Create plugin manager.
+
+        :param modules: Default plugin modules
+        :type modules: list of module or None
+        """
         # Compilers
         self.compilers_by_content_type = {}
         self.compilers_by_extension = {}
@@ -50,6 +57,11 @@ class PluginManager(object):
         self.update(modules, reset=False)
 
     def discover(self, packages=('compilers', 'executors', 'formats')):
+        """Discover plugin modules.
+
+        :param packages: Package names
+        :type packages: tuple of str
+        """
         scanned_paths = set()
 
         for search_path in byte_path:
@@ -94,6 +106,16 @@ class PluginManager(object):
                         continue
 
     def get(self, kind, key):
+        """Get plugin.
+
+        Raises :code:`ValueError` on unknown plugin type or key.
+
+        :param kind: Plugin type
+        :type kind: str
+
+        :param key: Plugin key
+        :type key: str
+        """
         if kind not in self.kinds:
             raise ValueError('Unknown plugin kind: %s' % (kind,))
 
@@ -112,9 +134,19 @@ class PluginManager(object):
         return plugin
 
     def get_compiler(self, key):
+        """Retrieve compiler by key.
+
+        :param key: Key
+        :type key: str
+        """
         return self.plugins_by_kind.get('compiler', {})[key]
 
     def get_compiler_by_content_type(self, content_type):
+        """Retrieve compiler by content type.
+
+        :param content_type: Content type
+        :type content_type: str
+        """
         compilers = self.compilers_by_content_type.get(content_type)
 
         if not compilers:
@@ -124,6 +156,11 @@ class PluginManager(object):
         return compiler
 
     def get_compiler_by_extension(self, extension):
+        """Retrieve compiler by file extension.
+
+        :param extension: File extension
+        :type extension: str
+        """
         compilers = self.compilers_by_extension.get(extension)
 
         if not compilers:
@@ -133,6 +170,11 @@ class PluginManager(object):
         return compiler
 
     def get_executor_by_scheme(self, scheme):
+        """Retrieve executor by URI scheme.
+
+        :param scheme: URI Scheme
+        :type scheme: str
+        """
         executors = self.executors_by_scheme.get(scheme)
 
         if not executors:
@@ -142,6 +184,11 @@ class PluginManager(object):
         return executor
 
     def get_collection_format_by_content_type(self, content_type):
+        """Retrieve collection format by content type.
+
+        :param content_type: Content type
+        :type content_type: str
+        """
         compilers = self.collection_formats_by_content_type.get(content_type)
 
         if not compilers:
@@ -151,6 +198,11 @@ class PluginManager(object):
         return compiler
 
     def get_collection_format_by_extension(self, extension):
+        """Retrieve collection format by file extension.
+
+        :param extension: File extension
+        :type extension: str
+        """
         compilers = self.collection_formats_by_extension.get(extension)
 
         if not compilers:
@@ -160,6 +212,11 @@ class PluginManager(object):
         return compiler
 
     def get_document_format_by_content_type(self, content_type):
+        """Retrieve document format by content type.
+
+        :param content_type: Content type
+        :type content_type: str
+        """
         compilers = self.document_formats_by_content_type.get(content_type)
 
         if not compilers:
@@ -169,6 +226,11 @@ class PluginManager(object):
         return compiler
 
     def get_document_format_by_extension(self, extension):
+        """Retrieve document format by file extension.
+
+        :param extension: File extension
+        :type extension: str
+        """
         compilers = self.document_formats_by_extension.get(extension)
 
         if not compilers:
@@ -178,6 +240,10 @@ class PluginManager(object):
         return compiler
 
     def register(self, plugin):
+        """Register plugin.
+
+        :param plugin: Plugin
+        """
         # Ensure plugin has a "key" defined
         if plugin.key is None:
             log.warn('Plugin \'%s\' in module \'%s\' has no "key" property defined', plugin.__name__, plugin.__module__)
@@ -263,6 +329,17 @@ class PluginManager(object):
         return True
 
     def register_attribute(self, collection, attribute, plugin, meta):
+        """Register plugin in collection.
+
+        :param collection: Plugin collection
+        :type collection: dict
+
+        :param attribute: Attribute name
+        :type attribute: str
+
+        :param plugin: Plugin
+        :param meta: Plugin metadata
+        """
         for value in (getattr(meta, attribute) or []):
             priority, value = self._resolve_definition(value)
 
@@ -275,12 +352,21 @@ class PluginManager(object):
             collection[value].sort()
 
     def reset(self):
+        """Reset plugin registry."""
         self.executors_by_scheme = {}
 
         self.plugins = {}
         self.plugins_by_kind = {}
 
     def update(self, modules=None, reset=True):
+        """Update plugins registry.
+
+        :param modules: Modules to scan for plugins
+        :type modules: list of module
+
+        :param reset: Reset registry
+        :type reset: bool
+        """
         # Reset state (if enabled)
         if reset:
             self.reset()

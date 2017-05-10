@@ -98,6 +98,11 @@ class Collection(object):
 
     @property
     def executor(self):
+        """Retrieve collection executor.
+
+        :return: Executor
+        :rtype: byte.executors.core.base.Executor
+        """
         if not self._executor:
             # Ensure executor class is available
             if not self._executor_cls:
@@ -114,6 +119,11 @@ class Collection(object):
 
     @executor.setter
     def executor(self, value):
+        """Set the current collection executor.
+
+        :param value: Executor (class or instance)
+        :type value: byte.executors.core.base.Executor or class
+        """
         if not value:
             self._executor = None
             self._executor_cls = None
@@ -150,8 +160,7 @@ class Collection(object):
         return self.model.Properties
 
     def bind(self, model):
-        """
-        Bind collection to data model.
+        """Bind collection to data model.
 
         :param model: Data model
         :type model: byte.model.Model
@@ -162,30 +171,47 @@ class Collection(object):
         self.model = model
 
     def connect(self, prop, collection):
+        """Connect collection to relation property.
+
+        :param prop: Relation property
+        :type prop: byte.property.RelationProperty
+
+        :param collection: Collection
+        :type collection: Collection
+        """
         if not prop:
             raise ValueError('Invalid property')
 
         prop.connect(collection)
 
     def execute(self, statement):
+        """Execute statement.
+
+        :param statement: Statement
+        :type statement: byte.statements.core.base.Statement
+        """
         if not self.executor:
             raise Exception('No executor available')
 
         return self.executor.execute(statement)
 
     def all(self):
+        """Retrieve all items from collection."""
         return self.select()
 
     def delete(self):
+        """Create delete statement."""
         return DeleteStatement(self, self.model)
 
     def select(self, *properties):
+        """Create select statement."""
         return SelectStatement(
             self, self.model,
             properties=properties
         )
 
     def update(self, args, **kwargs):
+        """Create update statement."""
         data = kwargs
 
         for value in args:
@@ -197,6 +223,7 @@ class Collection(object):
         )
 
     def create(self, **kwargs):
+        """Create item."""
         if not self.model:
             raise Exception('Collection has no model bound')
 
@@ -206,10 +233,12 @@ class Collection(object):
         )
 
     def create_or_get(self):
+        """Create (or retrieve the existing) item."""
         raise NotImplementedError
 
     # TODO Better handling of primary key queries (string values are currently parsed as statements)
     def get(self, *query, **kwargs):
+        """Retrieve item."""
         statement = self.select().limit(1)
 
         if query:
@@ -221,9 +250,11 @@ class Collection(object):
         return statement.first()
 
     def get_or_create(self):
+        """Retrieve existing (or create) item."""
         raise NotImplementedError
 
     def insert(self, *args, **kwargs):
+        """Create insert statement."""
         item = kwargs
 
         for value in args:
@@ -235,6 +266,7 @@ class Collection(object):
         )
 
     def insert_from(self, query, properties):
+        """Create insert from statement."""
         return InsertStatement(
             self, self.model,
             query=query,
@@ -242,6 +274,7 @@ class Collection(object):
         )
 
     def insert_many(self, items):
+        """Create insert many statement."""
         return InsertStatement(
             self, self.model,
             items=items

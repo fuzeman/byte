@@ -7,23 +7,32 @@ from byte.core.models.task.base import Task, ReadTask, SelectTask, WriteTask
 
 
 class SimpleTask(Task):
+    """Base simple task class."""
+
     pass
 
 
 class SimpleReadTask(ReadTask, SimpleTask):
+    """Base simple read task class."""
+
     pass
 
 
 class SimpleSelectTask(SelectTask, SimpleTask):
+    """Base simple select task."""
+
     def decode(self):
+        """Decode items."""
         raise NotImplementedError
 
     def execute(self):
+        """Execute task."""
         self.open()
 
         return self
 
     def items(self):
+        """Retrieve items from task."""
         if self.closed:
             raise ValueError('Task has been closed')
 
@@ -43,6 +52,14 @@ class SimpleSelectTask(SelectTask, SimpleTask):
 
     @staticmethod
     def is_match(item, expressions):
+        """Check if item matches expressions.
+
+        :param item: Item
+        :type item: byte.model.Model
+
+        :param expressions: Expressions
+        :type expressions: list of byte.base.BaseExpression
+        """
         for expression in expressions:
             if not expression.execute(item):
                 return False
@@ -51,13 +68,18 @@ class SimpleSelectTask(SelectTask, SimpleTask):
 
 
 class SimpleWriteTask(WriteTask, SimpleTask):
+    """Base simple write task class."""
+
     def decode(self):
+        """Decode items."""
         raise NotImplementedError
 
     def encode(self, revision, items):
+        """Encode items."""
         raise NotImplementedError
 
     def execute(self):
+        """Execute task."""
         self.open()
 
         # Retrieve primary key for model
@@ -77,6 +99,7 @@ class SimpleWriteTask(WriteTask, SimpleTask):
         return self
 
     def run(self, primary_key):
+        """Run insertion operation."""
         # Retrieve insertion operations
         insertions = self.index_insertions(primary_key)
 
@@ -104,6 +127,7 @@ class SimpleWriteTask(WriteTask, SimpleTask):
             yield (pk, item)
 
     def index_insertions(self, primary_key):
+        """Index insertion operations by primary key."""
         insertions = {}
 
         for operation in self.operations:

@@ -1,4 +1,4 @@
-"""Expressions module."""
+"""byte - expressions module."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -33,7 +33,13 @@ def resolve_value(value):
 
 
 class Expression(BaseExpression):
+    """Simple expression."""
+
     def __init__(self, value):
+        """Create simple expression.
+
+        :param value: Value
+        """
         self.value = resolve_value(value)
 
     def __eq__(self, other):
@@ -47,14 +53,31 @@ class Expression(BaseExpression):
 
 
 class CompoundExpression(BaseExpression):
+    """Base compound-expression."""
+
     def __init__(self, left, right):
+        """Create compound-expression.
+
+        :param left: Left value
+        :param right: Right value
+        """
         self.left = resolve_value(left)
         self.right = resolve_value(right)
 
     def matches(self, left, right):
+        """Check if values match.
+
+        :param left: Left value
+        :param right: Right value
+        """
         raise NotImplementedError
 
     def execute(self, item):
+        """Check if item matches expression.
+
+        :param item: Item
+        :type item: byte.model.Model
+        """
         return self.matches(
             get_value(item, self.left),
             get_value(item, self.right)
@@ -72,7 +95,13 @@ class CompoundExpression(BaseExpression):
 
 
 class MultiExpression(BaseExpression):
+    """Base multi-expression."""
+
     def __init__(self, *values):
+        """Create multi-expression.
+
+        :param values: Values
+        """
         self.values = [resolve_value(value) for value in values]
 
     def __eq__(self, other):
@@ -89,12 +118,28 @@ class MultiExpression(BaseExpression):
 
 
 class IsNull(Expression):
+    """Is-Null expression."""
+
     def execute(self, item):
+        """Check if item matches expression.
+
+        :param item: Item
+        :type item: byte.model.Model
+        """
         return get_value(item, self.value) is None
 
 
 class In(Expression):
+    """In expression."""
+
     def __init__(self, prop, items):
+        """Create in expression.
+
+        :param prop: Property
+        :type prop: byte.property.Property
+
+        :param items: Items
+        """
         super(In, self).__init__(prop)
 
         self.items = items
@@ -111,33 +156,54 @@ class In(Expression):
 
 
 class And(MultiExpression):
+    """And expression."""
+
     pass
 
 
 class Or(MultiExpression):
+    """Or expression."""
+
     pass
 
 
 class Equal(CompoundExpression):
+    """Equal expression."""
+
     def matches(self, left, right):
+        """Check if values match.
+
+        :param left: Left value
+        :param right: Right value
+        """
         return left == right
 
 
 class NotEqual(CompoundExpression):
+    """Not-Equal expression."""
+
     pass
 
 
 class LessThan(CompoundExpression):
+    """Less-Than expression."""
+
     pass
 
 
 class LessThanOrEqual(CompoundExpression):
+    """Less-Than-Or-Equal expression."""
+
     pass
 
 
 class GreaterThan(CompoundExpression):
+    """Greater-Than expression."""
+
     pass
 
 
 class GreaterThanOrEqual(CompoundExpression):
+    """Greater-Than-Or-Equal expression."""
+
     pass

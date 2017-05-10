@@ -8,9 +8,19 @@ from byte.statements import InsertStatement, SelectStatement
 
 
 class OperationCompiler(CompilerPlugin):
+    """Operation compiler class."""
+
     key = 'operation'
 
     def compile(self, statement):
+        """Compile statement.
+
+        :param statement: Statement
+        :type statement: byte.statements.core.base.Statement
+
+        :return: Operation
+        :rtype byte.compiler.core.models.Operation
+        """
         if isinstance(statement, InsertStatement):
             return self.compile_insert(statement)
 
@@ -20,6 +30,14 @@ class OperationCompiler(CompilerPlugin):
         raise NotImplementedError('Unsupported statement: %s' % (statement,))
 
     def compile_insert(self, statement):
+        """Compile insert statement.
+
+        :param statement: Insert statement
+        :type statement: byte.statements.InsertStatement
+
+        :return: Insert operation
+        :rtype byte.compiler.core.models.InsertOperation
+        """
         if statement.properties:
             raise NotImplementedError('"properties" attribute is not supported on insert statements')
 
@@ -31,6 +49,14 @@ class OperationCompiler(CompilerPlugin):
         )
 
     def compile_select(self, statement):
+        """Compile select statement.
+
+        :param statement: Select statement
+        :type statement: byte.statements.SelectStatement
+
+        :return: Select operation
+        :rtype byte.compiler.core.models.SelectOperation
+        """
         return SelectOperation(
             where=statement.state.get('where', [])
         )

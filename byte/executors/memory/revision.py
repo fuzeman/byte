@@ -8,13 +8,21 @@ from copy import deepcopy
 
 
 class MemoryRevision(Revision):
+    """Memory executor revision class."""
+
     def __init__(self, executor):
+        """Create memory executor revision.
+
+        :param executor: Memory executor
+        :type executor: byte.executors.memory.MemoryExecutor
+        """
         super(MemoryRevision, self).__init__(executor)
 
         self.revert_items = {}
         self.items = {}
 
     def replace(self):
+        """Replace collection with revision."""
         try:
             # Replace collection items
             self.executor.items = self.items
@@ -27,6 +35,7 @@ class MemoryRevision(Revision):
             self.revert_items = None
 
     def revert(self):
+        """Revert collection to backup."""
         # Revert collection to backup items
         self.executor.items = self.revert_items
 

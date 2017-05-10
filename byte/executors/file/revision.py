@@ -11,7 +11,14 @@ import shutil
 
 
 class FileRevision(Revision):
+    """File executor revision class."""
+
     def __init__(self, executor):
+        """Create file executor revision.
+
+        :param executor: File executor
+        :type executor: byte.executors.file.FileExecutor
+        """
         super(FileRevision, self).__init__(executor)
 
         self.revert_path = os.path.join(
@@ -28,6 +35,7 @@ class FileRevision(Revision):
         )
 
     def replace(self, fp):
+        """Replace collection with revision."""
         try:
             # Seek revision file to start
             self.stream.seek(0)
@@ -43,6 +51,7 @@ class FileRevision(Revision):
             os.remove(self.revert_path)
 
     def revert(self, fp):
+        """Revert collection to backup."""
         # Revert collection to backup contents
         with open(self.revert_path, 'rb') as rp:
             shutil.copyfileobj(rp, fp)

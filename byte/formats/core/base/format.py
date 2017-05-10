@@ -15,14 +15,20 @@ __all__ = (
 
 
 class Format(object):
+    """Format base class."""
+
     pass
 
 
 class FormatPlugin(Format, Plugin):
+    """Format plugin class."""
+
     key = None
     priority = Plugin.Priority.Medium
 
     class Meta(Plugin.Meta):
+        """Format metadata."""
+
         kind = 'format'
         format_type = None
 
@@ -31,6 +37,7 @@ class FormatPlugin(Format, Plugin):
 
         @classmethod
         def transform(cls):
+            """Transform format metadata."""
             cls.extension = resolve_tuples(
                 cls.extension,
                 lambda value: (Plugin.Priority.Medium, value)
@@ -42,12 +49,17 @@ class FormatPlugin(Format, Plugin):
             )
 
         @classmethod
-        def validate(cls, compiler):
-            assert compiler.key, (
+        def validate(cls, fmt):
+            """Validate format metadata.
+
+            :param fmt: Format
+            :type fmt: FormatPlugin
+            """
+            assert fmt.key, (
                 'Plugin has no "key" attribute defined'
             )
 
-            assert isinstance(compiler.key, string_types), (
+            assert isinstance(fmt.key, string_types), (
                 'Invalid value provided for the plugin "key" attribute (expected str)'
             )
 
