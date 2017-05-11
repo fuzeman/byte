@@ -15,7 +15,18 @@ class SimpleTask(Task):
 class SimpleReadTask(ReadTask, SimpleTask):
     """Base simple read task class."""
 
-    pass
+    def __init__(self, executor, operation):
+        """Create simple read task.
+
+        :param executor: Executor
+        :type executor: byte.executors.core.base.Executor
+
+        :param operation: Operation
+        :type operation: byte.compilers.core.models.Operation
+        """
+        super(ReadTask, self).__init__(executor)
+
+        self.operation = operation
 
 
 class SimpleSelectTask(SelectTask, SimpleTask):
@@ -69,6 +80,19 @@ class SimpleSelectTask(SelectTask, SimpleTask):
 
 class SimpleWriteTask(WriteTask, SimpleTask):
     """Base simple write task class."""
+
+    def __init__(self, executor, operations):
+        """Create simple write task.
+
+        :param executor: Executor
+        :type executor: byte.executors.core.base.Executor
+
+        :param operations: Operations
+        :type operations: list of byte.compilers.core.models.Operation
+        """
+        super(WriteTask, self).__init__(executor)
+
+        self.operations = operations
 
     def decode(self):
         """Decode items."""

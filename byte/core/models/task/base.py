@@ -74,18 +74,7 @@ class Task(object):
 class ReadTask(Task):
     """Base read task class."""
 
-    def __init__(self, executor, operation):
-        """Create read task.
-
-        :param executor: Executor
-        :type executor: byte.executors.core.base.Executor
-
-        :param operation: Operation
-        :type operation: byte.compilers.core.models.Operation
-        """
-        super(ReadTask, self).__init__(executor)
-
-        self.operation = operation
+    pass
 
 
 class SelectTask(ReadTask):
@@ -102,15 +91,4 @@ class SelectTask(ReadTask):
 class WriteTask(Task):
     """Base write task class."""
 
-    def __init__(self, executor, operations):
-        """Create read task.
-
-        :param executor: Executor
-        :type executor: byte.executors.core.base.Executor
-
-        :param operations: Operations
-        :type operations: list of byte.compilers.core.models.Operation
-        """
-        super(WriteTask, self).__init__(executor)
-
-        self.operations = operations
+    pass
