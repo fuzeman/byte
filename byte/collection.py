@@ -67,14 +67,8 @@ class Collection(object):
 
         self.plugins = None
 
-        # Parse dynamic parameter
-        if model_or_uri:
-            if inspect.isclass(model_or_uri) and issubclass(model_or_uri, Model):
-                model = model_or_uri
-            elif isinstance(model_or_uri, string_types):
-                uri = model_or_uri
-            else:
-                raise ValueError('Unknown initialization parameter value (expected subclass of Model, or string)')
+        # Parse `model_or_uri` parameter
+        model, uri = self._resolve_model_or_uri(model_or_uri, model, uri)
 
         # Parse keyword parameters
         if model:
@@ -84,11 +78,7 @@ class Collection(object):
         self.plugins = PluginManager(plugins)
 
         # Parse URI
-        if uri:
-            self.uri = urlparse(uri)
-
-            if self.uri.query:
-                self.parameters = dict(parse_qsl(self.uri.query))
+        self._parse_uri(uri)
 
         # Retrieve executor
         if executor:
@@ -97,21 +87,7 @@ class Collection(object):
             self.executor = self.plugins.get_executor_by_scheme(self.uri.scheme)
 
         # Set plugin configuration
-        for key, value in kwargs.items():
-            kind, key = tuple(key.split('_', 1))
-
-            # Ensure plugin exists
-            if not hasattr(self, kind):
-                raise ValueError('Unknown plugin: %s' % (kind,))
-
-            # Ensure attribute exists
-            plugin = getattr(self, kind)
-
-            if not hasattr(plugin, key):
-                raise ValueError('Unknown plugin attribute: %s.%s' % (kind, key))
-
-            # Set attribute value
-            setattr(plugin, key, value)
+        self._configure_plugins(**kwargs)
 
     @property
     def executor(self):
@@ -303,6 +279,45 @@ class Collection(object):
             self, self.model,
             items=items
         )
+
+    def _resolve_model_or_uri(self, model_or_uri, model, uri):
+        if not model_or_uri:
+            return model, uri
+
+        if inspect.isclass(model_or_uri) and issubclass(model_or_uri, Model):
+            model = model_or_uri
+        elif isinstance(model_or_uri, string_types):
+            uri = model_or_uri
+        else:
+            raise ValueError('Unknown initialization parameter value (expected subclass of Model, or string)')
+
+        return model, uri
+
+    def _parse_uri(self, uri):
+        if not uri:
+            return
+
+        self.uri = urlparse(uri)
+
+        if self.uri.query:
+            self.parameters = dict(parse_qsl(self.uri.query))
+
+    def _configure_plugins(self, **kwargs):
+        for key, value in kwargs.items():
+            kind, key = tuple(key.split('_', 1))
+
+            # Ensure plugin exists
+            if not hasattr(self, kind):
+                raise ValueError('Unknown plugin: %s' % (kind,))
+
+            # Ensure attribute exists
+            plugin = getattr(self, kind)
+
+            if not hasattr(plugin, key):
+                raise ValueError('Unknown plugin attribute: %s.%s' % (kind, key))
+
+            # Set attribute value
+            setattr(plugin, key, value)
 
 
 # noinspection PyAbstractClass
