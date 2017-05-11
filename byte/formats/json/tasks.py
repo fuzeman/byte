@@ -8,13 +8,13 @@ from byte.formats.json.encoder import JsonEncoder
 
 
 class JsonTask(StreamTask):
-    """JSON task base."""
+    """JSON task base class."""
 
     pass
 
 
 class JsonReadTask(StreamReadTask, JsonTask):
-    """JSON read task."""
+    """JSON read task class."""
 
     def __init__(self, executor, operation):
         """Create JSON read task.
@@ -65,7 +65,7 @@ class JsonReadTask(StreamReadTask, JsonTask):
 
 
 class JsonSelectTask(StreamSelectTask, JsonReadTask):
-    """JSON select task."""
+    """JSON select task class."""
 
     def decode(self):
         """Decode items."""
@@ -73,7 +73,7 @@ class JsonSelectTask(StreamSelectTask, JsonReadTask):
 
 
 class JsonWriteTask(StreamWriteTask, JsonTask):
-    """JSON write task."""
+    """JSON write task class."""
 
     def __init__(self, executor, operations):
         """Create JSON write task.
