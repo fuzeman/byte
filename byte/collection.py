@@ -138,6 +138,7 @@ class Collection(object):
 
     @property
     def format(self):
+        """Retrieve collection executor format."""
         if not isinstance(self.executor, FormatExecutor):
             raise ValueError('Executor doesn\'t support formats')
 
