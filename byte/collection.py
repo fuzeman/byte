@@ -4,13 +4,14 @@
 
 from __future__ import absolute_import, division, print_function
 
+from byte.core.compat import PY26
 from byte.core.plugin.manager import PluginManager
 from byte.executors.core.base import Executor, FormatExecutor
 from byte.model import Model
 from byte.statements import DeleteStatement, InsertStatement, SelectStatement, UpdateStatement
 
 from six import string_types
-from six.moves.urllib.parse import parse_qsl, urlparse
+from six.moves.urllib.parse import ParseResult, parse_qsl, urlparse
 import inspect
 import logging
 
@@ -298,7 +299,21 @@ class Collection(object):
         if not uri:
             return
 
-        self.uri = urlparse(uri)
+        if PY26:
+            # Retrieve scheme from `uri`
+            scheme_end = uri.index('://')
+            scheme = uri[0:scheme_end]
+
+            # Replace scheme in `uri` with "http" (to avoid parsing bugs)
+            uri = 'http' + uri[scheme_end:]
+
+            # Parse URI
+            parsed = urlparse(uri)
+
+            # Build parse result with original scheme
+            self.uri = ParseResult(scheme, *parsed[1:])
+        else:
+            self.uri = urlparse(uri)
 
         if self.uri.query:
             self.parameters = dict(parse_qsl(self.uri.query))
