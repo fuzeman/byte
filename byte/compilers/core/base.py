@@ -44,11 +44,11 @@ class Compiler(object):
 
         return self.executor.model
 
-    def compile(self, statement):
-        """Compile statement.
+    def compile(self, query):
+        """Compile query.
 
-        :param statement: Statement
-        :type statement: byte.statements.core.base.Statement
+        :param query: Query
+        :type query: byte.queries.Query
         """
         raise NotImplementedError
 

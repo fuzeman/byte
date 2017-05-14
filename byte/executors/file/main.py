@@ -52,16 +52,16 @@ class FileExecutor(FormatExecutorPlugin):
         """Construct format parser."""
         return self.plugins.get_collection_format_by_extension(self.extension[1:])()
 
-    def execute(self, statement):
-        """Execute statement.
+    def execute(self, query):
+        """Execute query.
 
-        :param statement: Statement
-        :type statement: byte.statements.core.base.Statement
+        :param query: Query
+        :type query: byte.queries.Query
         """
-        operation = self.compiler.compile(statement)
+        operation = self.compiler.compile(query)
 
         if not operation:
-            raise ValueError('Empty statement')
+            raise ValueError('Empty operation')
 
         return self.format.execute(self, operation)
 

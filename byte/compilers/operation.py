@@ -12,51 +12,48 @@ class OperationCompiler(CompilerPlugin):
 
     key = 'operation'
 
-    def compile(self, statement):
-        """Compile statement.
+    def compile(self, query):
+        """Compile query.
 
-        :param statement: Statement
-        :type statement: byte.statements.core.base.Statement
+        :param query: Query
+        :type query: byte.queries.Query
 
         :return: Operation
-        :rtype byte.compiler.core.models.Operation
+        :rtype byte.core.models.Operation
         """
-        if isinstance(statement, InsertQuery):
-            return self.compile_insert(statement)
+        if isinstance(query, InsertQuery):
+            return self.compile_insert(query)
 
-        if isinstance(statement, SelectQuery):
-            return self.compile_select(statement)
+        if isinstance(query, SelectQuery):
+            return self.compile_select(query)
 
-        raise NotImplementedError('Unsupported statement: %s' % (statement,))
+        raise NotImplementedError('Unsupported query: %s' % (query,))
 
-    def compile_insert(self, statement):
-        """Compile insert statement.
+    def compile_insert(self, query):
+        """Compile insert query.
 
-        :param statement: Insert statement
-        :type statement: byte.statements.InsertStatement
+        :param query: Insert Query
+        :type query: byte.queries.InsertQuery
 
-        :return: Insert operation
-        :rtype byte.compiler.core.models.InsertOperation
+        :return: Insert Operation
+        :rtype byte.core.models.InsertOperation
         """
-        if statement.properties:
-            raise NotImplementedError('"properties" attribute is not supported on insert statements')
-
-        if statement.query:
-            raise NotImplementedError('"query" attribute is not supported on insert statements')
+        if query.state['query']:
+            raise NotImplementedError('"query" is not supported on insert queries')
 
         return InsertOperation(
-            items=statement.items
+            items=query.state['items']
         )
 
-    def compile_select(self, statement):
-        """Compile select statement.
+    def compile_select(self, query):
+        """Compile select query.
 
-        :param statement: Select statement
-        :type statement: byte.statements.SelectStatement
+        :param query: Select Query
+        :type query: byte.queries.SelectQuery
 
-        :return: Select operation
-        :rtype byte.compiler.core.models.SelectOperation
+        :return: Select Operation
+        :rtype byte.core.models.SelectOperation
         """
         return SelectOperation(
-            where=statement.state.get('where', [])
+            where=query.state['where']
         )

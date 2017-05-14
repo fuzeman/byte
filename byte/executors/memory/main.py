@@ -31,16 +31,16 @@ class MemoryExecutor(SimpleExecutorPlugin):
 
         self.items = {}
 
-    def execute(self, statement):
-        """Execute statement.
+    def execute(self, query):
+        """Execute query.
 
-        :param statement: Statement
-        :type statement: byte.statements.core.base.Statement
+        :param query: Query
+        :type query: byte.queries.Query
         """
-        operation = self.compiler.compile(statement)
+        operation = self.compiler.compile(query)
 
         if not operation:
-            raise ValueError('Empty statement')
+            raise ValueError('Empty operation')
 
         if isinstance(operation, InsertOperation):
             return MemoryWriteTask(self, [operation]).execute()

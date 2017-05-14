@@ -46,11 +46,11 @@ class Executor(object):
         """Close executor."""
         raise NotImplementedError
 
-    def execute(self, statement):
-        """Execute statement.
+    def execute(self, query):
+        """Execute query.
 
-        :param statement: Statement
-        :type statement: byte.statements.core.base.Statement
+        :param query: Query
+        :type query: byte.queries.Query
         """
         raise NotImplementedError
 
