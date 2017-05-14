@@ -1,15 +1,15 @@
-"""Statement base module."""
+"""byte - query base module."""
 
 from __future__ import absolute_import, division, print_function
 
 import functools
 
 
-class Statement(object):
-    """Statement class."""
+class Query(object):
+    """Query class."""
 
     def __init__(self, collection, model, state=None):
-        """Create statement.
+        """Create Query.
 
         :param collection: Collection
         :type collection: byte.collection.Collection
@@ -28,9 +28,10 @@ class Statement(object):
         self._result = None
 
     def clone(self):
-        """Clone statement.
+        """Clone Query.
 
-        :rtype: Statement
+        :return: Query
+        :rtype: Query
         """
         def copy(value):
             if type(value) is dict:
@@ -50,15 +51,15 @@ class Statement(object):
         )
 
     def execute(self):
-        """Execute statement."""
+        """Execute query."""
         return self.collection.execute(self)
 
     def filter(self, *args, **kwargs):
-        """Filter statement results."""
+        """Filter query results."""
         raise NotImplementedError
 
     def first(self):
-        """Execute statement, and return the first item from the result."""
+        """Execute query, and return the first item from the result."""
         with self.execute() as result:
             for item in result:
                 return item
@@ -66,13 +67,11 @@ class Statement(object):
         return None
 
     def __enter__(self):
-        """Enter statement context."""
         self._result = self.execute()
 
         return self._result
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Exit statement context (release resources)."""
         if self._result is None:
             return
 
@@ -80,7 +79,7 @@ class Statement(object):
 
 
 def operation(func):
-    """Statement operation decorator.
+    """Query operation decorator.
 
     Clones the query before calling the bound method.
     """

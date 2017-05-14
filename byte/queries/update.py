@@ -1,16 +1,16 @@
-"""Update statement module."""
+"""byte - update query module."""
 
 from __future__ import absolute_import, division, print_function
 
-from byte.statements.where import WhereStatement
-from byte.statements.write import WriteStatement
+from byte.queries.where import WhereQuery
+from byte.queries.write import WriteQuery
 
 
-class UpdateStatement(WhereStatement, WriteStatement):
-    """Update statement."""
+class UpdateQuery(WhereQuery, WriteQuery):
+    """Update Query class."""
 
     def __init__(self, collection, model, data=None, state=None):
-        """Create update statement.
+        """Create Update Query.
 
         :param collection: Collection
         :type collection: byte.collection.Collection
@@ -24,6 +24,6 @@ class UpdateStatement(WhereStatement, WriteStatement):
         :param state: Initial state
         :type state: dict or None
         """
-        super(UpdateStatement, self).__init__(collection, model, state=state)
+        super(UpdateQuery, self).__init__(collection, model, state=state)
 
         self.data = data

@@ -4,11 +4,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from byte.base import BaseProperty
-from byte.expressions import (
-    Expression, IsNull, In, Equal, NotEqual, LessThan,
-    LessThanOrEqual, GreaterThan, GreaterThanOrEqual
-)
+from byte.core.models import BaseProperty, ProxyExpressions
 from byte.registry import Registry
 
 from arrow import Arrow
@@ -59,7 +55,7 @@ class PropertyValidationError(PropertyError):
     """Property validation error."""
 
 
-class Property(BaseProperty):
+class Property(BaseProperty, ProxyExpressions):
     """Property structure."""
 
     def __init__(self, value_type, by=None, default=None, max_length=None, name=None, nullable=False,
@@ -433,46 +429,3 @@ class RelationProperty(Property):
 
         # Cache relation value
         self.set_cache(obj, value)
-
-
-class PropertyExpression(Expression):
-    """Property expression class."""
-
-    def asc(self):
-        """Ascending order."""
-        return (self.value, {
-            'order': 'ascending'
-        })
-
-    def desc(self):
-        """Descending order."""
-        return (self.value, {
-            'order': 'descending'
-        })
-
-    def __lshift__(self, items):
-        return In(self, items)
-
-    def __rshift__(self, other):
-        if other is None:
-            return IsNull(self)
-
-        raise NotImplementedError
-
-    def __eq__(self, other):
-        return Equal(self.value, other)
-
-    def __ne__(self, other):
-        return NotEqual(self.value, other)
-
-    def __ge__(self, other):
-        return GreaterThanOrEqual(self.value, other)
-
-    def __gt__(self, other):
-        return GreaterThan(self.value, other)
-
-    def __le__(self, other):
-        return LessThanOrEqual(self.value, other)
-
-    def __lt__(self, other):
-        return LessThan(self.value, other)

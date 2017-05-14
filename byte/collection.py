@@ -8,7 +8,7 @@ from byte.core.compat import PY26
 from byte.core.plugin.manager import PluginManager
 from byte.executors.core.base import Executor, FormatExecutor
 from byte.model import Model
-from byte.statements import DeleteStatement, InsertStatement, SelectStatement, UpdateStatement
+from byte.queries import DeleteQuery, InsertQuery, SelectQuery, UpdateQuery
 
 from six import string_types
 from six.moves.urllib.parse import ParseResult, parse_qsl, urlparse
@@ -186,40 +186,40 @@ class Collection(object):
 
         prop.connect(collection)
 
-    def execute(self, statement):
-        """Execute statement.
+    def execute(self, query):
+        """Execute query.
 
-        :param statement: Statement
-        :type statement: byte.statements.core.base.Statement
+        :param query: Query
+        :type query: byte.queries.Query
         """
         if not self.executor:
             raise Exception('No executor available')
 
-        return self.executor.execute(statement)
+        return self.executor.execute(query)
 
     def all(self):
         """Retrieve all items from collection."""
         return self.select()
 
     def delete(self):
-        """Create delete statement."""
-        return DeleteStatement(self, self.model)
+        """Create delete query."""
+        return DeleteQuery(self, self.model)
 
     def select(self, *properties):
-        """Create select statement."""
-        return SelectStatement(
+        """Create select query."""
+        return SelectQuery(
             self, self.model,
-            properties=properties
+            properties=properties or None
         )
 
     def update(self, args, **kwargs):
-        """Create update statement."""
+        """Create update query."""
         data = kwargs
 
         for value in args:
             data.update(value)
 
-        return UpdateStatement(
+        return UpdateQuery(
             self, self.model,
             data=data
         )
@@ -238,46 +238,41 @@ class Collection(object):
         """Create (or retrieve the existing) item."""
         raise NotImplementedError
 
-    # TODO Better handling of primary key queries (string values are currently parsed as statements)
-    def get(self, *query, **kwargs):
+    # TODO Better handling of primary key queries (string values are currently parsed as expressions)
+    def get(self, *expressions, **kwargs):
         """Retrieve item."""
-        statement = self.select().limit(1)
+        query = self.select().limit(1)
 
-        if query:
-            statement = statement.where(*query)
+        if expressions:
+            query = query.where(*expressions)
 
         if kwargs:
-            statement = statement.filter(**kwargs)
+            query = query.filter(**kwargs)
 
-        return statement.first()
+        return query.first()
 
     def get_or_create(self):
         """Retrieve existing (or create) item."""
         raise NotImplementedError
 
-    def insert(self, *args, **kwargs):
-        """Create insert statement."""
-        item = kwargs
-
-        for value in args:
-            item.update(value)
-
-        return InsertStatement(
+    def insert(self, *args):
+        """Create insert query."""
+        return InsertQuery(
             self, self.model,
-            items=[item]
+            properties=args or None
         )
 
     def insert_from(self, query, properties):
-        """Create insert from statement."""
-        return InsertStatement(
+        """Create insert from query."""
+        return InsertQuery(
             self, self.model,
             query=query,
             properties=properties
         )
 
     def insert_many(self, items):
-        """Create insert many statement."""
-        return InsertStatement(
+        """Create insert many query."""
+        return InsertQuery(
             self, self.model,
             items=items
         )

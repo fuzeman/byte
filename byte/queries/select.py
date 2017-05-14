@@ -1,18 +1,17 @@
-"""Select statement module."""
-
+"""byte - select query module."""
 from __future__ import absolute_import, division, print_function
 
-from byte.statements.core.base import operation
-from byte.statements.where import WhereStatement
+from byte.queries.core.base import operation
+from byte.queries.where import WhereQuery
 
 from six import string_types
 
 
-class SelectStatement(WhereStatement):
-    """Select statement."""
+class SelectQuery(WhereQuery):
+    """Select Query class."""
 
     def __init__(self, collection, model, properties=None, state=None):
-        """Create select statement.
+        """Create Select Query.
 
         :param collection: Collection
         :type collection: byte.collection.Collection
@@ -20,34 +19,34 @@ class SelectStatement(WhereStatement):
         :param model: Model
         :type model: byte.model.Model
 
-        :param properties: Properties to retrieve (or :code:`None` to retrieve all properties)
+        :param properties: Properties to select (or :code:`None` to select all properties)
         :type properties: tuple or None
 
         :param state: Initial state
         :type state: dict or None
         """
-        super(SelectStatement, self).__init__(collection, model, state=state)
+        super(SelectQuery, self).__init__(collection, model, state=state)
 
-        self.properties = properties
+        # Update state
+        self.state.setdefault('select', properties)
+        self.state.setdefault('from', [collection.parameters.get('table')])
 
-    def count(self):
-        """Execute statement, and retrieve an integer representing the number of objects in the result."""
-        return len(self.execute())
+        # Set defaults
+        self.state.setdefault('distinct', False)
 
-    def exists(self):
-        """Execute statement, and retrieve boolean indicating if any results were returned."""
-        raise NotImplementedError
+        self.state.setdefault('group_by', None)
+        self.state.setdefault('order_by', None)
 
+        self.state.setdefault('limit', None)
+        self.state.setdefault('offset', None)
+
+    @operation
+    def distinct(self, on=True):
+        self.state['distinct'] = on
+
+    @operation
     def group_by(self, *args, **kwargs):
         """Group results by properties."""
-        raise NotImplementedError
-
-    def iterator(self):
-        """Execute statement, and retrieve the item iterator."""
-        return iter(self.execute())
-
-    def last(self):
-        """Execute statement, and retrieve the last item from the results."""
         raise NotImplementedError
 
     @operation
@@ -67,7 +66,7 @@ class SelectStatement(WhereStatement):
             self.state['order_by'] = []
 
         for prop in properties:
-            prop, order, options = self._parse_property_tuple(prop)
+            prop, order, options = self._parse_order_property(prop)
 
             # Resolve `order` value
             if order:
@@ -91,8 +90,24 @@ class SelectStatement(WhereStatement):
             # Append property definition to state
             self.state['order_by'].append((prop, options))
 
+    def count(self):
+        """Execute query, and retrieve an integer representing the number of objects in the result."""
+        return len(self.execute())
+
+    def exists(self):
+        """Execute query, and retrieve boolean indicating if any results were returned."""
+        raise NotImplementedError
+
+    def iterator(self):
+        """Execute query, and retrieve the item iterator."""
+        return iter(self.execute())
+
+    def last(self):
+        """Execute query, and retrieve the last item from the results."""
+        raise NotImplementedError
+
     @staticmethod
-    def _parse_property_tuple(prop):
+    def _parse_order_property(prop):
         options = None
         order = None
 
@@ -113,9 +128,7 @@ class SelectStatement(WhereStatement):
         return prop, order, options
 
     def __iter__(self):
-        """Execute statement, and retrieve the item iterator."""
         return self.iterator()
 
     def __len__(self):
-        """Execute statement, and retrieve an integer representing the number of objects in the result."""
         return self.count()

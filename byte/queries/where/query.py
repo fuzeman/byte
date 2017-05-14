@@ -1,19 +1,32 @@
-"""Where statement module."""
+"""byte - where query module."""
 
 from __future__ import absolute_import, division, print_function
 
-from byte.expressions import (
-    And, BaseExpression, Equal, GreaterThan, GreaterThanOrEqual, LessThan, LessThanOrEqual,
-    NotEqual, Or
+from byte.core.models.expressions.base import BaseExpression
+from byte.core.models.expressions.proxy import (
+    ProxyAnd,
+    ProxyEqual,
+    ProxyGreaterThan,
+    ProxyGreaterThanOrEqual,
+    ProxyLessThan,
+    ProxyLessThanOrEqual,
+    ProxyNotEqual,
+    ProxyOr
 )
-from byte.statements.core.base import Statement, operation
-from byte.statements.where.parser import WHERE
+from byte.queries.core.base import Query, operation
+from byte.queries.where.parser import WHERE
 
 from six import string_types
 
 
-class WhereStatement(Statement):
-    """Where statement."""
+class WhereQuery(Query):
+    """Where Query class."""
+
+    def __init__(self, collection, model, state=None):
+        super(WhereQuery, self).__init__(collection, model, state=state)
+
+        # Set defaults
+        self.state.setdefault('where', [])
 
     @operation
     def where(self, *args):
@@ -31,13 +44,7 @@ class WhereStatement(Statement):
 
         # Append expressions to state
         for value in args:
-            if isinstance(value, BaseExpression):
-                self.state['where'].append(value)
-            else:
-                if len(args) > 1:
-                    raise ValueError('Only one primary key expression allowed')
-
-                self.state['where'].append(Equal(self.model.Internal.primary_key, value))
+            self.state['where'].append(value)
 
     def __parse_string(self, value, *parameters):
         if not value:
@@ -57,7 +64,7 @@ class WhereStatement(Statement):
                 offset, len(parameters)
             ))
 
-        if isinstance(expression, And):
+        if isinstance(expression, ProxyAnd):
             return expression.values
 
         return [expression]
@@ -107,7 +114,7 @@ class WhereStatement(Statement):
         if len(expressions) == 1:
             return offset, expressions[0]
 
-        return offset, And(*expressions)
+        return offset, ProxyAnd(*expressions)
 
     def __resolve_string_value(self, value, offset=0, parameters=None):
         if isinstance(value, BaseExpression):
@@ -141,22 +148,22 @@ class WhereStatement(Statement):
 
     def __construct_expression(self, expressions, op, left, right):
         if op in ['eq', '=', '==']:
-            return Equal(left, right)
+            return ProxyEqual(left, right)
 
         if op in ['ne', '!=']:
-            return NotEqual(left, right)
+            return ProxyNotEqual(left, right)
 
         if op in ['lt', '<']:
-            return LessThan(left, right)
+            return ProxyLessThan(left, right)
 
         if op in ['le', '<=']:
-            return LessThanOrEqual(left, right)
+            return ProxyLessThanOrEqual(left, right)
 
         if op in ['gt', '>']:
-            return GreaterThan(left, right)
+            return ProxyGreaterThan(left, right)
 
         if op in ['ge', '>=']:
-            return GreaterThanOrEqual(left, right)
+            return ProxyGreaterThanOrEqual(left, right)
 
         if op == 'and':
             if not expressions:
@@ -166,6 +173,6 @@ class WhereStatement(Statement):
             return None
 
         if op == 'or':
-            return Or(left, right)
+            return ProxyOr(left, right)
 
         raise NotImplementedError

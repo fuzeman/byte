@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function
 
 from byte.compilers.core.base import CompilerPlugin
 from byte.compilers.core.models import InsertOperation, SelectOperation
-from byte.statements import InsertStatement, SelectStatement
+from byte.queries import InsertQuery, SelectQuery
 
 
 class OperationCompiler(CompilerPlugin):
@@ -21,10 +21,10 @@ class OperationCompiler(CompilerPlugin):
         :return: Operation
         :rtype byte.compiler.core.models.Operation
         """
-        if isinstance(statement, InsertStatement):
+        if isinstance(statement, InsertQuery):
             return self.compile_insert(statement)
 
-        if isinstance(statement, SelectStatement):
+        if isinstance(statement, SelectQuery):
             return self.compile_select(statement)
 
         raise NotImplementedError('Unsupported statement: %s' % (statement,))
