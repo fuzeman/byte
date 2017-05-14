@@ -6,6 +6,12 @@ class Expressions(object):
     def and_(self, *values):
         raise NotImplementedError
 
+    def asc(self):
+        raise NotImplementedError
+
+    def desc(self):
+        raise NotImplementedError
+
     def __and__(self, rhs):
         raise NotImplementedError
 
