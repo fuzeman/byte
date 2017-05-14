@@ -449,7 +449,7 @@ class Model(object):
 
         # Save item to collection
         if mode == 'insert':
-            return collection.insert(self.to_plain()).execute()
+            return collection.insert().items(self.to_plain()).execute()
 
         raise NotImplementedError
 
