@@ -6,6 +6,11 @@ from byte.core.models.expressions.base import Expressions, Expression, ManyExpre
 from byte.core.models.expressions.proxy import ProxyExpressions, ProxyExpression, ProxyManyExpression, ProxyStringExpression
 from byte.core.models.nodes.base import Node
 from byte.core.models.nodes.set import Set
+from byte.core.models.operations.base import Operation
+from byte.core.models.operations.delete import DeleteOperation
+from byte.core.models.operations.insert import InsertOperation
+from byte.core.models.operations.select import SelectOperation
+from byte.core.models.operations.update import UpdateOperation
 from byte.core.models.property import BaseProperty
 from byte.core.models.task.base import Task, ReadTask, SelectTask, WriteTask
 from byte.core.models.task.simple import SimpleTask, SimpleReadTask, SimpleSelectTask, SimpleWriteTask
@@ -24,6 +29,12 @@ __all__ = (
 
     'Node',
     'Set',
+
+    'Operation',
+    'DeleteOperation',
+    'InsertOperation',
+    'SelectOperation',
+    'UpdateOperation',
 
     'BaseProperty',
 

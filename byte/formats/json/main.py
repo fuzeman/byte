@@ -30,7 +30,7 @@ class JsonCollectionFormat(BaseJsonFormat, CollectionFormatPlugin):
         :type executor: byte.executors.core.base.Executor
 
         :param operation: Insert operation
-        :type operation: byte.compilers.core.models.InsertOperation
+        :type operation: byte.core.models.InsertOperation
         """
         return JsonWriteTask(executor, [operation]).execute()
 
@@ -41,7 +41,7 @@ class JsonCollectionFormat(BaseJsonFormat, CollectionFormatPlugin):
         :type executor: byte.executors.core.base.Executor
 
         :param operation: Select operation
-        :type operation: byte.compilers.core.models.SelectOperation
+        :type operation: byte.core.models.SelectOperation
         """
         return JsonSelectTask(executor, operation).execute()
 

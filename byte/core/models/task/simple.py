@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from byte.compilers.core.models import InsertOperation
+from byte.core.models import InsertOperation
 from byte.core.models.task.base import Task, ReadTask, SelectTask, WriteTask
 
 
@@ -22,7 +22,7 @@ class SimpleReadTask(ReadTask, SimpleTask):
         :type executor: byte.executors.core.base.Executor
 
         :param operation: Operation
-        :type operation: byte.compilers.core.models.Operation
+        :type operation: byte.core.models.Operation
         """
         super(ReadTask, self).__init__(executor)
 
@@ -88,7 +88,7 @@ class SimpleWriteTask(WriteTask, SimpleTask):
         :type executor: byte.executors.core.base.Executor
 
         :param operations: Operations
-        :type operations: list of byte.compilers.core.models.Operation
+        :type operations: list of byte.core.models.Operation
         """
         super(WriteTask, self).__init__(executor)
 

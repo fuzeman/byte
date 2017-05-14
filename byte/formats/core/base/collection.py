@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from byte.compilers.core.models import DeleteOperation, InsertOperation, SelectOperation, UpdateOperation
+from byte.core.models import DeleteOperation, InsertOperation, SelectOperation, UpdateOperation
 from byte.formats.core.base.format import Format, FormatPlugin
 
 __all__ = (
@@ -21,7 +21,7 @@ class CollectionFormat(Format):
         :type executor: byte.executors.core.base.Executor
 
         :param operation: Operation
-        :type operation: byte.compilers.core.models.Operation
+        :type operation: byte.core.models.Operation
         """
         if isinstance(operation, DeleteOperation):
             return self.delete(executor, operation)
@@ -44,7 +44,7 @@ class CollectionFormat(Format):
         :type executor: byte.executors.core.base.Executor
 
         :param operation: Delete operation
-        :type operation: byte.compilers.core.models.DeleteOperation
+        :type operation: byte.core.models.DeleteOperation
         """
         raise NotImplementedError('Delete operation hasn\'t been implemented')
 
@@ -55,7 +55,7 @@ class CollectionFormat(Format):
         :type executor: byte.executors.core.base.Executor
 
         :param operation: Insert operation
-        :type operation: byte.compilers.core.models.InsertOperation
+        :type operation: byte.core.models.InsertOperation
         """
         raise NotImplementedError('Insert operation hasn\'t been implemented')
 
@@ -66,7 +66,7 @@ class CollectionFormat(Format):
         :type executor: byte.executors.core.base.Executor
 
         :param operation: Select operation
-        :type operation: byte.compilers.core.models.SelectOperation
+        :type operation: byte.core.models.SelectOperation
         """
         raise NotImplementedError('Select operation hasn\'t been implemented')
 
@@ -77,7 +77,7 @@ class CollectionFormat(Format):
         :type executor: byte.executors.core.base.Executor
 
         :param operation: Update operation
-        :type operation: byte.compilers.core.models.UpdateOperation
+        :type operation: byte.core.models.UpdateOperation
         """
         raise NotImplementedError('Update operation hasn\'t been implemented')
 

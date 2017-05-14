@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from byte.compilers.core.models import InsertOperation, SelectOperation
+from byte.core.models import InsertOperation, SelectOperation
 from byte.executors.core.base import SimpleExecutorPlugin
 from byte.executors.memory.revision import MemoryRevision
 from byte.executors.memory.tasks import MemorySelectTask, MemoryWriteTask

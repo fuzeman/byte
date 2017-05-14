@@ -23,7 +23,7 @@ class JsonReadTask(StreamReadTask, JsonTask):
         :type executor: byte.executors.core.base.Executor
 
         :param operation: Read operation
-        :type operation: byte.compilers.core.models.Operation
+        :type operation: byte.core.models.Operation
         """
         super(JsonReadTask, self).__init__(executor, operation)
 
@@ -82,7 +82,7 @@ class JsonWriteTask(StreamWriteTask, JsonTask):
         :type executor: byte.executors.core.base.Executor
 
         :param operations: Write operations
-        :type operations: list of byte.compilers.core.models.Operation
+        :type operations: list of byte.core.models.Operation
         """
         super(JsonWriteTask, self).__init__(executor, operations)
 

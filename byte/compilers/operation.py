@@ -3,7 +3,7 @@
 from __future__ import absolute_import, division, print_function
 
 from byte.compilers.core.base import CompilerPlugin
-from byte.compilers.core.models import InsertOperation, SelectOperation
+from byte.core.models import InsertOperation, SelectOperation
 from byte.queries import InsertQuery, SelectQuery
 
 
