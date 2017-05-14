@@ -417,7 +417,7 @@ class RelationProperty(Property):
             raise PropertyError("No collection available for '%s'" % (self.value_type.__name__,))
 
         # Retrieve item from collection
-        value = collection.get(key)
+        value = collection.get(self.relation == key)
 
         # Cache relation value
         self.set_cache(obj, value)
