@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """Contains the property structure."""
-
 from __future__ import absolute_import, division, print_function
 
 from byte.core.models import BaseProperty, ProxyExpressions
@@ -57,6 +56,10 @@ class PropertyValidationError(PropertyError):
 
 class Property(BaseProperty, ProxyExpressions):
     """Property structure."""
+
+    class Order(object):
+        Ascending   = 'ascending'   # noqa
+        Descending  = 'descending'  # noqa
 
     def __init__(self, value_type, by=None, default=None, max_length=None, name=None, nullable=False,
                  primary_key=False):
@@ -119,6 +122,11 @@ class Property(BaseProperty, ProxyExpressions):
         """
         return self._relation
 
+    def asc(self):
+        return self, {
+            'order': Property.Order.Ascending
+        }
+
     def bind(self, model, key):
         """
         Bind property to model.
@@ -131,6 +139,11 @@ class Property(BaseProperty, ProxyExpressions):
         """
         self.model = model
         self.key = key
+
+    def desc(self):
+        return self, {
+            'order': Property.Order.Descending
+        }
 
     def get(self, obj):
         """
