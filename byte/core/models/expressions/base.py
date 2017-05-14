@@ -1,4 +1,5 @@
 from byte.core.models.nodes import Node
+from byte.core.models.property import BaseProperty
 
 
 class Expressions(object):
@@ -27,6 +28,21 @@ class Expression(BaseExpression):
         self.lhs = lhs
         self.rhs = rhs
 
+    def resolve_lhs(self, item):
+        if isinstance(self.lhs, BaseProperty):
+            return self.lhs.get(item)
+
+        return self.lhs
+
+    def resolve_rhs(self, item):
+        if isinstance(self.rhs, BaseProperty):
+            return self.rhs.get(item)
+
+        return self.rhs
+
+    def execute(self, item):
+        raise NotImplementedError('%s.execute() hasn\'t been implemented' % (self.__class__.__name__,))
+
 
 class ManyExpression(BaseExpression):
     def __init__(self, compiler, *values):
@@ -52,7 +68,8 @@ class Between(Expression):
 
 
 class Equal(Expression):
-    pass
+    def execute(self, item):
+        return self.resolve_lhs(item) == self.resolve_rhs(item)
 
 
 class GreaterThan(Expression):
