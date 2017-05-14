@@ -28,14 +28,14 @@ class SelectQuery(WhereQuery):
         super(SelectQuery, self).__init__(collection, model, state=state)
 
         # Update state
-        self.state.setdefault('select', properties)
+        self.state.setdefault('properties', properties)
         self.state.setdefault('from', [collection.parameters.get('table')])
 
         # Set defaults
         self.state.setdefault('distinct', False)
 
-        self.state.setdefault('group_by', None)
-        self.state.setdefault('order_by', None)
+        self.state.setdefault('group_by', [])
+        self.state.setdefault('order_by', [])
 
         self.state.setdefault('limit', None)
         self.state.setdefault('offset', None)
