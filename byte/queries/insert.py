@@ -1,7 +1,7 @@
 """byte - insert query module."""
 from __future__ import absolute_import, division, print_function
 
-from byte.queries.core.base import operation
+from byte.core.helpers.object import clone
 from byte.queries.write import WriteQuery
 
 
@@ -39,7 +39,7 @@ class InsertQuery(WriteQuery):
         self.state.setdefault('properties', properties)
         self.state.setdefault('query', query)
 
-    @operation
+    @clone
     def items(self, *args, **kwargs):
         for value in args:
             if isinstance(value, (list, tuple)):

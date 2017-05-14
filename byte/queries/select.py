@@ -1,7 +1,7 @@
 """byte - select query module."""
 from __future__ import absolute_import, division, print_function
 
-from byte.queries.core.base import operation
+from byte.core.helpers.object import clone
 from byte.queries.where import WhereQuery
 
 from six import string_types
@@ -40,26 +40,26 @@ class SelectQuery(WhereQuery):
         self.state.setdefault('limit', None)
         self.state.setdefault('offset', None)
 
-    @operation
+    @clone
     def distinct(self, on=True):
         self.state['distinct'] = on
 
-    @operation
+    @clone
     def group_by(self, *args, **kwargs):
         """Group results by properties."""
         raise NotImplementedError
 
-    @operation
+    @clone
     def limit(self, count):
         """Set query limit."""
         self.state['limit'] = count
 
-    @operation
+    @clone
     def offset(self, count):
         """Set query offset."""
         self.state['offset'] = count
 
-    @operation
+    @clone
     def order_by(self, *properties):
         """Order results by :code:`properties`."""
         if 'order_by' not in self.state:

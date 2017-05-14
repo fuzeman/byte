@@ -76,23 +76,3 @@ class Query(object):
             return
 
         self._result.close()
-
-
-def operation(func):
-    """Query operation decorator.
-
-    Clones the query before calling the bound method.
-    """
-    @functools.wraps(func)
-    def inner(self, *args, **kwargs):
-        if not hasattr(self, 'clone'):
-            raise ValueError('Class \'%s\' has no "clone" method defined' % (self.__class__.__name__,))
-
-        # Clone existing query
-        query = self.clone()
-
-        # Execute operation, and return new query
-        func(query, *args, **kwargs)
-        return query
-
-    return inner

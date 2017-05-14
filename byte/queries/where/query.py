@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+from byte.core.helpers.object import clone
 from byte.core.models.expressions.base import BaseExpression
 from byte.core.models.expressions.proxy import (
     ProxyAnd,
@@ -13,7 +14,7 @@ from byte.core.models.expressions.proxy import (
     ProxyNotEqual,
     ProxyOr
 )
-from byte.queries.core.base import Query, operation
+from byte.queries.core.base import Query
 from byte.queries.where.parser import WHERE
 
 from six import string_types
@@ -28,7 +29,7 @@ class WhereQuery(Query):
         # Set defaults
         self.state.setdefault('where', [])
 
-    @operation
+    @clone
     def where(self, *args):
         """Retrieve items matching expressions (args)."""
         if not args:
