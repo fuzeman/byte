@@ -17,18 +17,23 @@ class Expressions(object):
         raise NotImplementedError
 
     def between(self, low, high):
+        """Create between expression."""
         raise NotImplementedError
 
     def bin_and(self, rhs):
+        """Create binary and expression."""
         raise NotImplementedError
 
     def bin_or(self, rhs):
+        """Create binary or expression."""
         raise NotImplementedError
 
     def concat(self, rhs):
+        """Create concat expression."""
         raise NotImplementedError
 
     def contains(self, rhs):
+        """Create contains expression."""
         raise NotImplementedError
 
     def desc(self):
@@ -36,24 +41,31 @@ class Expressions(object):
         raise NotImplementedError
 
     def endswith(self, rhs):
+        """Create ends-with expression."""
         raise NotImplementedError
 
     def in_(self, rhs):
+        """Create in expression."""
         raise NotImplementedError
 
     def is_null(self, is_null=True):
+        """Create is-null expression."""
         raise NotImplementedError
 
     def not_in(self, rhs):
+        """Create not-in expression."""
         raise NotImplementedError
 
     def or_(self, *values):
+        """Create or expression."""
         raise NotImplementedError
 
     def regexp(self, expression):
+        """Create regexp expression."""
         raise NotImplementedError
 
     def startswith(self, rhs):
+        """Create starts-with expression."""
         raise NotImplementedError
 
     def __and__(self, rhs):
