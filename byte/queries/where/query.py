@@ -24,6 +24,17 @@ class WhereQuery(Query):
     """Where Query class."""
 
     def __init__(self, collection, model, state=None):
+        """Create where query.
+
+        :param collection: Collection
+        :type collection: byte.collection.Collection
+
+        :param model: Model
+        :type model: byte.model.Model
+
+        :param state: Initial state
+        :type state: dict or Noen
+        """
         super(WhereQuery, self).__init__(collection, model, state=state)
 
         # Set defaults

@@ -58,6 +58,8 @@ class Property(BaseProperty, ProxyExpressions):
     """Property structure."""
 
     class Order(object):
+        """Property ordering enums."""
+
         Ascending   = 'ascending'   # noqa
         Descending  = 'descending'  # noqa
 
@@ -115,14 +117,17 @@ class Property(BaseProperty, ProxyExpressions):
 
     @property
     def relation(self):
-        """
-        Retrieve related model property.
+        """Retrieve related model property.
 
         :rtype: byte.property.Property
         """
         return self._relation
 
     def asc(self):
+        """Get property ascending ordering definition.
+
+        :rtype: (Property, dict)
+        """
         return self, {
             'order': Property.Order.Ascending
         }
@@ -141,6 +146,10 @@ class Property(BaseProperty, ProxyExpressions):
         self.key = key
 
     def desc(self):
+        """Get property descending ordering definition.
+
+        :rtype: (Property, dict)
+        """
         return self, {
             'order': Property.Order.Descending
         }

@@ -41,6 +41,7 @@ class InsertQuery(WriteQuery):
 
     @clone
     def items(self, *args, **kwargs):
+        """Append items to insert query."""
         for value in args:
             if isinstance(value, (list, tuple)):
                 self.state['items'].extend(value)

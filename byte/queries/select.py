@@ -42,6 +42,7 @@ class SelectQuery(WhereQuery):
 
     @clone
     def distinct(self, on=True):
+        """Enable distinct selection."""
         self.state['distinct'] = on
 
     @clone

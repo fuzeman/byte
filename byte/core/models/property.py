@@ -1,3 +1,7 @@
+"""byte - property model module."""
+from __future__ import absolute_import, division, print_function
+
+
 class BaseProperty(object):
     """Base class for properties."""
 
