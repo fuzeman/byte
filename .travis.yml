@@ -31,7 +31,6 @@ jobs:
       python: 2.7
       install: skip
       script: python setup.py bdist_wheel sdist
-
       provider: releases
       api_key:
         secure: gVBPaSpruqFJ2ehS6gpAItovyvhnREz4XabNeV1Hz2BbFAVXdNz5zWMnwSneR7+wfcCgPMlEPYQbhnMrbb4qAfkOWGb4FJ94ye34aUxyaZiG584Ds7+Z7WFtPZ3A27B8HsZuz/4IsUunG/lheZw9ZPQ7bSeGZjdkKQapJj60lbszJ70OiN8E00EPysVwrE1QJB+jfXYpy+M6DbpEURikZbVhIZfauxTZW1WTlmcJesidUA4ArMN0XU7l3M6ueDLZa8VVe+XJi3YkBKHwzd00veULG+Gs6erssyDgbQQoP/L7YzVHmEDqswlMBSk9y9410ZsgxWIo2P7YOWjmcczIOKiqDxYH8S+iN9KkHiI4tiJBJYG5qg4vBeziXkq3t8fiCqVvl9paezz5dBsNcVRyQsLeKuqfYKVOm+1rZkJIfxu2Gz8MIAMc9IVT8kf26D6xt0IlN4c7nndsxItirT37sOvF/cxVu53deXFaOfiLX683HPT4wKwqumhN909KtOOg6RHDHw+JXHW22MUMMCdOpTLv0zdpfB3cVKqbkvIlpVIbvszjFIKGT+BRbzwELUIt7nN7lQBfhsUfMQISVbVYhey/Q0T31LF/LBiwWPdUFTapXKRVendX8XAq+nTIw8ejEWD4+rPlS2etsy5LXVq/D02caLSm57xSck950sY62lk=
@@ -47,7 +46,6 @@ jobs:
       python: 2.7
       install: skip
       script: skip
-
       provider: pypi
       distributions: "bdist_wheel sdist"
       user: "fm-build"
