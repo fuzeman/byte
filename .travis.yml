@@ -2,17 +2,6 @@ dist: trusty
 sudo: false
 language: python
 
-python:
-  - 2.7
-  - 3.6
-  - pypy-5.4.1
-  - pypy3.3-5.2-alpha1
-  - 2.6
-  - 3.3
-  - 3.4
-  - 3.5
-  - nightly
-
 install:
   - travis_retry pip install coveralls
   - travis_retry pip install tox-travis
@@ -21,6 +10,16 @@ install:
 jobs:
   include:
     - stage: test
+      python:
+        - 2.7
+        - 3.6
+        - pypy-5.4.1
+        - pypy3.3-5.2-alpha1
+        - 2.6
+        - 3.3
+        - 3.4
+        - 3.5
+        - nightly
       script:
         - tox
         - python setup.py bdist_wheel sdist
@@ -31,7 +30,7 @@ jobs:
       python: 2.7
       script: tox flake8
 
-    - stage: Deploy to GitHub Releases
+    - stage: Deploy to GitHub
       python: 2.7
       install: skip
       script: python setup.py bdist_wheel sdist
