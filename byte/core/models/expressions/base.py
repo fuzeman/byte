@@ -39,7 +39,15 @@ class BaseExpression(Node, Expressions):
         :param compiler: Compiler
         :type compiler: byte.compilers.core.base.Compiler
         """
-        self.compiler = compiler
+        self._compiler = compiler
+
+    @property
+    def compiler(self):
+        """Retrieve compiler.
+
+        :rtype: byte.compilers.core.base.Compiler
+        """
+        return self._compiler
 
 
 class Expression(BaseExpression):
