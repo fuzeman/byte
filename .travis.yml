@@ -13,13 +13,14 @@ python:
   - 3.5
   - nightly
 
+install:
+  - travis_retry pip install coveralls
+  - travis_retry pip install tox-travis
+  - if [[ $TRAVIS_PYTHON_VERSION != 'pypy'* ]]; then travis_retry pip install pyOpenSSL>=16.2.0; fi
+
 jobs:
   include:
-    - install:
-        - travis_retry pip install coveralls
-        - travis_retry pip install tox-travis
-        - if [[ $TRAVIS_PYTHON_VERSION != 'pypy'* ]]; then travis_retry pip install pyOpenSSL>=16.2.0; fi
-      script:
+    - script:
         - tox
         - python setup.py bdist_wheel sdist
       after_success:
@@ -27,11 +28,13 @@ jobs:
 
     - stage: lint
       python: 2.7
+      install: skip
       script: tox -e flake8
       after_success: skip
 
     - stage: Deploy to GitHub
       python: 2.7
+      install: skip
       script: python setup.py bdist_wheel sdist
 
       deploy:
@@ -48,6 +51,7 @@ jobs:
 
     - stage: Deploy to PyPI
       python: 2.7
+      install: skip
 
       deploy:
         provider: pypi
