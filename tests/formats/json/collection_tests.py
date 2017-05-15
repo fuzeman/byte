@@ -65,7 +65,7 @@ def test_create():
         artists.create(id=123, title='Fenech-Soler')
 
         # Fetch artist, and validate properties
-        assert_that(artists.get(123), has_properties({
+        assert_that(artists.get(Artist['id'] == 123), has_properties({
             'id': 123,
             'title': 'Fenech-Soler'
         }))
@@ -81,7 +81,7 @@ def test_get_basic():
         ])
 
         # Fetch artist, and validate properties
-        assert_that(artists.get(1), has_properties({
+        assert_that(artists.get(Artist['id'] == 1), has_properties({
             'id': 1,
             'title': 'Gorillaz'
         }))
@@ -125,7 +125,7 @@ def test_get_relations():
         tracks.connect(Track.Properties.artist, artists)
 
         # Fetch track, and ensure relations can be resolved
-        assert_that(tracks.get(1), has_properties({
+        assert_that(tracks.get(Track['id'] == 1), has_properties({
             'id': 1,
             'title': 'Ascension (feat. Vince Staples)',
 

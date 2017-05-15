@@ -9,7 +9,7 @@ users = Collection(User)
 
 
 def test_simple():
-    """Test select() statement can be created with order defined by tuple."""
+    """Test select() query can be created with order defined by tuple."""
     assert_that(users.select().order_by(
         ('id', 'DESC')
     ), has_properties({

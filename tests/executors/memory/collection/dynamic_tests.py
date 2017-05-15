@@ -25,7 +25,7 @@ def test_basic():
     })
 
     # Fetch artist, and validate properties
-    artist = artists.get(1)
+    artist = artists.get(Artist['id'] == 1)
 
     assert artist
     assert artist.id == 1
@@ -79,7 +79,7 @@ def test_relations():
     )
 
     # Fetch track, and ensure relations can be resolved
-    track = tracks.get(1)
+    track = tracks.get(Track['id'] == 1)
 
     assert track.id == 1
 

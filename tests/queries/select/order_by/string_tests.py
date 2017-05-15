@@ -9,7 +9,7 @@ users = Collection(User)
 
 
 def test_simple():
-    """Test select() statement can be created with order defined by property name."""
+    """Test select() query can be created with order defined by property name."""
     assert_that(users.select().order_by('id'), has_properties({
         'state': has_entries({
             'order_by': equal_to([
