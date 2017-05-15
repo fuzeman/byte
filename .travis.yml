@@ -18,13 +18,13 @@ install:
   - travis_retry pip install tox-travis
   - if [[ $TRAVIS_PYTHON_VERSION != 'pypy'* ]]; then travis_retry pip install pyOpenSSL>=16.2.0; fi
 
+script:
+  - tox
+  - python setup.py bdist_wheel sdist
+
 jobs:
   include:
-    - script:
-        - tox
-        - python setup.py bdist_wheel sdist
-      after_success:
-        - coveralls
+    - after_success: coveralls
 
     - stage: lint
       python: 2.7
@@ -52,6 +52,7 @@ jobs:
     - stage: Deploy to PyPI
       python: 2.7
       install: skip
+      script: skip
 
       deploy:
         provider: pypi
