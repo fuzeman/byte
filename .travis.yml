@@ -28,7 +28,7 @@ jobs:
     - stage: lint
       python: 2.7
 
-      install: skip
+      install: travis_retry pip install tox
       script: tox -e flake8
       after_success: true
 
