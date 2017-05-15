@@ -11,43 +11,77 @@ users = Collection(User)
 
 def test_simple():
     """Test select() query can be created with expressions."""
-    assert_that(users.select().where(
+    query = users.select().where(
         User['id'] < 35,
         User['username'] != 'alpha'
-    ), has_properties({
-        'state': has_entries({
-            'where': [
-                ProxyLessThan(User.Properties.id, 35),
-                ProxyNotEqual(User.Properties.username, 'alpha')
-            ]
-        })
-    }))
+    )
+
+    assert_that(query, has_property('state', has_entries({
+        # where()
+        'where': all_of(
+            has_length(2),
+            has_items(
+                # User['id'] < 35
+                all_of(instance_of(ProxyLessThan), has_properties({
+                    'lhs': User['id'],
+                    'rhs': 35
+                })),
+
+                # User['username'] != 'alpha'
+                all_of(instance_of(ProxyNotEqual), has_properties({
+                    'lhs': User['username'],
+                    'rhs': 'alpha'
+                }))
+            )
+        )
+    })))
 
 
 def test_chain():
     """Test select() query can be created with chained expressions."""
-    assert_that(users.select().where(
+    query = users.select().where(
         User['id'] >= 12
     ).where(
         User['username'] != 'beta'
-    ), has_properties({
-        'state': has_entries({
-            'where': [
-                ProxyGreaterThanOrEqual(User.Properties.id, 12),
-                ProxyNotEqual(User.Properties.username, 'beta')
-            ]
-        })
-    }))
+    )
+
+    assert_that(query, has_property('state', has_entries({
+        # where()
+        'where': all_of(
+            has_length(2),
+            has_items(
+                # User['id'] >= 12
+                all_of(instance_of(ProxyGreaterThanOrEqual), has_properties({
+                    'lhs': User['id'],
+                    'rhs': 12
+                })),
+
+                # User['username'] != 'beta'
+                all_of(instance_of(ProxyNotEqual), has_properties({
+                    'lhs': User['username'],
+                    'rhs': 'beta'
+                }))
+            )
+        )
+    })))
 
 
 def test_match():
     """Test select() query can be created with property matching expressions."""
-    assert_that(users.select().where(
+    query = users.select().where(
         User['username'] == User['password']
-    ), has_properties({
-        'state': has_entries({
-            'where': [
-                ProxyEqual(User.Properties.username, User.Properties.password)
-            ]
-        })
-    }))
+    )
+
+    assert_that(query, has_property('state', has_entries({
+        # where()
+        'where': all_of(
+            has_length(1),
+            has_items(
+                # User['username'] == User['password']
+                all_of(instance_of(ProxyEqual), has_properties({
+                    'lhs': User['username'],
+                    'rhs': User['password']
+                }))
+            )
+        )
+    })))

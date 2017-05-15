@@ -15,16 +15,33 @@ def test_or():
         'id < 35 or username == "alpha"'
     )
 
-    assert_that(query, has_properties({
-        'state': has_entries({
-            'where': [
-                ProxyOr(
-                    ProxyLessThan(User.Properties.id, 35),
-                    ProxyEqual(User.Properties.username, 'alpha')
-                )
-            ]
-        })
-    }))
+    assert_that(query, has_property('state', has_entries({
+        # where()
+        'where': all_of(
+            has_length(1),
+            has_items(
+                # id < 35 or username == "alpha"
+                all_of(instance_of(ProxyOr), has_properties({
+                    'values': all_of(
+                        has_length(2),
+                        has_items(
+                            # id < 35
+                            all_of(instance_of(ProxyLessThan), has_properties({
+                                'lhs': User['id'],
+                                'rhs': 35
+                            })),
+
+                            # username == "alpha"
+                            all_of(instance_of(ProxyEqual), has_properties({
+                                'lhs': User['username'],
+                                'rhs': 'alpha'
+                            }))
+                        )
+                    )
+                }))
+            )
+        )
+    })))
 
 
 def test_or_brackets():
@@ -33,18 +50,45 @@ def test_or_brackets():
         'id < 35 AND (username != "alpha" or password == "beta") AND password ne "alpha"'
     )
 
-    assert_that(query, has_properties({
-        'state': has_entries({
-            'where': [
-                ProxyLessThan(User.Properties.id, 35),
-                ProxyOr(
-                    ProxyNotEqual(User.Properties.username, 'alpha'),
-                    ProxyEqual(User.Properties.password, 'beta')
-                ),
-                ProxyNotEqual(User.Properties.password, 'alpha')
-            ]
-        })
-    }))
+    assert_that(query, has_property('state', has_entries({
+        # where()
+        'where': all_of(
+            has_length(3),
+            has_items(
+                # id < 35
+                all_of(instance_of(ProxyLessThan), has_properties({
+                    'lhs': User['id'],
+                    'rhs': 35
+                })),
+
+                # (username != "alpha" or password == "beta")
+                all_of(instance_of(ProxyOr), has_properties({
+                    'values': all_of(
+                        has_length(2),
+                        has_items(
+                            # username != "alpha"
+                            all_of(instance_of(ProxyNotEqual), has_properties({
+                                'lhs': User['username'],
+                                'rhs': 'alpha'
+                            })),
+
+                            # password == "beta"
+                            all_of(instance_of(ProxyEqual), has_properties({
+                                'lhs': User['password'],
+                                'rhs': 'beta'
+                            }))
+                        )
+                    )
+                })),
+
+                # password ne "alpha"
+                all_of(instance_of(ProxyNotEqual), has_properties({
+                    'lhs': User['password'],
+                    'rhs': 'alpha'
+                }))
+            )
+        )
+    })))
 
 
 def test_parameters():
@@ -54,11 +98,22 @@ def test_parameters():
         (35, 'alpha')
     )
 
-    assert_that(query, has_properties({
-        'state': has_entries({
-            'where': [
-                ProxyLessThan(User.Properties.id, 35),
-                ProxyNotEqual(User.Properties.username, 'alpha')
-            ]
-        })
-    }))
+    assert_that(query, has_property('state', has_entries({
+        # where()
+        'where': all_of(
+            has_length(2),
+            has_items(
+                # id < 35
+                all_of(instance_of(ProxyLessThan), has_properties({
+                    'lhs': User['id'],
+                    'rhs': 35
+                })),
+
+                # username == "alpha"
+                all_of(instance_of(ProxyNotEqual), has_properties({
+                    'lhs': User['username'],
+                    'rhs': 'alpha'
+                }))
+            )
+        )
+    })))
