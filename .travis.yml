@@ -28,16 +28,16 @@ jobs:
     - stage: lint
       python: 2.7
 
-      install: exit 0
+      install: skip
       script: tox -e flake8
-      after_success: exit 0
+      after_success: true
 
     - stage: Deploy to GitHub
       python: 2.7
 
-      install: exit 0
+      install: skip
       script: python setup.py bdist_wheel sdist
-      after_success: exit 0
+      after_success: true
 
       deploy:
         provider: releases
@@ -54,9 +54,9 @@ jobs:
     - stage: Deploy to PyPI
       python: 2.7
 
-      install: exit 0
-      script: exit 0
-      after_success: exit 0
+      install: skip
+      script: skip
+      after_success: true
 
       deploy:
         provider: pypi
