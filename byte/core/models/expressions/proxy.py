@@ -33,6 +33,10 @@ class ProxyExpressions(Expressions):
         """Create and proxy expression."""
         return ProxyAnd(self, *values)
 
+    def or_(self, *values):
+        """Create or proxy expression."""
+        return ProxyOr(self, *values)
+
     def __and__(self, rhs):
         return ProxyAnd(self, rhs)
 
@@ -42,11 +46,26 @@ class ProxyExpressions(Expressions):
 
         return ProxyEqual(self, rhs)
 
+    def __ge__(self, rhs):
+        return ProxyGreaterThanOrEqual(self, rhs)
+
+    def __gt__(self, rhs):
+        return ProxyGreaterThan(self, rhs)
+
+    def __le__(self, rhs):
+        return ProxyLessThanOrEqual(self, rhs)
+
+    def __lt__(self, rhs):
+        return ProxyLessThan(self, rhs)
+
     def __ne__(self, rhs):
         if rhs is None:
             return ProxyIsNot(self, rhs)
 
         return ProxyNotEqual(self, rhs)
+
+    def __or__(self, rhs):
+        return ProxyOr(self, rhs)
 
 
 class BaseProxyExpression(BaseExpression):

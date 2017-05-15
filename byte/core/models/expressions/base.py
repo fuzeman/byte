@@ -16,8 +16,44 @@ class Expressions(object):
         """Create ascending property definition."""
         raise NotImplementedError
 
+    def between(self, low, high):
+        raise NotImplementedError
+
+    def bin_and(self, rhs):
+        raise NotImplementedError
+
+    def bin_or(self, rhs):
+        raise NotImplementedError
+
+    def concat(self, rhs):
+        raise NotImplementedError
+
+    def contains(self, rhs):
+        raise NotImplementedError
+
     def desc(self):
         """Create descending property definition."""
+        raise NotImplementedError
+
+    def endswith(self, rhs):
+        raise NotImplementedError
+
+    def in_(self, rhs):
+        raise NotImplementedError
+
+    def is_null(self, is_null=True):
+        raise NotImplementedError
+
+    def not_in(self, rhs):
+        raise NotImplementedError
+
+    def or_(self, *values):
+        raise NotImplementedError
+
+    def regexp(self, expression):
+        raise NotImplementedError
+
+    def startswith(self, rhs):
         raise NotImplementedError
 
     def __and__(self, rhs):
@@ -26,7 +62,46 @@ class Expressions(object):
     def __eq__(self, rhs):
         raise NotImplementedError
 
+    def __ge__(self, rhs):
+        raise NotImplementedError
+
+    def __gt__(self, other):
+        raise NotImplementedError
+
+    def __le__(self, rhs):
+        raise NotImplementedError
+
+    def __lshift__(self, rhs):
+        raise NotImplementedError
+
+    def __lt__(self, other):
+        raise NotImplementedError
+
+    def __mod__(self, other):
+        raise NotImplementedError
+
     def __ne__(self, rhs):
+        raise NotImplementedError
+
+    def __neg__(self):
+        raise NotImplementedError
+
+    def __or__(self, rhs):
+        raise NotImplementedError
+
+    def __pos__(self):
+        raise NotImplementedError
+
+    def __pow__(self, rhs):
+        raise NotImplementedError
+
+    def __rand__(self, rhs):
+        raise NotImplementedError
+
+    def __ror__(self, rhs):
+        raise NotImplementedError
+
+    def __rshift__(self, rhs):
         raise NotImplementedError
 
 
