@@ -223,13 +223,23 @@ class Equal(Expression):
 class GreaterThan(Expression):
     """Greater-than expression class."""
 
-    pass
+    def execute(self, item):
+        """Execute greater-than expression on item.
+
+        :param item: Item
+        """
+        return self.resolve_lhs(item) > self.resolve_rhs(item)
 
 
 class GreaterThanOrEqual(Expression):
     """Greater-than-or-equal expression class."""
 
-    pass
+    def execute(self, item):
+        """Execute greater-than-or-equal expression on item.
+
+        :param item: Item
+        """
+        return self.resolve_lhs(item) >= self.resolve_rhs(item)
 
 
 class In(Expression):
@@ -253,13 +263,23 @@ class IsNot(Expression):
 class LessThan(Expression):
     """Less-than expression class."""
 
-    pass
+    def execute(self, item):
+        """Execute less-than expression on item.
+
+        :param item: Item
+        """
+        return self.resolve_lhs(item) < self.resolve_rhs(item)
 
 
 class LessThanOrEqual(Expression):
     """Less-than-or-equal expression class."""
 
-    pass
+    def execute(self, item):
+        """Execute less-than-or-equal expression on item.
+
+        :param item: Item
+        """
+        return self.resolve_lhs(item) <= self.resolve_rhs(item)
 
 
 class Like(Expression):
@@ -271,7 +291,12 @@ class Like(Expression):
 class NotEqual(Expression):
     """Not-equal expression class."""
 
-    pass
+    def execute(self, item):
+        """Execute not-equal expression on item.
+
+        :param item: Item
+        """
+        return self.resolve_lhs(item) != self.resolve_rhs(item)
 
 
 class NotIn(Expression):
