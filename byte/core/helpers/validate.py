@@ -39,7 +39,8 @@ def is_tuple_of(items, value_type):
         return False
 
     def match():
-        yield len(items) == len(value_type)
+        if isinstance(value_type, (list, tuple)):
+            yield len(items) == len(value_type)
 
         for x, item in enumerate(items):
             if type(value_type) is tuple:
