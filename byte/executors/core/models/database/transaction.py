@@ -1,5 +1,8 @@
-from byte.executors.core.models.database.cursor import DatabaseCursor
+"""byte - executor database transaction model module."""
+from __future__ import absolute_import, division, print_function
+
 from byte.core.models.threading.local import LocalItem, LocalManager
+from byte.executors.core.models.database.cursor import DatabaseCursor
 
 from threading import RLock
 import six
@@ -12,6 +15,8 @@ except ImportError:
 
 
 class States(object):
+    """Database transaction states."""
+
     Created = 0
 
     Starting = 10
@@ -22,11 +27,13 @@ class States(object):
 
 
 class DatabaseTransaction(DatabaseCursor, LocalItem):
+    """Database transaction class."""
+
     State = States
 
     def __init__(self, executor):
         """Create database transaction.
-        
+
         :param executor: Executor
         :type executor: byte.executors.core.base.Executor
         """
@@ -43,22 +50,27 @@ class DatabaseTransaction(DatabaseCursor, LocalItem):
 
     @property
     def operations(self):
+        """Retrieve number of active operations."""
         return self._operations
 
     @property
     def state(self):
+        """Retrieve current state."""
         return self._state
 
     @property
     def starting(self):
+        """Retrieve boolean representing the "starting" state."""
         return self.state == States.Starting
 
     @property
     def started(self):
+        """Retrieve boolean representing the "started" state."""
         return self.state >= States.Started
 
     @property
     def finished(self):
+        """Retrieve boolean representing the "finished" state."""
         return self.state >= States.Finished
 
     #
@@ -186,9 +198,11 @@ class DatabaseTransaction(DatabaseCursor, LocalItem):
 
 
 class DatabaseTransactionManager(LocalManager):
+    """Database transaction manager class."""
+
     def __init__(self, executor):
         """Create database transaction manager.
-        
+
         :param executor: Executor
         :type executor: byte.executors.core.base.Executor
         """
@@ -198,8 +212,8 @@ class DatabaseTransactionManager(LocalManager):
 
     def create(self):
         """Create transaction.
- 
-         ;return: Transaction
-         :rtype: DatabaseTransaction
-         """
+
+        ;return: Transaction
+        :rtype: DatabaseTransaction
+        """
         return self.executor.create_transaction()

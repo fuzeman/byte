@@ -11,10 +11,10 @@ class DatabaseExecutor(Executor):
 
     def __init__(self, collection, model):
         """Create database executor.
-        
+
         :param collection: Collection
         :type collection: byte.collection.Collection
-        
+
         :param model: Model
         :type model: byte.model.Model
         """
@@ -29,7 +29,7 @@ class DatabaseExecutor(Executor):
 
     def connection(self, blocking=False):
         """Create (or retrieve the current) connection.
-        
+
         :return: Connection
         :rtype: byte.executors.core.models.database.connection.DatabaseConnection
         """
@@ -39,7 +39,7 @@ class DatabaseExecutor(Executor):
 
     def transaction(self, **kwargs):
         """Create (or retrieve the current) transaction.
-        
+
         :return: Transaction
         :rtype: byte.executors.core.models.database.transaction.DatabaseTransaction
         """
@@ -51,7 +51,7 @@ class DatabaseExecutor(Executor):
 
     def create_connection(self):
         """Create database connection.
-        
+
         :return: Connection
         :rtype: byte.executors.core.models.database.connection.DatabaseConnection
         """
@@ -59,7 +59,7 @@ class DatabaseExecutor(Executor):
 
     def create_transaction(self):
         """Create database transaction.
-        
+
         :return: Transaction
         :rtype: byte.executors.core.models.database.transaction.DatabaseTransaction
         """

@@ -1,3 +1,6 @@
+"""byte - executor database connection module."""
+from __future__ import absolute_import, division, print_function
+
 from byte.core.models.threading.pool import PoolItem, PoolManager
 
 from threading import RLock
@@ -9,9 +12,11 @@ except ImportError:
 
 
 class DatabaseConnection(PoolItem):
+    """Database connection class."""
+
     def __init__(self, executor):
         """Create database connection.
-        
+
         :param executor: Executor
         :type executor: byte.executors.core.base.Executor
         """
@@ -28,6 +33,7 @@ class DatabaseConnection(PoolItem):
 
     @property
     def operations(self):
+        """Retrieve number of active operations."""
         return self._operations
 
     #
@@ -60,7 +66,7 @@ class DatabaseConnection(PoolItem):
 
     def cursor(self):
         """Create cursor.
-        
+
         :return: Cursor
         :rtype: byte.executors.core.models.database.cursor.DatabaseCursor
         """
@@ -68,7 +74,7 @@ class DatabaseConnection(PoolItem):
 
     def execute(self, *args, **kwargs):
         """Execute statement, and return the cursor.
-        
+
         :return: Cursor
         :rtype: byte.executors.core.models.database.cursor.DatabaseCursor
         """
@@ -76,7 +82,7 @@ class DatabaseConnection(PoolItem):
 
     def transaction(self):
         """Create transaction.
-        
+
         :return: Transaction
         :rtype: byte.executors.core.models.database.transaction.DatabaseTransaction
         """
@@ -99,9 +105,11 @@ class DatabaseConnection(PoolItem):
 
 
 class DatabaseConnectionPool(PoolManager):
+    """Database connection pool class."""
+
     def __init__(self, executor):
         """Create database connection pool.
-        
+
         :param executor: Executor
         :type executor: byte.executors.core.base.Executor
         """
@@ -111,7 +119,7 @@ class DatabaseConnectionPool(PoolManager):
 
     def create(self):
         """Create connection.
-        
+
         ;return: Connection
         :rtype: DatabaseConnection
         """

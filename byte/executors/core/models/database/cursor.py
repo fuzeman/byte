@@ -1,10 +1,16 @@
+"""byte - executor database cursor module."""
+from __future__ import absolute_import, division, print_function
+
+
 class DatabaseCursor(object):
+    """Database cursor class."""
+
     def __init__(self, executor, connection=None):
         """Create database cursor.
 
         :param executor: Executor
         :type executor: byte.executors.core.base.Executor
-        
+
         :param connection: Connection
         :type connection: byte.executors.core.models.database.connection.Connection or None
         """
