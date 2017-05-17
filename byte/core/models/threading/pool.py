@@ -1,13 +1,18 @@
-from byte.core.models.threading.local import LocalItem, LocalManager
+"""byte - pool manager module."""
+from __future__ import absolute_import, division, print_function
 
-try:
-    from thread import get_ident
-except ImportError:
-    from threading import get_ident
+from byte.core.models.threading.local import LocalItem, LocalManager
 
 
 class PoolManager(LocalManager):
+    """Pool manager class."""
+
     def __init__(self, maximum=None):
+        """Create pool manager.
+
+        :param maximum: Maximum number of items to create
+        :type maximum: int or None
+        """
         super(PoolManager, self).__init__()
 
         self.maximum = maximum
@@ -17,9 +22,15 @@ class PoolManager(LocalManager):
 
     @property
     def active(self):
+        """Retrieve number of active items."""
         return len(self._all) - len(self._available)
 
     def acquire(self, blocking=False):
+        """Acquire item from pool.
+
+        :param blocking: Block until item is available.
+        :type blocking: bool
+        """
         # Use available item (if one exists)
         if self._available:
             return False, self._available.pop()
@@ -36,9 +47,11 @@ class PoolManager(LocalManager):
         raise NotImplementedError
 
     def on_created(self, item):
+        """Handle item creation event."""
         self._all.append(item)
 
     def on_detached(self, item):
+        """Handle item detached event."""
         self._available.append(item)
 
     def __len__(self):
@@ -46,4 +59,6 @@ class PoolManager(LocalManager):
 
 
 class PoolItem(LocalItem):
+    """Base pool item class."""
+
     pass

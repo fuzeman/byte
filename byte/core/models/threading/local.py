@@ -1,3 +1,6 @@
+"""byte - local manager module."""
+from __future__ import absolute_import, division, print_function
+
 from threading import RLock
 
 try:
@@ -7,14 +10,23 @@ except ImportError:
 
 
 class LocalManager(object):
+    """Local manager class."""
+
     def __init__(self):
+        """Create local manager."""
         self._bindings = {}
         self._lock = RLock()
 
     def create(self):
+        """Create item."""
         raise NotImplementedError
 
     def detach(self, item):
+        """Detach item from thread.
+
+        :param item: Item
+        :type item: LocalItem
+        """
         with self._lock:
             if not item._ident:
                 return
@@ -29,6 +41,7 @@ class LocalManager(object):
             self.on_detached(item)
 
     def get(self, **kwargs):
+        """Retrieve (or create) item for current thread."""
         ident = get_ident()
 
         try:
@@ -37,12 +50,15 @@ class LocalManager(object):
             return self._acquire(ident, **kwargs)
 
     def acquire(self, **kwargs):
+        """Acquire item."""
         return True, self.create()
 
     def on_created(self, item):
+        """Handle item creation event."""
         pass
 
     def on_detached(self, item):
+        """Handle item detached event."""
         pass
 
     def _acquire(self, ident=None, **kwargs):
@@ -87,11 +103,15 @@ class LocalManager(object):
 
 
 class LocalItem(object):
+    """Base local item class."""
+
     def __init__(self):
+        """Create local item."""
         self._ident = None
         self._manager = None
 
     def detach(self):
+        """Detach item from thread."""
         if not self._manager or not self._ident:
             return
 
