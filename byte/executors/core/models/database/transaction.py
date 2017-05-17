@@ -85,6 +85,14 @@ class DatabaseTransaction(DatabaseCursor, LocalItem):
         with self._operation_lock:
             self._operations += 1
 
+    def close(self):
+        # Commit transaction (if transaction is still active)
+        if not self.finished:
+            self._commit()
+
+        # Close cursor
+        super(DatabaseTransaction, self).close()
+
     def release(self):
         """Release transaction operation lock."""
         if get_ident() != self._ident:
@@ -144,11 +152,7 @@ class DatabaseTransaction(DatabaseCursor, LocalItem):
             six.reraise(*exc_info)
 
     def _end(self):
-        # Commit transaction (if transaction is still active)
-        if not self.finished:
-            self._commit()
-
-        # Close cursor
+        # Close transaction
         self.close()
 
         # Detach transaction from thread
