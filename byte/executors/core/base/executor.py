@@ -42,9 +42,9 @@ class Executor(object):
 
         return self.collection.plugins
 
-    def close(self):
-        """Close executor."""
-        raise NotImplementedError
+    def construct_compiler(self):
+        """Construct compiler."""
+        return self.plugins.get_compiler('operation')(self)
 
     def execute(self, query):
         """Execute query.
@@ -54,9 +54,9 @@ class Executor(object):
         """
         raise NotImplementedError
 
-    def construct_compiler(self):
-        """Construct compiler."""
-        return self.plugins.get_compiler('operation')(self)
+    def close(self):
+        """Close executor."""
+        raise NotImplementedError
 
 
 class ExecutorPlugin(Executor, Plugin):
