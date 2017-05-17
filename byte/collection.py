@@ -186,6 +186,17 @@ class Collection(object):
 
         prop.connect(collection)
 
+    def transaction(self):
+        if not self.executor:
+            raise Exception('No executor available')
+
+        created, transaction = self.executor.transaction(state=True)
+
+        if not created:
+            raise Exception('Transaction is already active')
+
+        return transaction
+
     def execute(self, query):
         """Execute query.
 
