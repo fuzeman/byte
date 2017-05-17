@@ -90,8 +90,9 @@ class DatabaseTransaction(DatabaseCursor, LocalItem):
         if not self.finished:
             self._commit()
 
-        # Close cursor
-        super(DatabaseTransaction, self).close()
+        # Release connection
+        self.connection.release()
+        self.connection = None
 
     def release(self):
         """Release transaction operation lock."""
