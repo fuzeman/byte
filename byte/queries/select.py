@@ -130,6 +130,3 @@ class SelectQuery(WhereQuery):
 
     def __iter__(self):
         return self.iterator()
-
-    def __len__(self):
-        return self.count()
