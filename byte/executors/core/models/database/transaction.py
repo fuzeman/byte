@@ -2,6 +2,7 @@ from byte.executors.core.models.database.cursor import DatabaseCursor
 from byte.core.models.threading.local import LocalItem, LocalManager
 
 from threading import RLock
+import six
 import sys
 
 try:
@@ -128,7 +129,7 @@ class DatabaseTransaction(DatabaseCursor, LocalItem):
             self._state = States.Error
 
             # Raise exception
-            raise exc_info[0], exc_info[1], exc_info[2]
+            six.reraise(*exc_info)
 
     def _end(self):
         # Commit transaction (if transaction is still active)
