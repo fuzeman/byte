@@ -187,12 +187,17 @@ class Collection(object):
         prop.connect(collection)
 
     def transaction(self):
+        """Create transaction.
+
+        :return: Transaction
+        :rtype: byte.executors.core.models.database.transaction.DatabaseTransaction
+        """
         if not self.executor:
             raise Exception('No executor available')
 
-        created, transaction = self.executor.transaction(state=True)
+        transaction = self.executor.transaction()
 
-        if not created:
+        if transaction.operations > 0:
             raise Exception('Transaction is already active')
 
         return transaction
