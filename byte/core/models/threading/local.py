@@ -28,19 +28,13 @@ class LocalManager(object):
             # Fire `on_detached` callback
             self.on_detached(item)
 
-    def get(self, state=False, **kwargs):
+    def get(self, **kwargs):
         ident = get_ident()
 
         try:
-            created = False
-            item = self._bindings[ident]
+            return self._bindings[ident]
         except KeyError:
-            created, item = self._acquire(ident, **kwargs)
-
-        if state:
-            return created, item
-
-        return item
+            return self._acquire(ident, **kwargs)
 
     def acquire(self, **kwargs):
         return True, self.create()
@@ -58,13 +52,13 @@ class LocalManager(object):
         with self._lock:
             # Return existing item (if available)
             if ident in self._bindings:
-                return False, self._bindings[ident]
+                return self._bindings[ident]
 
             # Acquire item
             created, item = self.acquire(**kwargs)
 
             if not item:
-                return False, None
+                return None
 
             if created:
                 if not isinstance(item, LocalItem):
@@ -77,7 +71,7 @@ class LocalManager(object):
                 self.on_created(item)
 
             # Bind item to ident
-            return created, self._bind(item, ident)
+            return self._bind(item, ident)
 
     def _bind(self, item, ident):
         # Set item ident
