@@ -1,4 +1,4 @@
-from byte.executors.core.models.manager.local import LocalItem, LocalManager
+from byte.core.models.threading.local import LocalItem, LocalManager
 
 try:
     from thread import get_ident

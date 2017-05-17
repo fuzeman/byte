@@ -1,4 +1,4 @@
-from byte.executors.core.models.manager.pool import PoolItem, PoolManager
+from byte.core.models.threading.pool import PoolItem, PoolManager
 
 
 class DatabaseConnection(PoolItem):

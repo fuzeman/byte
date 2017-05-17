@@ -1,5 +1,5 @@
 from byte.executors.core.models.database.cursor import DatabaseCursor
-from byte.executors.core.models.manager.local import LocalItem, LocalManager
+from byte.core.models.threading.local import LocalItem, LocalManager
 
 
 class DatabaseTransaction(DatabaseCursor, LocalItem):
