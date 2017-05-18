@@ -27,14 +27,15 @@ class DatabaseExecutor(Executor):
     # Public methods
     #
 
-    def connection(self, blocking=False):
+    def connection(self, blocking=False, **kwargs):
         """Create (or retrieve the current) connection.
 
         :return: Connection
         :rtype: byte.executors.core.models.database.connection.DatabaseConnection
         """
         return self.connections.get(
-            blocking=blocking
+            blocking=blocking,
+            **kwargs
         )
 
     def transaction(self, **kwargs):
@@ -43,13 +44,15 @@ class DatabaseExecutor(Executor):
         :return: Transaction
         :rtype: byte.executors.core.models.database.transaction.DatabaseTransaction
         """
-        return self.transactions.get(**kwargs)
+        return self.transactions.get(
+            **kwargs
+        )
 
     #
     # Abstract methods
     #
 
-    def create_connection(self):
+    def create_connection(self, **kwargs):
         """Create database connection.
 
         :return: Connection
@@ -57,7 +60,7 @@ class DatabaseExecutor(Executor):
         """
         raise NotImplementedError
 
-    def create_transaction(self):
+    def create_transaction(self, **kwargs):
         """Create database transaction.
 
         :return: Transaction
