@@ -89,6 +89,7 @@ class DatabaseTransaction(DatabaseCursor, LocalItem):
             self._operations += 1
 
     def close(self):
+        """Close transaction."""
         # Commit transaction (if transaction is still active)
         if not self.finished:
             self._commit()
