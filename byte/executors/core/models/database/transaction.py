@@ -31,13 +31,16 @@ class DatabaseTransaction(DatabaseCursor, LocalItem):
 
     State = States
 
-    def __init__(self, executor):
+    def __init__(self, executor, connection=None):
         """Create database transaction.
 
         :param executor: Executor
         :type executor: byte.executors.core.base.Executor
         """
-        super(DatabaseTransaction, self).__init__(executor)
+        super(DatabaseTransaction, self).__init__(
+            executor,
+            connection=connection
+        )
 
         self._state = States.Created
 
@@ -215,10 +218,10 @@ class DatabaseTransactionManager(LocalManager):
 
         self.executor = executor
 
-    def create(self):
+    def create(self, **kwargs):
         """Create transaction.
 
         ;return: Transaction
         :rtype: DatabaseTransaction
         """
-        return self.executor.create_transaction()
+        return self.executor.create_transaction(**kwargs)

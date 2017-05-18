@@ -42,14 +42,41 @@ class DatabaseConnection(PoolItem):
 
     def acquire(self):
         """Acquire connection operation lock."""
+        if self._manager is None:
+            return
+
         if get_ident() != self._ident:
             raise Exception('Connection is in use by another thread')
 
         with self._operation_lock:
             self._operations += 1
 
+    def cursor(self):
+        """Create cursor.
+
+        :return: Cursor
+        :rtype: byte.executors.core.models.database.cursor.DatabaseCursor
+        """
+        return self.executor.cursor(
+            connection=self
+        )
+
+    def execute(self, *args, **kwargs):
+        """Execute statement, and return the cursor.
+
+        :return: Cursor
+        :rtype: byte.executors.core.models.database.cursor.DatabaseCursor
+        """
+        cursor = self.cursor()
+        cursor.execute(*args, **kwargs)
+
+        return cursor
+
     def release(self):
         """Release connection operation lock."""
+        if self._manager is None:
+            return
+
         if get_ident() != self._ident:
             raise Exception('Connection is in use by another thread')
 
@@ -60,33 +87,19 @@ class DatabaseConnection(PoolItem):
             if self._operations < 1:
                 self.detach()
 
-    #
-    # Abstract methods
-    #
-
-    def cursor(self):
-        """Create cursor.
-
-        :return: Cursor
-        :rtype: byte.executors.core.models.database.cursor.DatabaseCursor
-        """
-        raise NotImplementedError
-
-    def execute(self, *args, **kwargs):
-        """Execute statement, and return the cursor.
-
-        :return: Cursor
-        :rtype: byte.executors.core.models.database.cursor.DatabaseCursor
-        """
-        raise NotImplementedError
-
     def transaction(self):
         """Create transaction.
 
         :return: Transaction
         :rtype: byte.executors.core.models.database.transaction.DatabaseTransaction
         """
-        raise NotImplementedError
+        return self.executor.transaction(
+            connection=self
+        )
+
+    #
+    # Abstract methods
+    #
 
     def close(self):
         """Close connection, and remove it from the pool."""
@@ -117,10 +130,10 @@ class DatabaseConnectionPool(PoolManager):
 
         self.executor = executor
 
-    def create(self):
+    def create(self, **kwargs):
         """Create connection.
 
         ;return: Connection
         :rtype: DatabaseConnection
         """
-        return self.executor.create_connection()
+        return self.executor.create_connection(**kwargs)
