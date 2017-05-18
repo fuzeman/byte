@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Contains the collection structure for the storage of keyed items."""
+"""byte - collection module."""
 
 from __future__ import absolute_import, division, print_function
 

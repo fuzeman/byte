@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Byte setup script (powered by pbr)."""
+"""byte - setup script (powered by pbr)."""
 
 from setuptools import setup
 

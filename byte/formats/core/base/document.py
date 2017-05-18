@@ -1,4 +1,4 @@
-"""Document format base module."""
+"""byte - base document format module."""
 
 from __future__ import absolute_import, division, print_function
 

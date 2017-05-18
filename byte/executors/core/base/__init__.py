@@ -1,4 +1,4 @@
-"""Executor base package."""
+"""byte - executor base package."""
 
 from __future__ import absolute_import, division, print_function
 

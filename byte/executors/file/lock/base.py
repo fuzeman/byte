@@ -1,4 +1,4 @@
-"""File executor base lock module."""
+"""byte - base file executor lock module."""
 
 from __future__ import absolute_import, division, print_function
 

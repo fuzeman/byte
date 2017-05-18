@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Contains the property structure."""
+"""byte - property module."""
 from __future__ import absolute_import, division, print_function
 
 from byte.core.models import BaseProperty, ProxyExpressions

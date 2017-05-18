@@ -1,4 +1,3 @@
-"""Relation tests for dynamic models."""
 from __future__ import absolute_import, division, print_function
 
 from tests.base.models.dynamic.album import Album

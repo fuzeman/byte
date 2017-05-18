@@ -1,4 +1,4 @@
-"""File executor win32 lock module."""
+"""byte - file executor win32 lock module."""
 
 from __future__ import absolute_import, division, print_function
 

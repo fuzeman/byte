@@ -1,4 +1,4 @@
-"""Operation compiler module."""
+"""byte - operation compiler module."""
 
 from __future__ import absolute_import, division, print_function
 

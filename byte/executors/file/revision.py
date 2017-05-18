@@ -1,4 +1,4 @@
-"""File executor revision module."""
+"""byte - file executor revision module."""
 
 from __future__ import absolute_import, division, print_function
 

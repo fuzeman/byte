@@ -1,4 +1,4 @@
-"""Stream task module."""
+"""byte - stream task module."""
 
 from __future__ import absolute_import, division, print_function
 

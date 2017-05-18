@@ -1,4 +1,4 @@
-"""Memory executor task module."""
+"""byte - memory executor tasks module."""
 
 from __future__ import absolute_import, division, print_function
 

@@ -1,4 +1,4 @@
-"""Collection format base module."""
+"""byte - base collection format module."""
 
 from __future__ import absolute_import, division, print_function
 

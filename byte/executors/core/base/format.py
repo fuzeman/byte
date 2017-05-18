@@ -1,4 +1,4 @@
-"""Format base module."""
+"""byte - base format executor module."""
 
 from __future__ import absolute_import, division, print_function
 

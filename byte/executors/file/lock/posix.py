@@ -1,4 +1,4 @@
-"""File executor posix lock."""
+"""byte - file executor posix lock."""
 
 from __future__ import absolute_import, division, print_function
 

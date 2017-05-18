@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Contains the data model structure."""
+"""byte - model module."""
 
 from __future__ import absolute_import, division, print_function
 

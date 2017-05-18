@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Contains the class registry structures."""
+"""byte - registry module."""
 
 from __future__ import absolute_import, division, print_function
 

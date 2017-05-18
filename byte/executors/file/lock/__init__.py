@@ -1,4 +1,4 @@
-"""File executor lock package."""
+"""byte - file executor lock package."""
 
 from __future__ import absolute_import, division, print_function
 

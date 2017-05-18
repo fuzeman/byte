@@ -1,4 +1,4 @@
-"""File executor Visual C++ runtime lock."""
+"""byte - file executor visual c++ runtime lock."""
 
 from __future__ import absolute_import, division, print_function
 

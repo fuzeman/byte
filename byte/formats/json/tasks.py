@@ -1,4 +1,4 @@
-"""JSON format tasks module."""
+"""byte - json format tasks module."""
 
 from __future__ import absolute_import, division, print_function
 
