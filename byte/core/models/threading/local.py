@@ -17,7 +17,7 @@ class LocalManager(object):
         self._bindings = {}
         self._lock = RLock()
 
-    def create(self):
+    def create(self, **kwargs):
         """Create item."""
         raise NotImplementedError
 
@@ -51,7 +51,7 @@ class LocalManager(object):
 
     def acquire(self, **kwargs):
         """Acquire item."""
-        return True, self.create()
+        return True, self.create(**kwargs)
 
     def on_created(self, item):
         """Handle item creation event."""
