@@ -13,6 +13,59 @@ byte
 .. image:: https://img.shields.io/coveralls/fuzeman/byte/master.svg?style=flat-square
    :target: https://coveralls.io/github/fuzeman/byte
 
-Simple data model framework for Python (and PyPy).
+Modular data-model framework, and object-relational mapper.
 
-**Note:** Project is currently in very early development, breaking changes may occur between minor releases.
+**Requirements**
+
+- **Arrow:** 0.10.0+
+- **PyParsing:** 2.2.0+
+- **Six:** 1.10.0+
+
+Development
+-----------
+
+**Status:** Alpha
+
+Usable, but many features are still in development.
+
+**Planned for Beta:**
+
+- Database/Table Support
+- Reduce requirements:
+
+  - Create an alternate fallback datetime translator *(arrow)*
+  - Move the expression parser to an optional plugin package *(pyparsing)*
+
+- Joins:
+
+  - JOIN
+  - LEFT JOIN
+  - LEFT OUTER JOIN
+  - INNER JOIN
+  - CROSS JOIN
+
+- Queries:
+
+  - DELETE
+  - INSERT (SELECT ...)
+  - INSERT OR [REPLACE, ROLLBACK, ABORT, FAIL, IGNORE]
+  - UPDATE
+  - UPDATE OR [ROLLBACK, ABORT, REPLACE, FAIL, IGNORE]
+
+Plugins
+-------
+
+**Compilers:**
+
+- `byte-sqlite <https://github.com/fuzeman/byte-sqlite>`_ *(alpha)*
+
+**Executors:**
+
+- `byte-apsw <https://github.com/fuzeman/byte-apsw>`_ *(alpha)*
+- `byte-sqlite <https://github.com/fuzeman/byte-sqlite>`_ *(alpha)*
+- `byte-pysqlite <https://github.com/fuzeman/byte-pysqlite>`_ *(alpha)*
+
+**Formats:**
+
+- `byte-ijson <https://github.com/fuzeman/byte-ijson>`_ *(alpha)*
+- `byte-msgpack <https://github.com/fuzeman/byte-msgpack>`_ *(alpha)*
