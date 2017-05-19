@@ -15,6 +15,12 @@ byte
 
 Modular data-model framework, and object-relational mapper.
 
+**Supported Platforms**
+
+- **Python:** 2.6, 2.7, 3.3+
+- **PyPy 2:** 2.5+
+- **PyPy 3:** 5.5+
+
 **Requirements**
 
 - **Arrow:** 0.10.0+
