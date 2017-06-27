@@ -9,16 +9,16 @@ from byte.executors.core.models.database import DatabaseConnectionPool, Database
 class DatabaseExecutor(Executor):
     """Base database executor class."""
 
-    def __init__(self, collection, model):
+    def __init__(self, engine, uri, **kwargs):
         """Create database executor.
 
-        :param collection: Collection
-        :type collection: byte.collection.Collection
+        :param engine: Engine
+        :type engine: byte.core.base.engine.Engine
 
-        :param model: Model
-        :type model: byte.model.Model
+        :param uri: URI
+        :type uri: ParseResult
         """
-        super(DatabaseExecutor, self).__init__(collection, model)
+        super(DatabaseExecutor, self).__init__(engine, uri, **kwargs)
 
         self.connections = DatabaseConnectionPool(self)
         self.transactions = DatabaseTransactionManager(self)

@@ -14,7 +14,7 @@ class SelectQuery(WhereQuery):
         """Create Select Query.
 
         :param collection: Collection
-        :type collection: byte.collection.Collection
+        :type collection: byte.table.Table
 
         :param model: Model
         :type model: byte.model.Model
@@ -29,7 +29,7 @@ class SelectQuery(WhereQuery):
 
         # Update state
         self.state.setdefault('properties', properties)
-        self.state.setdefault('from', [collection.parameters.get('table')])
+        self.state.setdefault('from', [collection.name])
 
         # Set defaults
         self.state.setdefault('distinct', False)

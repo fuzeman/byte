@@ -13,8 +13,8 @@ class MemoryTask(SimpleTask):
     def __init__(self, executor):
         """Create memory task.
 
-        :param executor: Executor
-        :type executor: byte.executors.core.base.Executor
+        :param executor: Memory Executor
+        :type executor: byte.executors.memory.main.MemoryExecutor
         """
         super(MemoryTask, self).__init__(executor)
 

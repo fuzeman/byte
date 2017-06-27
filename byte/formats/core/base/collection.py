@@ -85,4 +85,5 @@ class CollectionFormat(Format):
 class CollectionFormatPlugin(CollectionFormat, FormatPlugin):
     """Collection format plugin class."""
 
-    format_type = 'collection'
+    class Meta(FormatPlugin.Meta):
+        engine = FormatPlugin.Engine.Collection

@@ -8,16 +8,13 @@ from byte.executors.core.base.simple import SimpleExecutor, SimpleExecutorPlugin
 class FormatExecutor(SimpleExecutor):
     """Base format executor class."""
 
-    def __init__(self, collection, model):
+    def __init__(self, engine, uri, **kwargs):
         """Create format executor.
 
-        :param collection: Collection
-        :type collection: byte.collection.Collection
-
-        :param model: Model
-        :type model: byte.model.Model
+        :param datasource: Datasource
+        :type datasource: byte.core.base.datasource.Datasource
         """
-        super(FormatExecutor, self).__init__(collection, model)
+        super(FormatExecutor, self).__init__(engine, uri, **kwargs)
 
         self._format = None
 

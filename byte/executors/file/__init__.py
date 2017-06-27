@@ -2,8 +2,9 @@
 
 from __future__ import absolute_import, division, print_function
 
-from byte.executors.file.main import FileExecutor
+from byte.executors.file.main import FileDatabaseExecutor, FileTableExecutor
 
 __all__ = (
-    'FileExecutor',
+    'FileDatabaseExecutor',
+    'FileTableExecutor'
 )

@@ -13,7 +13,7 @@ class UpdateQuery(WhereQuery, WriteQuery):
         """Create Update Query.
 
         :param collection: Collection
-        :type collection: byte.collection.Collection
+        :type collection: byte.table.Table
 
         :param model: Model
         :type model: byte.model.Model

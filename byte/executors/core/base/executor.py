@@ -12,17 +12,19 @@ from six import string_types
 class Executor(object):
     """Base executor class."""
 
-    def __init__(self, collection, model):
+    def __init__(self, engine, uri, **kwargs):
         """Create executor.
 
-        :param collection: Collection
-        :type collection: byte.collection.Collection
+        :param engine: Engine
+        :type engine: byte.core.base.engine.Engine
 
-        :param model: Model
-        :type model: byte.model.Model
+        :param uri: URI
+        :type uri: ParseResult
         """
-        self.collection = collection
-        self.model = model
+        self.engine = engine
+
+        self.uri = uri
+        self.parameters = kwargs
 
         self._compiler = None
 
@@ -37,14 +39,14 @@ class Executor(object):
     @property
     def plugins(self):
         """Retrieve plugins manager."""
-        if not self.collection:
+        if not self.engine:
             return None
 
-        return self.collection.plugins
+        return self.engine.plugins
 
     def construct_compiler(self):
         """Construct compiler."""
-        return self.plugins.get_compiler('operation')(self)
+        return self.plugins.get('byte.compilers.operation')(self)
 
     def execute(self, query):
         """Execute query.
@@ -62,9 +64,6 @@ class Executor(object):
 class ExecutorPlugin(Executor, Plugin):
     """Base executor plugin class."""
 
-    key = None
-    priority = Plugin.Priority.Medium
-
     class Meta(Plugin.Meta):
         """Executor plugin metadata."""
 
@@ -74,22 +73,28 @@ class ExecutorPlugin(Executor, Plugin):
         extension = None
         scheme = None
 
+        order_by = Plugin.Meta.order_by + (
+            'content_type',
+            'extension',
+            'scheme'
+        )
+
         @classmethod
-        def transform(cls):
+        def transform(cls, executor):
             """Transform executor metadata."""
             cls.extension = resolve_tuples(
                 cls.extension,
-                lambda value: (Plugin.Priority.Medium, value)
+                lambda value: (Plugin.Priority.Default, value)
             )
 
             cls.content_type = resolve_tuples(
                 cls.content_type,
-                lambda value: (Plugin.Priority.Medium, value)
+                lambda value: (Plugin.Priority.Default, value)
             )
 
             cls.scheme = resolve_tuples(
                 cls.scheme,
-                lambda value: (Plugin.Priority.Medium, value)
+                lambda value: (Plugin.Priority.Default, value)
             )
 
         @classmethod
@@ -99,14 +104,6 @@ class ExecutorPlugin(Executor, Plugin):
             :param executor: Executor
             :type executor: ExecutorPlugin
             """
-            assert executor.key, (
-                'Plugin has no "key" attribute defined'
-            )
-
-            assert isinstance(executor.key, string_types), (
-                'Invalid value provided for the plugin "key" attribute (expected str)'
-            )
-
             assert cls.extension is None or is_list_of(cls.extension, (int, string_types)), (
                 'Invalid value provided for the "extension" attribute (expected str, [str], [(int, str)])'
             )

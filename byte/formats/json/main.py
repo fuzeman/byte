@@ -9,13 +9,11 @@ from byte.formats.json.tasks import JsonSelectTask, JsonWriteTask
 class BaseJsonFormat(Format):
     """JSON base format."""
 
-    pass
-
 
 class JsonCollectionFormat(BaseJsonFormat, CollectionFormatPlugin):
     """JSON collection format."""
 
-    key = 'json:collection'
+    key = 'collection'
 
     class Meta(CollectionFormatPlugin.Meta):
         """JSON collection format metadata."""
@@ -46,10 +44,10 @@ class JsonCollectionFormat(BaseJsonFormat, CollectionFormatPlugin):
         return JsonSelectTask(executor, operation).execute()
 
 
-class JsonDocumentFormat(DocumentFormatPlugin):
+class JsonDocumentFormat(BaseJsonFormat, DocumentFormatPlugin):
     """JSON document format."""
 
-    key = 'json:document'
+    key = 'document'
 
     class Meta(DocumentFormatPlugin.Meta):
         """JSON document format metadata."""

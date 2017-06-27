@@ -12,7 +12,7 @@ class InsertQuery(WriteQuery):
         """Create Insert Query.
 
         :param collection: Collection
-        :type collection: byte.collection.Collection
+        :type collection: byte.table.Table
 
         :param model: Model
         :type model: byte.model.Model

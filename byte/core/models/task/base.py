@@ -33,14 +33,13 @@ class Task(object):
         return self.state == Task.State.closed
 
     @property
-    def collection(self):
-        """Retrieve collection."""
-        return self.executor.collection
+    def engine(self):
+        return self.executor.engine
 
     @property
     def model(self):
         """Retrieve model."""
-        return self.executor.model
+        return self.engine.model
 
     @property
     def started(self):

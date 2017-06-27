@@ -23,29 +23,30 @@ class Format(object):
 class FormatPlugin(Format, Plugin):
     """Format plugin class."""
 
-    key = None
-    priority = Plugin.Priority.Medium
-
     class Meta(Plugin.Meta):
         """Format metadata."""
 
         kind = 'format'
-        format_type = None
 
         content_type = None
         extension = None
 
+        order_by = Plugin.Meta.order_by + (
+            'content_type',
+            'extension'
+        )
+
         @classmethod
-        def transform(cls):
+        def transform(cls, fmt):
             """Transform format metadata."""
             cls.extension = resolve_tuples(
                 cls.extension,
-                lambda value: (Plugin.Priority.Medium, value)
+                lambda value: (Plugin.Priority.Default, value)
             )
 
             cls.content_type = resolve_tuples(
                 cls.content_type,
-                lambda value: (Plugin.Priority.Medium, value)
+                lambda value: (Plugin.Priority.Default, value)
             )
 
         @classmethod
@@ -55,14 +56,6 @@ class FormatPlugin(Format, Plugin):
             :param fmt: Format
             :type fmt: FormatPlugin
             """
-            assert fmt.key, (
-                'Plugin has no "key" attribute defined'
-            )
-
-            assert isinstance(fmt.key, string_types), (
-                'Invalid value provided for the plugin "key" attribute (expected str)'
-            )
-
             assert cls.extension is None or is_list_of(cls.extension, (int, string_types)), (
                 'Invalid value provided for the "extension" attribute (expected str, [str], [(int, str)])'
             )

@@ -53,6 +53,7 @@ class SimpleSelectTask(SelectTask, SimpleTask):
         for value in self.decode():
             item = self.model.from_plain(
                 value,
+                engine=self.engine,
                 translate=True
             )
 

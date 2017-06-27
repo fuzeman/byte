@@ -2,6 +2,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+from byte.core.helpers.uri import parse_uri, uri_from_path
+from byte.core.plugin.base import Plugin
 from byte.executors.core.base import FormatExecutorPlugin
 from byte.executors.file.revision import FileRevision
 
@@ -12,29 +14,27 @@ import six
 log = logging.getLogger(__name__)
 
 
-class FileExecutor(FormatExecutorPlugin):
-    """File executor class."""
+class FileTableExecutor(FormatExecutorPlugin):
+    """File collection executor class."""
 
-    key = 'file'
+    key = 'table'
 
     class Meta(FormatExecutorPlugin.Meta):
-        """File executor metadata."""
+        """File collection executor metadata."""
 
+        engine = Plugin.Engine.Table
         scheme = 'file'
 
-    def __init__(self, collection, model):
+    def __init__(self, engine, uri, **kwargs):
         """Create file executor.
 
-        :param collection: Collection
-        :type collection: byte.collection.Collection
-
-        :param model: Model
-        :type model: byte.model.Model
+        :param engine: Engine
+        :type engine: byte.core.base.datasource.Datasource
         """
-        super(FileExecutor, self).__init__(collection, model)
+        super(FileTableExecutor, self).__init__(engine, uri, **kwargs)
 
         # Retrieve path
-        self.path = os.path.abspath(self.collection.uri.netloc + self.collection.uri.path)
+        self.path = os.path.abspath(self.uri.netloc + self.uri.path)
 
         if not self.path:
             raise ValueError('Invalid collection path')
@@ -50,7 +50,11 @@ class FileExecutor(FormatExecutorPlugin):
 
     def construct_format(self):
         """Construct format parser."""
-        return self.plugins.get_collection_format_by_extension(self.extension[1:])()
+        return self.plugins.match(
+            Plugin.Kind.Format,
+            engine=Plugin.Engine.Collection,  # Use current engine
+            extension=self.extension[1:]
+        )()
 
     def execute(self, query):
         """Execute query.
@@ -79,3 +83,44 @@ class FileExecutor(FormatExecutorPlugin):
     def revision(self):
         """Create revision."""
         return FileRevision(self)
+
+
+class FileDatabaseExecutor(FormatExecutorPlugin):
+    """File database executor class."""
+
+    key = 'database'
+
+    class Meta(FormatExecutorPlugin.Meta):
+        """File database executor metadata."""
+
+        engine = Plugin.Engine.Database
+        scheme = 'file'
+
+    def __init__(self, engine, uri, **kwargs):
+        super(FileDatabaseExecutor, self).__init__(engine, uri, **kwargs)
+
+        # Retrieve path
+        self.path = os.path.abspath(self.uri.netloc + self.uri.path)
+
+        if not self.path:
+            raise ValueError('Invalid collection path')
+
+        # Retrieve extension from scheme
+        self.extension = self.uri.scheme[self.uri.scheme.find('.'):]
+
+    def create(self, engine, item):
+        if engine == Plugin.Engine.Table:
+            return self.create_table(item)
+
+        raise ValueError('Unsupported engine: %s'  % (engine,))
+
+    def create_table(self, item):
+        uri = uri_from_path(
+            os.path.join(self.path, item.name + self.extension),
+            scheme=self.uri.scheme
+        )
+
+        return FileTableExecutor(
+            item, parse_uri(uri),
+            **self.parameters
+        )

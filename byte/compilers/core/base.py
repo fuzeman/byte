@@ -25,7 +25,7 @@ class Compiler(object):
         """Retrieve collection.
 
         :return: Collection
-        :rtype: byte.collection.Collection
+        :rtype: byte.table.Table
         """
         if not self.executor:
             return None

@@ -2,8 +2,9 @@
 
 from __future__ import absolute_import, division, print_function
 
-from byte.executors.memory.main import MemoryExecutor
+from byte.executors.memory.main import MemoryDatabaseExecutor, MemoryTableExecutor
 
 __all__ = (
-    'MemoryExecutor',
+    'MemoryDatabaseExecutor',
+    'MemoryTableExecutor'
 )
