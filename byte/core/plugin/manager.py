@@ -3,16 +3,14 @@
 from __future__ import absolute_import, division, print_function
 
 from byte import __path__ as byte_path
-from byte.compilers.core.base import CompilerPlugin
 from byte.core.plugin.base import Plugin
-from byte.executors.core.base import ExecutorPlugin
-from byte.formats.core.base import CollectionFormatPlugin, DocumentFormatPlugin
 
 import imp
 import inspect
 import logging
 import os
 import pkgutil
+import six
 import sys
 
 log = logging.getLogger(__name__)
@@ -22,30 +20,10 @@ class PluginManager(object):
     """Plugin manager class."""
 
     kinds = [
-        'compiler',
-        'executor',
-        'format'
+        Plugin.Kind.Compiler,
+        Plugin.Kind.Executor,
+        Plugin.Kind.Format
     ]
-
-    collections = {
-        CompilerPlugin: [
-            ('compilers_by_content_type',           'content_type'),    # noqa
-            ('compilers_by_extension',              'extension')        # noqa
-        ],
-        ExecutorPlugin: [
-            ('executors_by_content_type',           'content_type'),    # noqa
-            ('executors_by_extension',              'extension'),       # noqa
-            ('executors_by_scheme',                 'scheme')           # noqa
-        ],
-        CollectionFormatPlugin: [
-            ('collection_formats_by_content_type',  'content_type'),    # noqa
-            ('collection_formats_by_extension',     'extension')        # noqa
-        ],
-        DocumentFormatPlugin: [
-            ('document_formats_by_content_type',    'content_type'),    # noqa
-            ('document_formats_by_extension',       'extension')        # noqa
-        ]
-    }
 
     def __init__(self, modules=None):
         """Create plugin manager.
@@ -53,22 +31,6 @@ class PluginManager(object):
         :param modules: Default plugin modules
         :type modules: list of module or None
         """
-        # Compilers
-        self.compilers_by_content_type = {}
-        self.compilers_by_extension = {}
-
-        # Executors
-        self.executors_by_content_type = {}
-        self.executors_by_extension = {}
-        self.executors_by_scheme = {}
-
-        # Formats
-        self.collection_formats_by_content_type = {}
-        self.collection_formats_by_extension = {}
-
-        self.document_formats_by_content_type = {}
-        self.document_formats_by_extension = {}
-
         # Plugins
         self.plugins = {}
         self.plugins_by_kind = {}
@@ -140,7 +102,15 @@ class PluginManager(object):
                 log.warn('Unable to load module \'%s\' in %r: %s', name, module_path, ex)
                 continue
 
-    def get(self, kind, key):
+    def get(self, id):
+        plugin = self.plugins.get(id)
+
+        if not plugin:
+            raise ValueError('No plugin found with id: %s' % (id,))
+
+        return plugin
+
+    def match(self, kind, **filter):
         """Get plugin.
 
         Raises :code:`ValueError` on unknown plugin type or key.
@@ -160,145 +130,102 @@ class PluginManager(object):
         if not plugins:
             raise ValueError('No \'%s\' plugins have been registered' % (kind,))
 
-        # Return plugin matching `key` (if one exists)
-        plugin = plugins.get(key)
+        # Find matching plugins
+        matches = []
 
-        if not plugin:
-            raise ValueError('No \'%s\' %s available' % (key, kind))
+        for plugin in six.itervalues(plugins):
+            meta = getattr(plugin, 'Meta')
 
-        return plugin
+            if not meta:
+                continue
 
-    def get_compiler(self, key):
-        """Retrieve compiler by key.
+            # Check priority properties match, build order key
+            pending = filter.copy()
+            valid = True
 
-        :param key: Key
-        :type key: str
-        """
-        return self.plugins_by_kind.get('compiler', {})[key]
+            order = []
 
-    def get_compiler_by_content_type(self, content_type):
-        """Retrieve compiler by content type.
+            for key in meta.order_by:
+                if key not in pending:
+                    continue
 
-        :param content_type: Content type
-        :type content_type: str
-        """
-        compilers = self.compilers_by_content_type.get(content_type)
+                expected = pending.pop(key)
+                matched = False
 
-        if not compilers:
-            raise KeyError(content_type)
+                for priority, value in getattr(meta, key):
+                    if value == expected:
+                        order.append(priority)
+                        matched = True
+                        break
 
-        _, compiler = compilers[0]
-        return compiler
+                if not matched:
+                    valid = False
+                    break
 
-    def get_compiler_by_extension(self, extension):
-        """Retrieve compiler by file extension.
+            if not valid:
+                continue
 
-        :param extension: File extension
-        :type extension: str
-        """
-        compilers = self.compilers_by_extension.get(extension)
+            # Check basic properties match
+            for key, expected in six.iteritems(pending):
+                if not hasattr(meta, key):
+                    match = False
+                    break
 
-        if not compilers:
-            raise KeyError(extension)
+                value = getattr(meta, key)
 
-        _, compiler = compilers[0]
-        return compiler
+                # Handle "any" engine definition
+                if key == 'engine' and value == Plugin.Engine.Any:
+                    continue
 
-    def get_executor_by_scheme(self, scheme):
-        """Retrieve executor by URI scheme.
+                # Check value matches
+                if value != expected:
+                    valid = False
+                    break
 
-        :param scheme: URI Scheme
-        :type scheme: str
-        """
-        executors = self.executors_by_scheme.get(scheme)
+            if not valid:
+                continue
 
-        if not executors:
-            raise KeyError(scheme)
+            # Add plugin to list
+            matches.append((tuple(order), plugin))
 
-        _, executor = executors[0]
-        return executor
+        # Ensure plugins were found
+        if not matches:
+            raise ValueError('No \'%s\' plugin found matching filters' % (kind,))
 
-    def get_collection_format_by_content_type(self, content_type):
-        """Retrieve collection format by content type.
+        # Sort matched plugins (by order)
+        matches.sort()
 
-        :param content_type: Content type
-        :type content_type: str
-        """
-        formats = self.collection_formats_by_content_type.get(content_type)
+        return matches[0][1]
 
-        if not formats:
-            raise KeyError(content_type)
-
-        _, fmt = formats[0]
-        return fmt
-
-    def get_collection_format_by_extension(self, extension):
-        """Retrieve collection format by file extension.
-
-        :param extension: File extension
-        :type extension: str
-        """
-        formats = self.collection_formats_by_extension.get(extension)
-
-        if not formats:
-            raise KeyError(extension)
-
-        _, fmt = formats[0]
-        return fmt
-
-    def get_document_format_by_content_type(self, content_type):
-        """Retrieve document format by content type.
-
-        :param content_type: Content type
-        :type content_type: str
-        """
-        formats = self.document_formats_by_content_type.get(content_type)
-
-        if not formats:
-            raise KeyError(content_type)
-
-        _, fmt = formats[0]
-        return fmt
-
-    def get_document_format_by_extension(self, extension):
-        """Retrieve document format by file extension.
-
-        :param extension: File extension
-        :type extension: str
-        """
-        formats = self.document_formats_by_extension.get(extension)
-
-        if not formats:
-            raise KeyError(extension)
-
-        _, fmt = formats[0]
-        return fmt
+    #
+    # Register
+    #
 
     def register(self, plugin):
         """Register plugin.
 
         :param plugin: Plugin
         """
-        # Ensure plugin has a "key" defined
-        if plugin.key is None:
-            log.warn('Plugin \'%s\' in module \'%s\' has no "key" property defined', plugin.__name__, plugin.__module__)
-            return False
+        plugin.id = plugin.__module__.replace('.main', '')
+
+        if plugin.key:
+            plugin.id += ':%s' % (plugin.key,)
 
         # Resolve plugin meta
         meta = getattr(plugin, 'Meta', None)
 
         if not meta:
-            log.warn('Plugin \'%s\' has no meta defined', plugin.key)
+            log.warn('Plugin \'%s\' has no meta defined', plugin.id)
             return False
 
         # Transform plugin meta values
-        meta.transform()
+        meta.transform(plugin)
 
         # Validate plugin meta
         try:
             meta.validate(plugin)
         except AssertionError as ex:
-            log.warn('Plugin \'%s\' failed validation: %s', plugin.key, ex.message)
+            log.warn('Plugin \'%s\' failed validation: %s', plugin.id, ex.message)
             return False
 
         # Ensure plugin `meta.kind` collection exists
@@ -306,67 +233,19 @@ class PluginManager(object):
             self.plugins_by_kind[meta.kind] = {}
 
         # Ensure plugin hasn't already been registered
-        if (meta.kind, plugin.key) in self.plugins or plugin.key in self.plugins_by_kind[meta.kind]:
-            log.warn('Plugin with kind \'%s\' and key \'%s\' has already been registered', meta.kind, plugin.key)
+        if plugin.id in self.plugins or plugin.id in self.plugins_by_kind[meta.kind]:
+            log.warn('Plugin with kind \'%s\' and key \'%s\' has already been registered', meta.kind, plugin.id)
             return False
 
         # Register plugin
-        self.plugins[(meta.kind, plugin.key)] = plugin
-        self.plugins_by_kind[meta.kind][plugin.key] = plugin
+        self.plugins[plugin.id] = plugin
+        self.plugins_by_kind[meta.kind][plugin.id] = plugin
 
-        # Register plugin in collections
-        self.register_collections(plugin, meta)
-
-        log.debug('Registered %s \'%s\'', meta.kind, plugin.key)
+        log.debug('Registered %s \'%s\'', meta.kind, plugin.id)
         return True
-
-    def register_collections(self, plugin, meta):
-        """Register plugin in collections.
-
-        :param plugin: Plugin
-        :param meta: Plugin metadata
-        """
-        for cls, collections in self.collections.items():
-            if not issubclass(plugin, cls):
-                continue
-
-            for name, attribute in collections:
-                # Retrieve collection dictionary
-                collection = getattr(self, name)
-
-                if collection is None:
-                    raise ValueError('Unknown collection: %s' % (name,))
-
-                # Register plugin in collection
-                self.register_attribute(collection, attribute, plugin, meta)
-
-    def register_attribute(self, collection, attribute, plugin, meta):
-        """Register plugin in collection.
-
-        :param collection: Plugin collection
-        :type collection: dict
-
-        :param attribute: Attribute name
-        :type attribute: str
-
-        :param plugin: Plugin
-        :param meta: Plugin metadata
-        """
-        for value in (getattr(meta, attribute) or []):
-            priority, value = self._resolve_definition(value)
-
-            # Ensure `attribute` collection exists
-            if value not in collection:
-                collection[value] = []
-
-            # Register plugin by `attribute`
-            collection[value].append((plugin.priority + (priority / 10), plugin))
-            collection[value].sort()
 
     def reset(self):
         """Reset plugin registry."""
-        self.executors_by_scheme = {}
-
         self.plugins = {}
         self.plugins_by_kind = {}
 
@@ -396,6 +275,7 @@ class PluginManager(object):
                     continue
 
                 self.register(value)
+
 
     @staticmethod
     def _resolve_definition(value):

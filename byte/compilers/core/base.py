@@ -56,9 +56,6 @@ class Compiler(object):
 class CompilerPlugin(Compiler, Plugin):
     """Base compiler plugin class."""
 
-    key = None
-    priority = Plugin.Priority.Medium
-
     class Meta(Plugin.Meta):
         """Compiler metadata."""
 
@@ -68,16 +65,16 @@ class CompilerPlugin(Compiler, Plugin):
         extension = None
 
         @classmethod
-        def transform(cls):
+        def transform(cls, compiler):
             """Transform compiler metadata."""
             cls.extension = resolve_tuples(
                 cls.extension,
-                lambda value: (Plugin.Priority.Medium, value)
+                lambda value: (Plugin.Priority.Default, value)
             )
 
             cls.content_type = resolve_tuples(
                 cls.content_type,
-                lambda value: (Plugin.Priority.Medium, value)
+                lambda value: (Plugin.Priority.Default, value)
             )
 
         @classmethod
@@ -87,14 +84,6 @@ class CompilerPlugin(Compiler, Plugin):
             :param compiler: Compiler
             :type compiler: Compiler
             """
-            assert compiler.key, (
-                'Plugin has no "key" attribute defined'
-            )
-
-            assert isinstance(compiler.key, string_types), (
-                'Invalid value provided for the plugin "key" attribute (expected str)'
-            )
-
             assert cls.extension is None or is_list_of(cls.extension, (int, string_types)), (
                 'Invalid value provided for the "extension" attribute (expected str, [str], [(int, str)])'
             )

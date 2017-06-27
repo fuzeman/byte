@@ -10,8 +10,6 @@ from byte.queries import InsertQuery, SelectQuery
 class OperationCompiler(CompilerPlugin):
     """Operation compiler class."""
 
-    key = 'operation'
-
     def compile(self, query):
         """Compile query.
 
