@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """byte - model module."""
-
 from __future__ import absolute_import, division, print_function
 
-from byte.property import Property, PropertyError, RelationProperty
-from byte.registry import Registry
+from byte.core.property import Property, PropertyError, RelationProperty
 
 from six import add_metaclass
 import inspect
@@ -62,11 +60,6 @@ class ModelOptions(object):
         :type items: dict
         """
         self.items = items or {}
-
-    @property
-    def collection(self):
-        """Retrieve model collection."""
-        return self.items.get('collection')
 
     @property
     def slots(self):
@@ -220,22 +213,14 @@ class ModelMeta(type):
         if options.slots:
             namespace['__slots__'] = mcs.__get_slots(namespace, properties)
 
-        # Define `objects` on class
-        collection = None
-
-        if options.collection:
-            collection = namespace['Objects'] = options.collection
-        else:
-            namespace['Objects'] = None
-
         # Bind methods
         namespace['__init__'] = mcs.__create_init(bases, namespace, properties)
 
         # Construct model
         cls = type.__new__(mcs, name, bases, namespace)
 
-        # Bind model (collection, properties, etc..)
-        mcs.__bind(cls, internal, properties, collection)
+        # Bind model
+        mcs.__bind(cls, internal, properties)
 
         return cls
 
@@ -301,16 +286,12 @@ class ModelMeta(type):
         return __init__
 
     @classmethod
-    def __bind(mcs, cls, internal, properties, collection):
+    def __bind(mcs, cls, internal, properties):
         # Register model
-        Registry.register_model(cls)
+        # Registry.register_model(cls)
 
         # Bind properties to model
         mcs.__bind_properties(cls, internal, properties)
-
-        # Bind collection to model
-        if collection:
-            collection.bind(cls)
 
     @classmethod
     def __bind_properties(mcs, cls, internal, properties):
@@ -367,29 +348,33 @@ class ModelMeta(type):
 class Model(object):
     """Base data model class."""
 
-    __slots__ = []
+    __slots__ = [
+        'byte_engine'
+    ]
 
     def __init__(self, **kwargs):
         """Create data model item."""
+        self.byte_engine = None
+
         # Set properties on object (without validation)
         for key, value in kwargs.items():
             setattr(self, key, value)
 
     @classmethod
     def create(cls, **kwargs):
-        """Create model item, validate provided properties and save it to the collection (if defined)."""
+        """Create model item, validate provided properties and save it to the engine (if defined)."""
         item = cls(**kwargs)
 
         # TODO Validate values against property types
 
-        # Save item to collection (if defined)
-        if item.__collection__ or cls.Options.collection:
+        # Save item to engine (if defined)
+        if item.byte_engine:
             item.save(mode='insert')
 
         return item
 
     @classmethod
-    def from_plain(cls, data, strict=True, translate=False):
+    def from_plain(cls, data, engine=None, strict=True, translate=False):
         """
         Parse model item from plain dictionary.
 
@@ -411,9 +396,12 @@ class Model(object):
         if properties_by_name is None:
             raise ModelParseError('No properties defined')
 
-        # Parse item from plain dictionary `data`
-        obj = cls()
+        # Construct item instance
+        obj = cls(
+            byte_engine=engine
+        )
 
+        # Parse properties from dictionary
         for name, value in data.items():
             # Find matching property (by name)
             prop = properties_by_name.get(name)
@@ -439,23 +427,21 @@ class Model(object):
 
         return obj
 
-    def save(self, collection=None, mode=None, execute=True):
-        """Save model item to collection."""
-        # Retrieve collection bound to item or model
-        collection = collection or self.__collection__ or self.__class__.Options.collection
+    def save(self, engine=None, mode=None, execute=True):
+        """Save item to engine."""
+        engine = engine or self.byte_engine
 
-        if not collection:
-            raise ModelError('Object hasn\'t been bound to any collection')
+        if not engine:
+            raise ModelError('Item hasn\'t been bound to any engine')
 
         # Save item to collection
         if mode == 'insert':
-            return collection.insert().items(self.to_plain()).execute()
+            return engine.insert().items(self.to_plain()).execute()
 
         raise NotImplementedError
 
     def to_plain(self, translate=False):
-        """
-        Dump model item to plain dictionary.
+        """Dump model item to plain dictionary.
 
         :param translate: Enable data type translation (convert python data types into simple types)
         :type translate: bool

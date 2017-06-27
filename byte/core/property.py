@@ -4,7 +4,6 @@
 from __future__ import absolute_import, division, print_function
 
 from byte.core.models import BaseProperty, ProxyExpressions
-from byte.registry import Registry
 
 from arrow import Arrow
 from collections import namedtuple
@@ -107,8 +106,7 @@ class Property(BaseProperty, ProxyExpressions):
         self.key = None
 
         # Resolve relation property (if `value_type` is a model)
-        if self.value_type in Registry.models:
-            self._relation = self.__get_relation()
+        self._relation = self.__get_relation()
 
     @property
     def name(self):
@@ -265,7 +263,13 @@ class Property(BaseProperty, ProxyExpressions):
         return isinstance(value, self.value_type)
 
     def __get_relation(self):
+        if not hasattr(self.value_type, 'Internal'):
+            return None
+
         if self.by is None:
+            if not hasattr(self.value_type.Internal, 'primary_key'):
+                return None
+
             # Use relation primary key
             if not self.value_type.Internal.primary_key:
                 raise PropertyRelationError("Relation '%s' has no primary key" % (self.value_type.__name__,))
@@ -273,6 +277,9 @@ class Property(BaseProperty, ProxyExpressions):
             return self.value_type.Internal.primary_key
 
         # Find matching property in relation
+        if not hasattr(self.value_type.Internal, 'properties_by_key'):
+            return None
+
         if self.by not in self.value_type.Internal.properties_by_key:
             raise PropertyRelationError("Relation '%s' has no '%s' property" % (self.value_type.__name__, self.by))
 
@@ -339,9 +346,6 @@ class RelationProperty(Property):
 
         self.prop = prop
 
-        # Private attributes
-        self._collection = None
-
     @property
     def cache_key(self):
         """Retrieve relation cache key.
@@ -351,28 +355,6 @@ class RelationProperty(Property):
         """
         return '_RelationProperty_%s' % self.key
 
-    @property
-    def collection(self):
-        """Retrieve collection.
-
-        :return: Collection
-        :rtype: byte.collection.Collection
-        """
-        if self._collection:
-            return self._collection
-
-        if self.value_type:
-            return self.value_type.Objects
-
-        return None
-
-    def connect(self, collection):
-        """Connect relation collection.
-
-        :param collection: Collection
-        :type collection: byte.collection.Collection
-        """
-        self._collection = collection
 
     def get_cache(self, obj):
         """Try retrieve cached relation value.
@@ -419,14 +401,18 @@ class RelationProperty(Property):
         if key is None:
             return None
 
-        # Ensure collection exists
-        collection = self.collection
+        # Ensure engine has been bound
+        if not obj.byte_engine:
+            raise PropertyError('Unable to resolve relation for \'%s\', item hasn\'t been bound to an engine' % (self.name,))
 
-        if not collection:
-            raise PropertyError("No collection available for '%s'" % (self.value_type.__name__,))
+        # Retrieve engine for relation
+        engine = obj.byte_engine.relations.get(self.name)
 
-        # Retrieve item from collection
-        value = collection.get(self.relation == key)
+        if not engine:
+            raise PropertyError('Unable to resolve relation for \'%s\', engine hasn\'t been connected to the relation property' % (self.name,))
+
+        # Retrieve item from engine
+        value = engine.get(self.relation == key)
 
         # Cache relation value
         self.set_cache(obj, value)
