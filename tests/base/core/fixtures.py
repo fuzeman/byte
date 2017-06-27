@@ -53,7 +53,7 @@ def get_fixture(path, copy=True):
 
 
 @contextmanager
-def get_fixture_uri(path, copy=True):
+def get_fixture_uri(path, copy=True, scheme='file'):
     """Retrieve fixture URI.
 
     :param path: Fixture path (relative to fixtures directory)
@@ -77,7 +77,11 @@ def get_fixture_uri(path, copy=True):
     # Yield fixture uris
     try:
         uris = [
-            uri_from_path(fixture.__enter__()) for fixture in fixtures
+            uri_from_path(
+                fixture.__enter__(),
+                scheme=scheme
+            )
+            for fixture in fixtures
         ]
 
         if not single:

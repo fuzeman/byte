@@ -35,7 +35,7 @@ def copy_tree(src, dst, symlinks=False, ignore=None):
             shutil.copy2(s, d)
 
 
-def uri_from_path(path):
+def uri_from_path(path, scheme='file'):
     """Build file URI from path.
 
     :param path: Path
@@ -44,7 +44,4 @@ def uri_from_path(path):
     :return: File URI
     :rtype: str
     """
-    return urllib_parse.urljoin(
-        'file:',
-        urllib.request.pathname2url(str(path))[1:]
-    )
+    return scheme + ':' + urllib.request.pathname2url(str(path))[1:]

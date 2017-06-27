@@ -1,11 +1,11 @@
 from __future__ import absolute_import, division, print_function
 
-from byte.collection import Collection
+from byte.table import Table
 from tests.base.models.dynamic.user import User
 
 from hamcrest import *
 
-users = Collection(User)
+users = Table(User)
 
 
 def test_simple():

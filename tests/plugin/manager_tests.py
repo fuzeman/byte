@@ -9,8 +9,11 @@ def test_discovery():
     plugins = PluginManager()
 
     # Ensure the core executors have been registered
-    assert ('executor', 'file') in plugins
-    assert ('executor', 'memory') in plugins
+    assert 'byte.executors.file:database' in plugins
+    assert 'byte.executors.file:table' in plugins
+
+    assert 'byte.executors.memory:database' in plugins
+    assert 'byte.executors.memory:table' in plugins
 
 
 def test_provided_modules():
@@ -20,7 +23,8 @@ def test_provided_modules():
     ])
 
     # Ensure only one plugin exists
-    assert len(plugins) == 1
+    assert len(plugins) == 2
 
     # Ensure memory executor has been registered
-    assert ('executor', 'memory') in plugins
+    assert 'byte.executors.memory:database' in plugins
+    assert 'byte.executors.memory:table' in plugins

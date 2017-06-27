@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
-from byte.collection import Collection
+from byte.table import Table
 from tests.base.models.dynamic.album import Album
 from tests.base.models.dynamic.artist import Artist
 from tests.base.models.dynamic.track import Track
@@ -10,7 +10,7 @@ import byte.executors.memory
 
 def test_basic():
     """Test collection with dynamic models."""
-    artists = Collection(Artist, 'memory://', plugins=[
+    artists = Table(Artist, 'memory://', plugins=[
         byte.compilers.operation,
         byte.executors.memory
     ])
@@ -34,27 +34,31 @@ def test_basic():
 def test_relations():
     """Test collection relations with dynamic models."""
     # Artists
-    artists = Collection(Artist, 'memory://', plugins=[
+    artists = Table(Artist, 'memory://', plugins=[
         byte.compilers.operation,
         byte.executors.memory
     ])
 
     # Albums
-    albums = Collection(Album, 'memory://', plugins=[
+    albums = Table(Album, 'memory://', plugins=[
         byte.compilers.operation,
         byte.executors.memory
     ])
 
-    albums.connect(Album.Properties.artist, artists)
+    albums.connect(
+        artist=artists
+    )
 
     # Tracks
-    tracks = Collection(Track, 'memory://', plugins=[
+    tracks = Table(Track, 'memory://', plugins=[
         byte.compilers.operation,
         byte.executors.memory
     ])
 
-    tracks.connect(Track.Properties.album, albums)
-    tracks.connect(Track.Properties.artist, artists)
+    tracks.connect(
+        artist=artists,
+        album=albums
+    )
 
     # Create objects
     artists.create(

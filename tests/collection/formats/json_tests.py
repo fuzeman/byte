@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
-from byte.collection import Collection
+from byte.table import Table
 from tests.base.core.fixtures import get_fixture_uri
 from tests.base.models.dynamic.album import Album
 from tests.base.models.dynamic.artist import Artist
@@ -15,8 +15,8 @@ from hamcrest import *
 
 def test_all():
     """Test all items are returned from json-formatted collection."""
-    with get_fixture_uri('collections/artists.json') as artists_uri:
-        artists = Collection(Artist, artists_uri, plugins=[
+    with get_fixture_uri('databases/music/artists.json') as artists_uri:
+        artists = Table(Artist, artists_uri, plugins=[
             byte.compilers.operation,
             byte.executors.file,
             byte.formats.json
@@ -53,8 +53,8 @@ def test_all():
 
 def test_create():
     """Test items can be created on json-formatted collections."""
-    with get_fixture_uri('collections/artists.json') as artists_uri:
-        artists = Collection(Artist, artists_uri, plugins=[
+    with get_fixture_uri('databases/music/artists.json') as artists_uri:
+        artists = Table(Artist, artists_uri, plugins=[
             byte.compilers.operation,
             byte.executors.file,
             byte.formats.json
@@ -72,8 +72,8 @@ def test_create():
 
 def test_get_basic():
     """Test items can be retrieved from json-formatted collections."""
-    with get_fixture_uri('collections/artists.json') as artists_uri:
-        artists = Collection(Artist, artists_uri, plugins=[
+    with get_fixture_uri('databases/music/artists.json') as artists_uri:
+        artists = Table(Artist, artists_uri, plugins=[
             byte.compilers.operation,
             byte.executors.file,
             byte.formats.json
@@ -89,39 +89,43 @@ def test_get_basic():
 def test_get_relations():
     """Test relations can be resolved in json-formatted collections."""
     with get_fixture_uri((
-        'collections/artists.json',
-        'collections/albums.json',
-        'collections/tracks.json'
+        'databases/music/artists.json',
+        'databases/music/albums.json',
+        'databases/music/tracks.json'
     )) as (
         artists_uri,
         albums_uri,
         tracks_uri
     ):
         # Artists
-        artists = Collection(Artist, artists_uri, plugins=[
+        artists = Table(Artist, artists_uri, plugins=[
             byte.compilers.operation,
             byte.executors.file,
             byte.formats.json
         ])
 
         # Albums
-        albums = Collection(Album, albums_uri, plugins=[
+        albums = Table(Album, albums_uri, plugins=[
             byte.compilers.operation,
             byte.executors.file,
             byte.formats.json
         ])
 
-        albums.connect(Album.Properties.artist, artists)
+        albums.connect(
+            artist=artists
+        )
 
         # Tracks
-        tracks = Collection(Track, tracks_uri, plugins=[
+        tracks = Table(Track, tracks_uri, plugins=[
             byte.compilers.operation,
             byte.executors.file,
             byte.formats.json
         ])
 
-        tracks.connect(Track.Properties.album, albums)
-        tracks.connect(Track.Properties.artist, artists)
+        tracks.connect(
+            artist=artists,
+            album=albums
+        )
 
         # Fetch track, and ensure relations can be resolved
         assert_that(tracks.get(Track['id'] == 1), has_properties({
@@ -148,7 +152,7 @@ def test_get_relations():
 def test_where():
     """Test json-formatted collections can be filtered with expressions."""
     with get_fixture_uri('collections/cities.json') as cities_uri:
-        cities = Collection(City, cities_uri, plugins=[
+        cities = Table(City, cities_uri, plugins=[
             byte.compilers.operation,
             byte.executors.file,
             byte.formats.json
