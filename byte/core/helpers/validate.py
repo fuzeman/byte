@@ -1,4 +1,4 @@
-"""byte - validation helpers module."""
+"""byte - validation helper functions module."""
 
 from __future__ import absolute_import, division, print_function
 

@@ -34,6 +34,7 @@ class Task(object):
 
     @property
     def engine(self):
+        """Retrieve storage engine."""
         return self.executor.engine
 
     @property

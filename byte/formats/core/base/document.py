@@ -17,7 +17,9 @@ class DocumentFormat(Format):
 
 
 class DocumentFormatPlugin(DocumentFormat, FormatPlugin):
-    """Document format plugin class."""
+    """Document format class."""
 
     class Meta(FormatPlugin.Meta):
+        """Document format metadata."""
+
         engine = FormatPlugin.Engine.Document

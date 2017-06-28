@@ -73,11 +73,27 @@ class MemoryDatabaseExecutor(SimpleExecutorPlugin):
         scheme = 'memory'
 
     def __init__(self, engine, uri, **kwargs):
+        """Create memory database executor.
+
+        :param engine: Database Engine
+        :type engine: byte.engines.database.Database
+
+        :param uri: Database URI
+        :type uri: ParseResult
+        """
         super(MemoryDatabaseExecutor, self).__init__(engine, uri, **kwargs)
 
         self.tables = {}
 
     def open_table(self, table):
+        """Open memory table executor for :code:`table`.
+
+        :param table: Table
+        :type table: byte.engines.table.Table
+
+        :return: Table Executor
+        :rtype: MemoryTableExecutor
+        """
         if table.name not in self.tables:
             self.tables[table.name] = {}
 

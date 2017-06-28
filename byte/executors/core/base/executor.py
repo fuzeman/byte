@@ -57,13 +57,32 @@ class Executor(object):
         raise NotImplementedError
 
     def open(self, engine, item):
+        """Open child executor for :code:`item`.
+
+        :param engine: Engine
+        :type engine: str
+
+        :param item: Item
+        :type item: byte.engines.core.base.Engine
+
+        :return: Executor
+        :rtype: Executor
+        """
         if engine == Plugin.Engine.Table:
             return self.open_table(item)
 
-        raise NotImplementedError('%s doesn\'t support %s children'  % (self.__class__.__name__, engine))
+        raise NotImplementedError('%s doesn\'t support %s children' % (self.__class__.__name__, engine))
 
     def open_table(self, table):
-        raise NotImplementedError('%s doesn\'t support table children'  % (self.__class__.__name__,))
+        """Open table executor for :code:`table`.
+
+        :param table: Item
+        :type table: byte.engines.table.Table
+
+        :return: Executor
+        :rtype: Executor
+        """
+        raise NotImplementedError('%s doesn\'t support table children' % (self.__class__.__name__,))
 
     def close(self):
         """Close executor."""

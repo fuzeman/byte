@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """byte - property module."""
 from __future__ import absolute_import, division, print_function
 
@@ -355,7 +353,6 @@ class RelationProperty(Property):
         """
         return '_RelationProperty_%s' % self.key
 
-
     def get_cache(self, obj):
         """Try retrieve cached relation value.
 
@@ -403,13 +400,21 @@ class RelationProperty(Property):
 
         # Ensure engine has been bound
         if not obj.byte_engine:
-            raise PropertyError('Unable to resolve relation for \'%s\', item hasn\'t been bound to an engine' % (self.name,))
+            raise PropertyError(
+                'Unable to resolve relation for \'%s\', item hasn\'t been bound to an engine' % (
+                    self.name,
+                )
+            )
 
         # Retrieve engine for relation
         engine = obj.byte_engine.relations.get(self.name)
 
         if not engine:
-            raise PropertyError('Unable to resolve relation for \'%s\', engine hasn\'t been connected to the relation property' % (self.name,))
+            raise PropertyError(
+                'Unable to resolve relation for \'%s\', engine hasn\'t been connected to the relation property' % (
+                    self.name,
+                )
+            )
 
         # Retrieve item from engine
         value = engine.get(self.relation == key)

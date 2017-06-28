@@ -1,3 +1,4 @@
+"""byte - uri helper functions module."""
 from __future__ import absolute_import, division, print_function
 
 from byte.core.compat import PY26
@@ -7,6 +8,14 @@ from six.moves.urllib.request import pathname2url, url2pathname
 
 
 def parse_uri(uri):
+    """Parse URI into individual components.
+
+    :param uri: URI
+    :type uri: str
+
+    :return: URI Components
+    :rtype: ParseResult
+    """
     if not uri:
         return
 
@@ -28,6 +37,14 @@ def parse_uri(uri):
 
 
 def parse_query(query):
+    """Parse query into dictionary of parameters.
+
+    :param query: Query String
+    :type query: str
+
+    :return: Parameters
+    :rtype: dict
+    """
     if not query:
         return {}
 
@@ -35,11 +52,19 @@ def parse_query(query):
 
 
 def path_from_uri(uri):
+    """Build path from File URI.
+
+    :param uri: File URI
+    :type uri: str
+
+    :return: Path
+    :rtype: str
+    """
     return url2pathname(uri)
 
 
 def uri_from_path(path, scheme='file'):
-    """Build file URI from path.
+    """Build File URI from path.
 
     :param path: Path
     :type path: str

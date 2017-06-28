@@ -1,15 +1,13 @@
 from __future__ import absolute_import, division, print_function
 
-from byte.table import Table
 from byte.database import Database
+from byte.table import Table
 from tests.base.core.fixtures import get_fixture_uri
 from tests.base.models.dynamic.album import Album
 from tests.base.models.dynamic.artist import Artist
 from tests.base.models.dynamic.track import Track
 import byte.compilers.operation
 import byte.executors.file
-
-from hamcrest import *
 
 
 def test_get():

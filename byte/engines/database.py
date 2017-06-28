@@ -13,12 +13,13 @@ log = logging.getLogger(__name__)
 
 
 class DatabaseError(Exception):
-    """Database error class."""
+    """Database engine error class."""
+
     pass
 
 
 class Database(Engine):
-    """Database class."""
+    """Database engine class."""
 
     def __init__(self, uri, children, **kwargs):
         """Create database.
@@ -53,6 +54,11 @@ class Database(Engine):
 
     @property
     def executor(self):
+        """Retrieve database executor.
+
+        :return: Executor
+        :rtype: byte.executors.core.base.executor.Executor
+        """
         if not self._executor:
             return self._construct_executor()
 
@@ -60,6 +66,7 @@ class Database(Engine):
 
     @property
     def uri(self):
+        """Retrieve URI."""
         return self._uri
 
     #
@@ -97,7 +104,14 @@ class Database(Engine):
 
 
 class DatabaseChildren(object):
+    """Database children container class."""
+
     def __init__(self, children=None):
+        """Create database children container.
+
+        :param children: Initial children to include
+        :type children: list
+        """
         self.engine = None
 
         # Indexes
@@ -109,6 +123,10 @@ class DatabaseChildren(object):
             self.add(*children)
 
     def add(self, *items):
+        """Add children to container.
+
+        :raises: ValueError
+        """
         for item in items:
             engine = self._get_engine(item)
 

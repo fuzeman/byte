@@ -103,6 +103,14 @@ class PluginManager(object):
                 continue
 
     def get(self, id):
+        """Retrieve plugin by identifier.
+
+        Note: Raises a :code:`ValueError` exception if the plugin doesn't exist.
+
+        :raises: ValueError
+        :return: Plugin
+        :rtype: byte.core.plugin.base.Plugin
+        """
         plugin = self.plugins.get(id)
 
         if not plugin:

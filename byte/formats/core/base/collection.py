@@ -83,7 +83,9 @@ class CollectionFormat(Format):
 
 
 class CollectionFormatPlugin(CollectionFormat, FormatPlugin):
-    """Collection format plugin class."""
+    """Collection format class."""
 
     class Meta(FormatPlugin.Meta):
+        """Collection format metadata."""
+
         engine = FormatPlugin.Engine.Collection

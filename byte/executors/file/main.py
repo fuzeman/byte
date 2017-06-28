@@ -115,6 +115,14 @@ class FileDatabaseExecutor(FormatExecutorPlugin):
         scheme = 'file'
 
     def __init__(self, engine, uri, **kwargs):
+        """Create file database executor.
+
+        :param engine: Database Engine
+        :type engine: byte.engines.database.Database
+
+        :param uri: Database URI
+        :type uri: ParseResult
+        """
         super(FileDatabaseExecutor, self).__init__(engine, uri, **kwargs)
 
         log.debug('Constructed (engine: database, uri: %r)', self.uri)
@@ -136,6 +144,14 @@ class FileDatabaseExecutor(FormatExecutorPlugin):
         log.debug(' - extension: %r', self.extension)
 
     def open_table(self, table):
+        """Open file table executor for :code:`table`.
+
+        :param table: Table
+        :type table: byte.engines.table.Table
+
+        :return: Table Executor
+        :rtype: FileTableExecutor
+        """
         uri = uri_from_path(
             os.path.join(self.path, table.name + self.extension),
             scheme=self.uri.scheme

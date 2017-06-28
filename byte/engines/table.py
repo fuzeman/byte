@@ -14,12 +14,13 @@ log = logging.getLogger(__name__)
 
 
 class TableError(Exception):
-    """Collection error class."""
+    """Table engine error class."""
+
     pass
 
 
 class Table(Engine):
-    """Collection class."""
+    """Collection engine class."""
 
     def __init__(self, uri_or_model=None, uri=None, model=None, name=None, plugins=None, **kwargs):
         """Create collection.
@@ -72,14 +73,17 @@ class Table(Engine):
 
     @property
     def database(self):
+        """Retrieve database."""
         return self._database
 
     @database.setter
     def database(self, value):
+        """Set database."""
         self._database = value
 
     @property
     def executor(self):
+        """Retrieve executor."""
         if not self._executor:
             return self._construct_executor()
 
@@ -87,6 +91,7 @@ class Table(Engine):
 
     @executor.setter
     def executor(self, value):
+        """Set executor."""
         self._executor = value
 
     @property
@@ -99,6 +104,7 @@ class Table(Engine):
 
     @property
     def model(self):
+        """Retrieve model."""
         return self._model
 
     @property
@@ -111,6 +117,7 @@ class Table(Engine):
 
     @property
     def uri(self):
+        """Retrieve URI."""
         return self._uri
 
     def connect(self, **kwargs):
@@ -273,4 +280,4 @@ class Table(Engine):
 
 # noinspection PyAbstractClass
 class TableMixin(Table):
-    """Base class for collection mixins."""
+    """Base class for table engine mixins."""

@@ -62,4 +62,3 @@ class Plugin(object):
             :type plugin: Plugin
             """
             return True
-
