@@ -114,20 +114,28 @@ class FileDatabaseExecutor(FormatExecutorPlugin):
     def __init__(self, engine, uri, **kwargs):
         super(FileDatabaseExecutor, self).__init__(engine, uri, **kwargs)
 
+        log.debug('Constructed (engine: database, uri: %r)', self.uri)
+
         # Retrieve path
         self.path = os.path.abspath(self.uri.netloc + self.uri.path)
 
         if not self.path:
             raise ValueError('Invalid collection path')
 
+        log.debug(' - path: %r', self.path)
+
         # Retrieve extension from scheme
         self.extension = self.uri.scheme[self.uri.scheme.find('.'):]
+
+        log.debug(' - extension: %r', self.extension)
 
     def open_table(self, table):
         uri = uri_from_path(
             os.path.join(self.path, table.name + self.extension),
             scheme=self.uri.scheme
         )
+
+        log.debug('Opening table (uri: %r)', uri)
 
         return FileTableExecutor(
             table, parse_uri(uri),
