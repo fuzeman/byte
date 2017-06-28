@@ -56,6 +56,15 @@ class Executor(object):
         """
         raise NotImplementedError
 
+    def open(self, engine, item):
+        if engine == Plugin.Engine.Table:
+            return self.open_table(item)
+
+        raise NotImplementedError('%s doesn\'t support %s children'  % (self.__class__.__name__, engine))
+
+    def open_table(self, table):
+        raise NotImplementedError('%s doesn\'t support table children'  % (self.__class__.__name__,))
+
     def close(self):
         """Close executor."""
         raise NotImplementedError

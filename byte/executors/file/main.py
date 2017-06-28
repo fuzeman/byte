@@ -108,12 +108,6 @@ class FileDatabaseExecutor(FormatExecutorPlugin):
         # Retrieve extension from scheme
         self.extension = self.uri.scheme[self.uri.scheme.find('.'):]
 
-    def open(self, engine, item):
-        if engine == Plugin.Engine.Table:
-            return self.open_table(item)
-
-        raise ValueError('Unsupported engine: %s'  % (engine,))
-
     def open_table(self, table):
         uri = uri_from_path(
             os.path.join(self.path, table.name + self.extension),
