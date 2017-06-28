@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 from byte.core.compat import PY26
 
 from six.moves.urllib.parse import ParseResult, parse_qsl, urlparse
-from six.moves.urllib.request import pathname2url
+from six.moves.urllib.request import pathname2url, url2pathname
 
 
 def parse_uri(uri):
@@ -34,6 +34,10 @@ def parse_query(query):
     return dict(parse_qsl(query))
 
 
+def path_from_uri(uri):
+    return url2pathname(uri)
+
+
 def uri_from_path(path, scheme='file'):
     """Build file URI from path.
 
@@ -43,4 +47,9 @@ def uri_from_path(path, scheme='file'):
     :return: File URI
     :rtype: str
     """
-    return scheme + ':' + pathname2url(str(path))[1:]
+    path = pathname2url(str(path))
+
+    if path.startswith('///'):
+        path = path[2:]
+
+    return scheme + '://' + path

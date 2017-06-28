@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from byte.core.helpers.uri import parse_uri, uri_from_path
+from byte.core.helpers.uri import parse_uri, path_from_uri, uri_from_path
 from byte.core.plugin.base import Plugin
 from byte.executors.core.base import FormatExecutorPlugin
 from byte.executors.file.revision import FileRevision
@@ -35,8 +35,11 @@ class FileTableExecutor(FormatExecutorPlugin):
 
         log.debug('Constructed (engine: table, uri: %r)', self.uri)
 
+        if self.uri.netloc:
+            raise ValueError('Network shares are not supported (invalid uri format)')
+
         # Retrieve path
-        self.path = os.path.abspath(self.uri.netloc + self.uri.path)
+        self.path = os.path.abspath(path_from_uri(self.uri.path))
 
         if not self.path:
             raise ValueError('Invalid collection path')
@@ -116,8 +119,11 @@ class FileDatabaseExecutor(FormatExecutorPlugin):
 
         log.debug('Constructed (engine: database, uri: %r)', self.uri)
 
+        if self.uri.netloc:
+            raise ValueError('Network shares are not supported (invalid uri format)')
+
         # Retrieve path
-        self.path = os.path.abspath(self.uri.netloc + self.uri.path)
+        self.path = os.path.abspath(path_from_uri(self.uri.path))
 
         if not self.path:
             raise ValueError('Invalid collection path')
