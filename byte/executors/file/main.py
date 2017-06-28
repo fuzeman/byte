@@ -1,5 +1,4 @@
 """byte - file executor module."""
-
 from __future__ import absolute_import, division, print_function
 
 from byte.core.helpers.uri import parse_uri, path_from_uri, uri_from_path
@@ -14,15 +13,12 @@ import six
 log = logging.getLogger(__name__)
 
 
-class FileTableExecutor(FormatExecutorPlugin):
-    """File collection executor class."""
-
-    key = 'table'
+class Base(FormatExecutorPlugin):
+    """File base executor class."""
 
     class Meta(FormatExecutorPlugin.Meta):
-        """File collection executor metadata."""
+        """File base executor metadata."""
 
-        engine = Plugin.Engine.Table
         scheme = 'file'
 
     def __init__(self, engine, uri, **kwargs):
@@ -31,9 +27,7 @@ class FileTableExecutor(FormatExecutorPlugin):
         :param engine: Engine
         :type engine: byte.core.base.datasource.Datasource
         """
-        super(FileTableExecutor, self).__init__(engine, uri, **kwargs)
-
-        log.debug('Constructed (engine: table, uri: %r)', self.uri)
+        super(Base, self).__init__(engine, uri, **kwargs)
 
         if self.uri.netloc:
             raise ValueError('Network shares are not supported (invalid uri format)')
@@ -44,21 +38,8 @@ class FileTableExecutor(FormatExecutorPlugin):
         if not self.path:
             raise ValueError('Invalid collection path')
 
-        log.debug(' - path: %r', self.path)
-
         # Retrieve directory
         self.directory = os.path.dirname(self.path)
-
-        log.debug(' - directory: %r', self.directory)
-
-        # Retrieve file extension
-        self.name, self.extension = os.path.splitext(self.path)
-
-        if not self.extension:
-            raise ValueError('No file extension defined with collection path')
-
-        log.debug(' - name: %r', self.name)
-        log.debug(' - extension: %r', self.extension)
 
     def construct_format(self):
         """Construct format parser."""
@@ -87,32 +68,50 @@ class FileTableExecutor(FormatExecutorPlugin):
         :return: Stream
         :rtype: file or io.IOBase
         """
-        log.debug('Opening file: %s', self.path)
-
-        # Open file stream
         if six.PY2:
-            fp = open(self.path)
-        else:
-            fp = open(self.path, encoding='utf8')
+            return open(self.path)
 
-        log.debug('Opened file (fp: %r)', fp)
-        return fp
+        return open(self.path, encoding='utf8')
 
     def revision(self):
         """Create revision."""
         return FileRevision(self)
 
 
-class FileDatabaseExecutor(FormatExecutorPlugin):
+class FileTableExecutor(Base):
+    """File collection executor class."""
+
+    key = 'table'
+
+    class Meta(Base.Meta):
+        """File collection executor metadata."""
+
+        engine = Plugin.Engine.Table
+
+    def __init__(self, engine, uri, **kwargs):
+        """Create file executor.
+
+        :param engine: Engine
+        :type engine: byte.core.base.datasource.Datasource
+        """
+        super(FileTableExecutor, self).__init__(engine, uri, **kwargs)
+
+        # Retrieve file extension
+        self.name, self.extension = os.path.splitext(self.path)
+
+        if not self.extension:
+            raise ValueError('No file extension defined with collection path')
+
+
+class FileDatabaseExecutor(Base):
     """File database executor class."""
 
     key = 'database'
 
-    class Meta(FormatExecutorPlugin.Meta):
+    class Meta(Base.Meta):
         """File database executor metadata."""
 
         engine = Plugin.Engine.Database
-        scheme = 'file'
 
     def __init__(self, engine, uri, **kwargs):
         """Create file database executor.
@@ -125,23 +124,8 @@ class FileDatabaseExecutor(FormatExecutorPlugin):
         """
         super(FileDatabaseExecutor, self).__init__(engine, uri, **kwargs)
 
-        log.debug('Constructed (engine: database, uri: %r)', self.uri)
-
-        if self.uri.netloc:
-            raise ValueError('Network shares are not supported (invalid uri format)')
-
-        # Retrieve path
-        self.path = os.path.abspath(path_from_uri(self.uri.path))
-
-        if not self.path:
-            raise ValueError('Invalid collection path')
-
-        log.debug(' - path: %r', self.path)
-
         # Retrieve extension from scheme
         self.extension = self.uri.scheme[self.uri.scheme.find('.'):]
-
-        log.debug(' - extension: %r', self.extension)
 
     def open_table(self, table):
         """Open file table executor for :code:`table`.
@@ -156,8 +140,6 @@ class FileDatabaseExecutor(FormatExecutorPlugin):
             os.path.join(self.path, table.name + self.extension),
             scheme=self.uri.scheme
         )
-
-        log.debug('Opening table (uri: %r)', uri)
 
         return FileTableExecutor(
             table, parse_uri(uri),

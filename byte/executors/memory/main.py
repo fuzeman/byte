@@ -9,16 +9,28 @@ from byte.executors.memory.revision import MemoryRevision
 from byte.executors.memory.tasks import MemorySelectTask, MemoryWriteTask
 
 
-class MemoryTableExecutor(SimpleExecutorPlugin):
+class Base(SimpleExecutorPlugin):
+    """Memory base executor class."""
+
+    class Meta(SimpleExecutorPlugin.Meta):
+        """Memory base executor metadata."""
+
+        scheme = 'memory'
+
+    def revision(self):
+        """Create revision."""
+        return MemoryRevision(self)
+
+
+class MemoryTableExecutor(Base):
     """Memory executor class."""
 
     key = 'table'
 
-    class Meta(SimpleExecutorPlugin.Meta):
+    class Meta(Base.Meta):
         """Memory executor metadata."""
 
         engine = Plugin.Engine.Table
-        scheme = 'memory'
 
     def __init__(self, engine, uri, items=None, **kwargs):
         """Create memory executor.
@@ -52,25 +64,20 @@ class MemoryTableExecutor(SimpleExecutorPlugin):
 
         raise NotImplementedError
 
-    def revision(self):
-        """Create revision."""
-        return MemoryRevision(self)
-
     def update(self, *args, **kwargs):
         """Update items."""
         self.items.update(*args, **kwargs)
 
 
-class MemoryDatabaseExecutor(SimpleExecutorPlugin):
+class MemoryDatabaseExecutor(Base):
     """Memory database executor class."""
 
     key = 'database'
 
-    class Meta(SimpleExecutorPlugin.Meta):
+    class Meta(Base.Meta):
         """Memory database executor metadata."""
 
         engine = Plugin.Engine.Database
-        scheme = 'memory'
 
     def __init__(self, engine, uri, **kwargs):
         """Create memory database executor.
@@ -101,3 +108,7 @@ class MemoryDatabaseExecutor(SimpleExecutorPlugin):
             table, self.uri, self.tables[table.name],
             **self.parameters
         )
+
+    def update(self, *args, **kwargs):
+        """Update tables."""
+        self.tables.update(*args, **kwargs)
