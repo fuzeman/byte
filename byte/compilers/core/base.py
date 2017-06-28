@@ -21,16 +21,16 @@ class Compiler(object):
         self.executor = executor
 
     @property
-    def collection(self):
-        """Retrieve collection.
+    def engine(self):
+        """Retrieve engine.
 
-        :return: Collection
+        :return: Engine
         :rtype: byte.table.Table
         """
         if not self.executor:
             return None
 
-        return self.executor.collection
+        return self.executor.engine
 
     @property
     def model(self):
@@ -63,6 +63,11 @@ class CompilerPlugin(Compiler, Plugin):
 
         content_type = None
         extension = None
+
+        order_by = (
+            'content_type',
+            'extension'
+        )
 
         @classmethod
         def transform(cls, compiler):
