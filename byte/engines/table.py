@@ -244,7 +244,6 @@ class Table(Engine):
 
         # Construct executor
         self._executor = cls(self, self.uri, **self._parameters)
-
         return self._executor
 
     def __repr__(self):
