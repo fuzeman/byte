@@ -38,6 +38,8 @@ def get_fixture(path, copy=True):
     else:
         temp_path = copy_fixture_file(source_path)
 
+    log.info('Copied %r to %r', source_path, temp_path)
+
     try:
         # Return temporary fixture path
         yield temp_path
@@ -48,6 +50,8 @@ def get_fixture(path, copy=True):
                 shutil.rmtree(temp_path)
             else:
                 os.remove(temp_path)
+
+            log.info('Deleted %r', temp_path)
         except Exception as ex:
             log.warn('Unable to delete temporary fixture: %s', ex, exc_info=True)
 

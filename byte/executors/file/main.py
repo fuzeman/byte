@@ -75,10 +75,16 @@ class FileTableExecutor(FormatExecutorPlugin):
         :return: Stream
         :rtype: file or io.IOBase
         """
-        if six.PY2:
-            return open(self.path)
+        log.debug('Opening file: %s', self.path)
 
-        return open(self.path, encoding='utf8')
+        # Open file stream
+        if six.PY2:
+            fp = open(self.path)
+        else:
+            fp = open(self.path, encoding='utf8')
+
+        log.debug('Opened file (fp: %r)', fp)
+        return fp
 
     def revision(self):
         """Create revision."""
