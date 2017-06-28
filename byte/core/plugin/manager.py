@@ -110,7 +110,11 @@ class PluginManager(object):
 
         return plugin
 
-    def match(self, kind, **filter):
+    #
+    # Match
+    #
+
+    def match(self, kind, **filters):
         """Get plugin.
 
         Raises :code:`ValueError` on unknown plugin type or key.
@@ -139,50 +143,14 @@ class PluginManager(object):
             if not meta:
                 continue
 
-            # Check priority properties match, build order key
-            pending = filter.copy()
-            valid = True
-
-            order = []
-
-            for key in meta.order_by:
-                if key not in pending:
-                    continue
-
-                expected = pending.pop(key)
-                matched = False
-
-                for priority, value in getattr(meta, key):
-                    if value == expected:
-                        order.append(priority)
-                        matched = True
-                        break
-
-                if not matched:
-                    valid = False
-                    break
+            # Ensure ordered properties match, and build the order key
+            valid, pending, order = self._match_ordered(meta, filters)
 
             if not valid:
                 continue
 
-            # Check basic properties match
-            for key, expected in six.iteritems(pending):
-                if not hasattr(meta, key):
-                    match = False
-                    break
-
-                value = getattr(meta, key)
-
-                # Handle "any" engine definition
-                if key == 'engine' and value == Plugin.Engine.Any:
-                    continue
-
-                # Check value matches
-                if value != expected:
-                    valid = False
-                    break
-
-            if not valid:
+            # Ensure basic properties match
+            if not self._match_basic(meta, pending):
                 continue
 
             # Add plugin to list
@@ -196,6 +164,47 @@ class PluginManager(object):
         matches.sort()
 
         return matches[0][1]
+
+    @staticmethod
+    def _match_ordered(meta, filters):
+        pending = filters.copy()
+        order = []
+
+        for key in meta.order_by:
+            if key not in pending:
+                continue
+
+            expected = pending.pop(key)
+            matched = False
+
+            for priority, value in getattr(meta, key):
+                if value == expected:
+                    order.append(priority)
+                    matched = True
+                    break
+
+            if not matched:
+                return False, pending, order
+
+        return True, pending, order
+
+    @staticmethod
+    def _match_basic(meta, filters):
+        for key, expected in six.iteritems(filters):
+            if not hasattr(meta, key):
+                return False
+
+            value = getattr(meta, key)
+
+            # Handle "any" engine definition
+            if key == 'engine' and value == Plugin.Engine.Any:
+                continue
+
+            # Check value matches
+            if value != expected:
+                return False
+
+        return True
 
     #
     # Register
@@ -275,7 +284,6 @@ class PluginManager(object):
                     continue
 
                 self.register(value)
-
 
     @staticmethod
     def _resolve_definition(value):
