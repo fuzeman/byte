@@ -45,11 +45,11 @@ class Database(Engine):
         self.children = DatabaseChildren(children)
 
         for item in six.itervalues(self.children.by_name):
-            # Bind collection to database
+            # Bind item to database
             item.database = self
 
-            # Create collection executor
-            item.executor = self.executor.create(self.children.engine, item)
+            # Open executor for item
+            item.executor = self.executor.open(self.children.engine, item)
 
     @property
     def executor(self):

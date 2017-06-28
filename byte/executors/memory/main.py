@@ -77,13 +77,13 @@ class MemoryDatabaseExecutor(SimpleExecutorPlugin):
 
         self.tables = {}
 
-    def create(self, engine, item):
+    def open(self, engine, item):
         if engine == Plugin.Engine.Table:
-            return self.create_table(item)
+            return self.open_table(item)
 
         raise ValueError('Unsupported engine: %s'  % (engine,))
 
-    def create_table(self, table):
+    def open_table(self, table):
         if table.name not in self.tables:
             self.tables[table.name] = {}
 
