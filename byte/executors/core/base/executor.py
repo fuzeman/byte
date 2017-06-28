@@ -32,7 +32,7 @@ class Executor(object):
     def compiler(self):
         """Retrieve current compiler."""
         if not self._compiler:
-            self._compiler = self.construct_compiler()
+            return self.construct_compiler()
 
         return self._compiler
 
