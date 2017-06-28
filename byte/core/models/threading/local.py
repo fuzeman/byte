@@ -98,8 +98,14 @@ class LocalManager(object):
 
         return item
 
+    def __bool__(self):
+        return True
+
     def __len__(self):
         return len(self._bindings)
+
+    def __nonzero__(self):
+        return True
 
 
 class LocalItem(object):
