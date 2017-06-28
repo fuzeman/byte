@@ -33,20 +33,29 @@ class FileTableExecutor(FormatExecutorPlugin):
         """
         super(FileTableExecutor, self).__init__(engine, uri, **kwargs)
 
+        log.debug('Constructed (engine: table, uri: %r)', self.uri)
+
         # Retrieve path
         self.path = os.path.abspath(self.uri.netloc + self.uri.path)
 
         if not self.path:
             raise ValueError('Invalid collection path')
 
+        log.debug(' - path: %r', self.path)
+
         # Retrieve directory
         self.directory = os.path.dirname(self.path)
+
+        log.debug(' - directory: %r', self.directory)
 
         # Retrieve file extension
         self.name, self.extension = os.path.splitext(self.path)
 
         if not self.extension:
             raise ValueError('No file extension defined with collection path')
+
+        log.debug(' - name: %r', self.name)
+        log.debug(' - extension: %r', self.extension)
 
     def construct_format(self):
         """Construct format parser."""
