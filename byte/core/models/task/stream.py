@@ -9,6 +9,8 @@ from byte.core.models.task.simple import SimpleTask, SimpleReadTask, SimpleSelec
 class StreamTask(SimpleTask):
     """Base stream task class."""
 
+    binary = False
+
     def __init__(self, executor):
         """Create stream task.
 
@@ -39,7 +41,9 @@ class StreamTask(SimpleTask):
             raise ValueError('Task has already been started')
 
         # Open read stream
-        self.stream = self.executor.read()
+        self.stream = self.executor.read(
+            binary=self.binary
+        )
 
     def close(self):
         """Close task stream."""

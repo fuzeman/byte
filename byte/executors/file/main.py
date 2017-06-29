@@ -6,9 +6,9 @@ from byte.core.plugin.base import Plugin
 from byte.executors.core.base import FormatExecutorPlugin
 from byte.executors.file.revision import FileRevision
 
+from io import open
 import logging
 import os
-import six
 
 log = logging.getLogger(__name__)
 
@@ -65,16 +65,16 @@ class Base(FormatExecutorPlugin):
 
         return self.format.execute(self, operation)
 
-    def read(self):
+    def read(self, binary=False):
         """Open file read stream.
 
         :return: Stream
         :rtype: file or io.IOBase
         """
-        if six.PY2:
-            return open(self.path)
+        if binary:
+            return open(self.path, 'rb')
 
-        return open(self.path, encoding='utf8')
+        return open(self.path)
 
     def revision(self):
         """Create revision."""
