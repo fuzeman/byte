@@ -46,14 +46,14 @@ class Table(Engine):
 
         self.name = name
 
+        self.parameters = {}
         self.relations = {}
+
+        self.uri = None
+        self.uri_components = None
 
         self._database = None
         self._executor = None
-        self._model = None
-
-        self._uri = None
-        self._parameters = None
 
         # Resolve dynamic `datasource_or_model` parameter
         if isinstance(uri_or_model, string_types):
@@ -63,13 +63,19 @@ class Table(Engine):
         elif uri_or_model:
             raise ValueError('Invalid value provided for the "datasource_or_model" parameter')
 
-        # Set table model
-        self._model = model
+        # Update table attributes
+        self.model = model
+        self.uri = uri
 
-        # Parse URI
+        # Parse URI (if one was provided)
         if uri:
-            self._uri = parse_uri(uri)
-            self._parameters = parse_query(self.uri.query)
+            self.uri_components = parse_uri(uri)
+
+            # Update `parameters` with query parameters
+            self.parameters.update(parse_query(self.uri_components.query))
+
+        # Override `parameters` with `kwargs`
+        self.parameters.update(kwargs)
 
     @property
     def database(self):
@@ -103,22 +109,12 @@ class Table(Engine):
         return self._model.Internal
 
     @property
-    def model(self):
-        """Retrieve model."""
-        return self._model
-
-    @property
     def properties(self):
         """Retrieve model properties."""
         if not self._model:
             return None
 
         return self._model.Properties
-
-    @property
-    def uri(self):
-        """Retrieve URI."""
-        return self._uri
 
     def connect(self, **kwargs):
         """Connect relation properties to collections."""
@@ -236,21 +232,21 @@ class Table(Engine):
     #
 
     def _construct_executor(self):
-        if not self.uri:
+        if not self.uri_components:
             return None
 
         # Find collection executor
         cls = self.plugins.match(
             Plugin.Kind.Executor,
             engine=Plugin.Engine.Table,
-            scheme=self.uri.scheme
+            scheme=self.uri_components.scheme
         )
 
         if not cls:
             return None
 
         # Construct executor
-        self._executor = cls(self, self.uri, **self._parameters)
+        self._executor = cls(self, self.uri_components, **self.parameters)
         return self._executor
 
     def __repr__(self):

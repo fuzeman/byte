@@ -47,7 +47,10 @@ class Base(FormatExecutorPlugin):
             Plugin.Kind.Format,
             engine=Plugin.Engine.Collection,  # Use current engine
             extension=self.extension[1:]
-        )()
+        )(**dict([
+            (key.lstrip('format_'), value) for key, value in self.parameters.items()
+            if key.startswith('format_')
+        ]))
 
     def execute(self, query):
         """Execute query.
