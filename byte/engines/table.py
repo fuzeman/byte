@@ -250,27 +250,29 @@ class Table(Engine):
         return self._executor
 
     def __repr__(self):
+        name = self.name or self.uri
+
         if self.database and self.model:
-            return '<Table \'%s\' of %r in %r>' % (
-                self.name,
-                self.model,
+            return '<Table \'%s\' of \'%s\' objects in %r>' % (
+                name,
+                self.model.__name__,
                 self.database
             )
 
         if self.database:
             return '<Table \'%s\' in %r>' % (
-                self.name,
+                name,
                 self.database
             )
 
         if self.model:
-            return '<Table \'%s\' of %r>' % (
-                self.name,
-                self.model
+            return '<Table \'%s\' of \'%s\' objects>' % (
+                name,
+                self.model.__name__
             )
 
         return '<Table \'%s\'>' % (
-            self.name,
+            name,
         )
 
 
