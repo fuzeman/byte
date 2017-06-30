@@ -1,0 +1,5 @@
+[run]
+omit =
+  byte/executors/file/lock/msvcrt.py
+  byte/executors/file/lock/win32.py
+  tests/*
