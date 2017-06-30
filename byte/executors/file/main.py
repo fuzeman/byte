@@ -6,7 +6,7 @@ from byte.core.plugin.base import Plugin
 from byte.executors.core.base import FormatExecutorPlugin
 from byte.executors.file.revision import FileRevision
 
-from io import open
+import io
 import logging
 import os
 
@@ -72,9 +72,9 @@ class Base(FormatExecutorPlugin):
         :rtype: file or io.IOBase
         """
         if binary:
-            return open(self.path, 'rb')
+            return io.open(self.path, 'rb')
 
-        return open(self.path)
+        return io.open(self.path)
 
     def revision(self):
         """Create revision."""
