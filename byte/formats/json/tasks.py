@@ -10,7 +10,7 @@ from byte.formats.json.encoder import JsonEncoder
 class JsonTask(StreamTask):
     """JSON task base class."""
 
-    pass
+    binary = True
 
 
 class JsonReadTask(StreamReadTask, JsonTask):
