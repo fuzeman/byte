@@ -14,7 +14,7 @@ from hamcrest import *
 
 
 def test_all():
-    """Test all items are returned from json-formatted collection."""
+    """Test all items are returned from a json-formatted table."""
     with get_fixture_uri('databases/music/artists.json') as artists_uri:
         artists = Table(Artist, artists_uri, plugins=[
             byte.compilers.operation,
@@ -52,7 +52,7 @@ def test_all():
 
 
 def test_create():
-    """Test items can be created on json-formatted collections."""
+    """Test items can be created on a json-formatted table."""
     with get_fixture_uri('databases/music/artists.json') as artists_uri:
         artists = Table(Artist, artists_uri, plugins=[
             byte.compilers.operation,
@@ -71,7 +71,7 @@ def test_create():
 
 
 def test_get_basic():
-    """Test items can be retrieved from json-formatted collections."""
+    """Test items can be retrieved from a json-formatted table."""
     with get_fixture_uri('databases/music/artists.json') as artists_uri:
         artists = Table(Artist, artists_uri, plugins=[
             byte.compilers.operation,
@@ -87,7 +87,7 @@ def test_get_basic():
 
 
 def test_get_relations():
-    """Test relations can be resolved in json-formatted collections."""
+    """Test relations can be resolved in a json-formatted table."""
     with get_fixture_uri((
         'databases/music/artists.json',
         'databases/music/albums.json',
@@ -150,7 +150,7 @@ def test_get_relations():
 
 
 def test_where():
-    """Test json-formatted collections can be filtered with expressions."""
+    """Test a json-formatted table can be filtered with expressions."""
     with get_fixture_uri('collections/cities.json') as cities_uri:
         cities = Table(City, cities_uri, plugins=[
             byte.compilers.operation,
