@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import codecs
 import json
 import six
 
@@ -13,6 +14,8 @@ class JsonDecoder(object):
         """Create JSON Decoder."""
         self.stream = stream
 
+        self.reader = codecs.getreader('utf-8')(self.stream)
+
     @property
     def closed(self):
         """Retrieve boolean representing the decoder "closed" status."""
@@ -20,7 +23,7 @@ class JsonDecoder(object):
 
     def items(self):
         """Retrieve item iterator."""
-        data = json.load(self.stream)
+        data = json.load(self.reader)
 
         if type(data) is dict:
             return six.itervalues(data)
